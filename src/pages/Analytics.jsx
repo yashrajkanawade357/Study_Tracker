@@ -106,7 +106,7 @@ const Analytics = () => {
         label: formatDisplay(day),
         study: parseFloat(studyH.toFixed(1)),
         sleep: sleepLog?.sleepHours || 0,
-        break: sleepLog?.breakHours || 0,
+        socialMedia: sleepLog?.breakHours || 0,
       };
     });
   }, [studyLogs, sleepLogs]);
@@ -226,7 +226,7 @@ const Analytics = () => {
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: '11px', color: '#9ca3af' }} />
               {subjects.slice(0, 5).map((s, i) => (
-                <Bar key={s.name} dataKey={s.name} stackId="a" fill={s.color || COLORS[i]} radius={i === 0 ? [0, 0, 4, 4] : [0, 0, 0, 0]} />
+                <Bar key={s.name} dataKey={s.name} name={s.name} stackId="a" fill={s.color || COLORS[i]} radius={i === 0 ? [0, 0, 4, 4] : [0, 0, 0, 0]} />
               ))}
             </BarChart>
           </ResponsiveContainer>
@@ -242,13 +242,13 @@ const Analytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sleep Logger */}
         <GlassCard className="p-5">
-          <h3 className="font-display font-bold text-white mb-4">😴 Sleep & Break Tracker</h3>
+          <h3 className="font-display font-bold text-white mb-4">😴 Sleep & Social Media Tracker</h3>
 
           {/* Log Form */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <input type="date" className="input-field text-sm" value={sleepDate} onChange={e => setSleepDate(e.target.value)} />
             <input type="number" className="input-field text-sm" placeholder="Sleep hrs" value={sleepHrs} onChange={e => setSleepHrs(e.target.value)} min="0" max="24" step="0.5" />
-            <input type="number" className="input-field text-sm" placeholder="Break hrs" value={breakHrs} onChange={e => setBreakHrs(e.target.value)} min="0" max="12" step="0.5" />
+            <input type="number" className="input-field text-sm" placeholder="Social Media hrs" value={breakHrs} onChange={e => setBreakHrs(e.target.value)} min="0" max="12" step="0.5" />
           </div>
           <button onClick={handleLogSleep} className="btn-secondary w-full mb-4 text-sm">📝 Log Sleep</button>
 
@@ -262,6 +262,7 @@ const Analytics = () => {
               <Legend wrapperStyle={{ fontSize: '11px', color: '#9ca3af' }} />
               <Line type="monotone" dataKey="study" stroke="#7c3aed" strokeWidth={2} dot={false} name="Study" />
               <Line type="monotone" dataKey="sleep" stroke="#06b6d4" strokeWidth={2} dot={false} name="Sleep" />
+              <Line type="monotone" dataKey="socialMedia" stroke="#ef4444" strokeWidth={2} dot={false} name="Social Media" />
             </LineChart>
           </ResponsiveContainer>
         </GlassCard>

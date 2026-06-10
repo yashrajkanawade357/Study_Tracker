@@ -34,8 +34,9 @@ export const AppProvider = ({ children }) => {
       // Fetch sleep logs
       const { data: sleep } = await supabase.from('sleep_logs').select('*').eq('user_id', userId);
       if (sleep) {
-        setSleepLogs(sleep);
-        storage.set(STORAGE_KEYS.SLEEP_LOGS, sleep);
+        const mappedSleep = sleep.map(l => ({ ...l, sleepHours: l.sleep_hours }));
+        setSleepLogs(mappedSleep);
+        storage.set(STORAGE_KEYS.SLEEP_LOGS, mappedSleep);
       }
 
       // Fetch exams
@@ -48,8 +49,9 @@ export const AppProvider = ({ children }) => {
       // Fetch subjects
       const { data: subjectList } = await supabase.from('subjects').select('*').eq('user_id', userId);
       if (subjectList && subjectList.length > 0) {
-        setSubjects(subjectList);
-        storage.set(STORAGE_KEYS.SUBJECTS, subjectList);
+        const mappedSubjects = subjectList.map(s => ({ ...s, weeklyGoal: s.weekly_goal }));
+        setSubjects(mappedSubjects);
+        storage.set(STORAGE_KEYS.SUBJECTS, mappedSubjects);
       }
 
       // Fetch achievements

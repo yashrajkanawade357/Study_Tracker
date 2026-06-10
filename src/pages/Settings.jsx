@@ -24,7 +24,7 @@ const Settings = () => {
 
   const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
   const [editingSubject, setEditingSubject] = useState(null);
-  const [newExam, setNewExam] = useState({ name: '', date: '' });
+  const [newExam, setNewExam] = useState({ name: '', date: '', subject: '' });
   const [apiKey, setApiKey] = useState(storage.get('anthropicApiKey') || '');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeSection, setActiveSection] = useState('subjects');
@@ -51,9 +51,9 @@ const Settings = () => {
   };
 
   const handleAddExam = () => {
-    if (!newExam.name || !newExam.date) { addToast('Fill in exam name and date', 'warning'); return; }
+    if (!newExam.name || !newExam.date || !newExam.subject) { addToast('Fill in all exam fields', 'warning'); return; }
     addExam(newExam);
-    setNewExam({ name: '', date: '' });
+    setNewExam({ name: '', date: '', subject: '' });
     addToast(`✅ Exam "${newExam.name}" added`, 'success');
   };
 
@@ -218,6 +218,16 @@ const Settings = () => {
                         onChange={e => setNewExam(v => ({ ...v, date: e.target.value }))}
                         min={new Date().toISOString().split('T')[0]}
                       />
+                      <select
+                        className="input-field col-span-2"
+                        value={newExam.subject}
+                        onChange={e => setNewExam(v => ({ ...v, subject: e.target.value }))}
+                      >
+                        <option value="">Select Subject...</option>
+                        {subjects.map(s => (
+                          <option key={s.id} value={s.name}>{s.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <button onClick={handleAddExam} className="btn-primary flex items-center gap-2">
                       <PlusIcon className="w-4 h-4" />
