@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [hoursInput, setHoursInput] = useState('');
   const [noteInput, setNoteInput] = useState('');
+  const [dateInput, setDateInput] = useState(formatDate(new Date()));
 
   const today = new Date();
   const weekLogs = useMemo(() => getStudyLogsForWeek(studyLogs), [studyLogs]);
@@ -77,7 +78,7 @@ const Dashboard = () => {
     if (!selectedSubject) { addToast('Please select a subject', 'warning'); return; }
     const hours = parseFloat(hoursInput);
     if (!hours || hours <= 0 || hours > 24) { addToast('Enter valid hours (0-24)', 'warning'); return; }
-    addStudyLog({ subject: selectedSubject, hours, note: noteInput, timestamp: new Date().toISOString() });
+    addStudyLog({ subject: selectedSubject, hours, note: noteInput, timestamp: new Date(dateInput).toISOString(), date: dateInput });
     addToast(`✅ Logged ${hours}h for ${selectedSubject}!`, 'success');
     setHoursInput('');
     setNoteInput('');
@@ -144,6 +145,13 @@ const Dashboard = () => {
                 min="0.1"
                 max="24"
                 step="0.1"
+              />
+              <input
+                type="date"
+                className="input-field"
+                value={dateInput}
+                onChange={e => setDateInput(e.target.value)}
+                max={formatDate(new Date())}
               />
               <input
                 type="text"
