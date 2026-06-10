@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { BellIcon, FireIcon, ArrowRightOnRectangleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { BellIcon, FireIcon, ArrowRightOnRectangleIcon, Cog6ToothIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Navbar = ({ title }) => {
+const Navbar = ({ title, onMenuClick }) => {
   const { userProfile, exams, logout } = useApp();
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -27,11 +27,16 @@ const Navbar = ({ title }) => {
 
   return (
     <header className="h-16 flex items-center justify-between px-6 border-b border-purple-700/15 bg-navy-900/60 backdrop-blur-md sticky top-0 z-40">
-      <div>
-        <h2 className="text-lg font-display font-bold text-white">{title}</h2>
-        <p className="text-xs text-gray-500">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-        </p>
+      <div className="flex items-center gap-3">
+        <button onClick={onMenuClick} className="md:hidden text-gray-400 hover:text-white transition-colors">
+          <Bars3Icon className="w-6 h-6" />
+        </button>
+        <div>
+          <h2 className="text-lg font-display font-bold text-white">{title}</h2>
+          <p className="text-xs text-gray-500">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

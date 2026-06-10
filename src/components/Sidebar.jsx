@@ -17,7 +17,7 @@ const navItems = [
   { path: '/settings', label: 'Settings', icon: Cog6ToothIcon },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { userProfile, logout } = useApp();
   const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ const Sidebar = () => {
   const initials = (userProfile?.name || 'SP').slice(0, 2).toUpperCase();
 
   return (
-    <div className="sidebar w-64 h-screen flex flex-col flex-shrink-0 sticky top-0">
+    <div className={`sidebar w-64 h-screen flex flex-col flex-shrink-0 fixed md:static top-0 left-0 z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
       {/* Logo */}
       <div className="p-6 border-b border-purple-700/20">
         <div className="flex items-center gap-3">
@@ -52,6 +52,7 @@ const Sidebar = () => {
           <NavLink
             key={path}
             to={path}
+            onClick={() => setIsOpen && setIsOpen(false)}
             className={({ isActive }) =>
               `nav-item ${isActive ? 'active' : ''}`
             }
