@@ -119,9 +119,10 @@ const Analytics = () => {
       const actual = studyLogs
         .filter(l => l.subject === s.name && new Date(l.date) >= weekStart)
         .reduce((sum, l) => sum + l.hours, 0);
-      const pct = s.weeklyGoal > 0 ? Math.min((actual / s.weeklyGoal) * 100, 100) : 0;
+      const goal = s.weeklyGoal || s.weekly_goal || 0;
+      const pct = goal > 0 ? Math.min((actual / goal) * 100, 100) : 0;
       const status = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
-      return { ...s, actual: parseFloat(actual.toFixed(1)), pct, status };
+      return { ...s, actual: parseFloat(actual.toFixed(1)), goal, pct, status };
     });
   }, [subjects, studyLogs]);
 
@@ -282,7 +283,7 @@ const Analytics = () => {
                         <span className="text-sm font-semibold text-white">{s.name}</span>
                       </div>
                       <span className={`text-xs font-bold ${c.text}`}>
-                        {s.actual}h / {s.weeklyGoal}h ({s.pct.toFixed(0)}%)
+                        {s.actual}h / {s.goal}h ({s.pct.toFixed(0)}%)
                       </span>
                     </div>
                     <div className="progress-bar">
