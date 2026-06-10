@@ -10,6 +10,7 @@ import TimetableAnalyzer from './pages/TimetableAnalyzer';
 import Achievements from './pages/Achievements';
 import Pomodoro from './pages/Pomodoro';
 import Settings from './pages/Settings';
+import Landing from './pages/Landing';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useApp();
@@ -33,7 +34,7 @@ const AppRoutes = () => {
       <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-      <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/auth'} replace />} />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
