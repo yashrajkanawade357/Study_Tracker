@@ -29,7 +29,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const level = userProfile?.level || 1;
   const xp = userProfile?.xp || 0;
   const xpInLevel = xp % 100;
-  const initials = (userProfile?.name || 'SP').slice(0, 2).toUpperCase();
+  const avatar = userProfile?.avatar || '🎓';
+  const isImage = avatar.startsWith('http') || avatar.startsWith('data:');
 
   return (
     <div className={`sidebar w-64 h-screen flex flex-col flex-shrink-0 fixed md:static top-0 left-0 z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
@@ -82,8 +83,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-sm font-bold font-display">
-            {initials}
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-sm font-bold font-display overflow-hidden">
+            {isImage ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" /> : avatar}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">{userProfile?.name || 'Study Pro'}</p>

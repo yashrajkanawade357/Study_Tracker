@@ -10,7 +10,10 @@ create table if not exists public.profiles (
   level integer default 1,
   streak integer default 0,
   last_log_date text,
-  avatar text default '🎓'
+  avatar text default '🎓',
+  bio text default '',
+  linkedin text default '',
+  instagram text default ''
 );
 
 -- Enable RLS (Row Level Security)

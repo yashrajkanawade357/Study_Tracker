@@ -8,12 +8,78 @@ import { formatFull } from '../utils/dateUtils';
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
 
 const MOCK_LEADERBOARD = [
-  { rank: 1, name: 'Alex Chen', level: 12, xp: 1187, streak: 45, avatar: '🎯' },
-  { rank: 2, name: 'Priya Sharma', level: 10, xp: 998, streak: 32, avatar: '⭐' },
-  { rank: 3, name: 'James Wilson', level: 9, xp: 876, streak: 28, avatar: '🚀' },
-  { rank: 4, name: 'Sofia García', level: 8, xp: 754, streak: 21, avatar: '🌟' },
-  { rank: 5, name: 'Kai Tanaka', level: 7, xp: 623, streak: 15, avatar: '⚡' },
+  { rank: 1, name: 'Alex Chen', level: 12, xp: 1187, streak: 45, avatar: '🎯', bio: 'Coding my way through college!', linkedin: 'https://linkedin.com', instagram: 'alex' },
+  { rank: 2, name: 'Priya Sharma', level: 10, xp: 998, streak: 32, avatar: '⭐', bio: 'Aspiring doctor 🩺', linkedin: '', instagram: 'priya' },
+  { rank: 3, name: 'James Wilson', level: 9, xp: 876, streak: 28, avatar: '🚀', bio: 'Stay hard!', linkedin: '', instagram: '' },
+  { rank: 4, name: 'Sofia García', level: 8, xp: 754, streak: 21, avatar: '🌟', bio: '', linkedin: '', instagram: '' },
+  { rank: 5, name: 'Kai Tanaka', level: 7, xp: 623, streak: 15, avatar: '⚡', bio: '', linkedin: '', instagram: '' },
 ];
+
+const PublicProfileModal = ({ user, onClose }) => {
+  if (!user) return null;
+  const isImage = user.avatar?.startsWith('http') || user.avatar?.startsWith('data:');
+  
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="glass-card w-full max-w-sm overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="h-24 bg-gradient-to-r from-purple-600 to-cyan-600 relative">
+          <button onClick={onClose} className="absolute top-3 right-3 text-white/70 hover:text-white bg-black/20 rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold">
+             ✕
+          </button>
+        </div>
+        
+        <div className="px-6 pb-6 pt-0 relative">
+          {/* Avatar */}
+          <div className="w-20 h-20 rounded-2xl bg-navy-800 border-4 border-navy-900 flex items-center justify-center text-4xl overflow-hidden -mt-10 mx-auto shadow-xl z-10 relative">
+             {isImage ? <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" /> : (user.avatar || '🎓')}
+          </div>
+          
+          <div className="text-center mt-3">
+            <h3 className="font-display font-bold text-xl text-white">{user.name}</h3>
+            <div className="flex items-center justify-center gap-3 mt-1 text-xs text-gray-400 font-semibold uppercase tracking-wider">
+              <span>Level {user.level}</span>
+              <span>•</span>
+              <span className="text-orange-400">{user.streak} Day Streak</span>
+            </div>
+          </div>
+          
+          {user.bio && (
+            <div className="mt-5 p-4 rounded-xl bg-navy-800/50 text-sm text-gray-300 italic text-center border border-gray-700/30">
+              "{user.bio}"
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-gray-700/50">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-purple-400 font-display">{user.xp.toLocaleString()}</p>
+              <p className="text-xs text-gray-500">Total XP</p>
+            </div>
+            <div className="flex flex-col gap-2 justify-center">
+              {user.linkedin && (
+                <a href={user.linkedin.startsWith('http') ? user.linkedin : `https://${user.linkedin}`} target="_blank" rel="noopener noreferrer" className="btn-secondary text-xs py-1.5 flex items-center justify-center gap-1 hover:bg-purple-600/30">
+                  🔗 LinkedIn
+                </a>
+              )}
+              {user.instagram && (
+                <a href={`https://instagram.com/${user.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="btn-secondary text-xs py-1.5 flex items-center justify-center gap-1 hover:bg-purple-600/30">
+                  📷 Instagram
+                </a>
+              )}
+              {!user.linkedin && !user.instagram && (
+                <p className="text-xs text-gray-500 text-center italic mt-2">No social links</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 const BadgeCard = ({ def, achievement, index }) => {
   const unlocked = achievement?.unlocked;
@@ -62,7 +128,7 @@ const getProgress = (id) => {
 };
 
 const Achievements = () => {
-  const { achievements, userProfile, studyLogs } = useApp();
+  const { achievements, userProfile, studyLogs, subjects, checkAchievements } = useApp();
   
   const xp = userProfile?.xp || 0;
   const level = userProfile?.level || 1;
@@ -70,6 +136,7 @@ const Achievements = () => {
   const totalAchievements = achievements.filter(a => a.unlocked).length;
   
   const [leaderboard, setLeaderboard] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (isSupabaseConfigured()) {
@@ -77,7 +144,7 @@ const Achievements = () => {
         try {
           const { data, error } = await supabase
             .from('profiles')
-            .select('id, name, email, level, xp, streak, avatar')
+            .select('id, name, email, level, xp, streak, avatar, bio, linkedin, instagram')
             .order('xp', { ascending: false })
             .limit(10);
             
@@ -91,6 +158,9 @@ const Achievements = () => {
               xp: p.xp || 0,
               streak: p.streak || 0,
               avatar: p.avatar || '🎓',
+              bio: p.bio || '',
+              linkedin: p.linkedin || '',
+              instagram: p.instagram || '',
               isCurrentUser: p.id === userProfile?.id || p.email === userProfile?.email,
             }));
             setLeaderboard(mapped);
@@ -111,7 +181,10 @@ const Achievements = () => {
           level,
           xp,
           streak: userProfile?.streak || 0,
-          avatar: '🎓',
+          avatar: userProfile?.avatar || '🎓',
+          bio: userProfile?.bio || '',
+          linkedin: userProfile?.linkedin || '',
+          instagram: userProfile?.instagram || '',
           isCurrentUser: true,
         },
         ...MOCK_LEADERBOARD.slice(Math.min(userRank - 1, 5)),
@@ -119,6 +192,12 @@ const Achievements = () => {
       setLeaderboard(localLeaderboard);
     }
   }, [xp, level, userProfile]);
+
+  useEffect(() => {
+    if (studyLogs.length > 0) {
+      checkAchievements(studyLogs, subjects);
+    }
+  }, [studyLogs.length, checkAchievements]);
 
   const totalHours = studyLogs.reduce((s, l) => s + l.hours, 0);
 
@@ -185,21 +264,25 @@ const Achievements = () => {
         <div className="flex flex-col gap-2">
           {leaderboard.map((user, i) => {
             const rankEmoji = user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : user.rank === 3 ? '🥉' : `#${user.rank}`;
+            const isImage = user.avatar?.startsWith('http') || user.avatar?.startsWith('data:');
             return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-200 ${
+                onClick={() => setSelectedUser(user)}
+                className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-200 cursor-pointer ${
                   user.isCurrentUser
-                    ? 'bg-purple-600/20 border border-purple-500/40'
-                    : 'hover:bg-navy-700/30'
+                    ? 'bg-purple-600/20 border border-purple-500/40 hover:bg-purple-600/30'
+                    : 'bg-navy-800/30 hover:bg-navy-700/50'
                 }`}
               >
                 <div className="w-8 text-center text-lg font-bold">{rankEmoji}</div>
-                <div className="w-10 h-10 rounded-xl bg-navy-700 flex items-center justify-center text-xl">{user.avatar}</div>
-                <div className="flex-1">
+                <div className="w-10 h-10 rounded-xl bg-navy-700 flex items-center justify-center text-xl overflow-hidden flex-shrink-0">
+                  {isImage ? <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" /> : user.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
                   <p className={`font-semibold text-sm ${user.isCurrentUser ? 'text-purple-300' : 'text-white'}`}>
                     {user.name} {user.isCurrentUser && '(You)'}
                   </p>
@@ -215,6 +298,11 @@ const Achievements = () => {
         </div>
         <p className="text-xs text-gray-600 text-center mt-4">* Top 5 positions show demo users. Your real rank is based on total XP.</p>
       </GlassCard>
+
+      {/* Profile Modal */}
+      {selectedUser && (
+        <PublicProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+      )}
     </Layout>
   );
 };

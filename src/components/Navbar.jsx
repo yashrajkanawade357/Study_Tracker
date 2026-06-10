@@ -10,7 +10,8 @@ const Navbar = ({ title, onMenuClick }) => {
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
   const streak = userProfile?.streak || 0;
-  const initials = (userProfile?.name || 'SP').slice(0, 2).toUpperCase();
+  const avatar = userProfile?.avatar || '🎓';
+  const isImage = avatar.startsWith('http') || avatar.startsWith('data:');
 
   const upcomingExams = exams
     .filter(e => {
@@ -95,9 +96,9 @@ const Navbar = ({ title, onMenuClick }) => {
         <div className="relative">
           <button
             onClick={() => { setShowProfile(v => !v); setShowNotifs(false); }}
-            className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-sm font-bold font-display hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+            className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-sm font-bold font-display overflow-hidden hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 transition-all"
           >
-            {initials}
+            {isImage ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" /> : avatar}
           </button>
 
           <AnimatePresence>
@@ -110,8 +111,8 @@ const Navbar = ({ title, onMenuClick }) => {
               >
                 {/* User Info */}
                 <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-700/40">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-sm font-bold font-display flex-shrink-0">
-                    {initials}
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-sm font-bold font-display flex-shrink-0 overflow-hidden">
+                    {isImage ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" /> : avatar}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-white truncate">{userProfile?.name || 'Study Pro'}</p>

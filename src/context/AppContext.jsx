@@ -56,10 +56,16 @@ export const AppProvider = ({ children }) => {
 
       // Fetch achievements
       const { data: ach } = await supabase.from('achievements').select('*').eq('user_id', userId);
-      if (ach && ach.length > 0) {
-        setAchievements(ach);
-        storage.set(STORAGE_KEYS.ACHIEVEMENTS, ach);
-      }
+      const baseAch = ACHIEVEMENT_DEFS.map(a => ({ id: a.id, unlocked: false, unlockedAt: null }));
+      const mergedAch = baseAch.map(base => {
+        const found = ach?.find(db => db.id === base.id);
+        if (found) {
+          return { ...base, unlocked: found.unlocked, unlockedAt: found.unlocked_at };
+        }
+        return base;
+      });
+      setAchievements(mergedAch);
+      storage.set(STORAGE_KEYS.ACHIEVEMENTS, mergedAch);
     } catch (err) {
       console.error('Error loading data from Supabase:', err);
     }
@@ -86,6 +92,9 @@ export const AppProvider = ({ children }) => {
                   streak: profile.streak || 0,
                   lastLogDate: profile.last_log_date || null,
                   avatar: profile.avatar || '🎓',
+                  bio: profile.bio || '',
+                  linkedin: profile.linkedin || '',
+                  instagram: profile.instagram || '',
                 };
                 storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
                 setUserProfile(profileData);
@@ -123,7 +132,15 @@ export const AppProvider = ({ children }) => {
     setSubjects(storage.get(STORAGE_KEYS.SUBJECTS, []));
     setSleepLogs(storage.get(STORAGE_KEYS.SLEEP_LOGS, []));
     setExams(storage.get(STORAGE_KEYS.EXAMS, []));
-    setAchievements(storage.get(STORAGE_KEYS.ACHIEVEMENTS, []));
+    
+    const storedAch = storage.get(STORAGE_KEYS.ACHIEVEMENTS, []);
+    const sanitizedAch = ACHIEVEMENT_DEFS.map(base => {
+      const found = storedAch.find(a => a.id === base.id);
+      return found ? { ...base, ...found } : { ...base, unlocked: false, unlockedAt: null };
+    });
+    setAchievements(sanitizedAch);
+    storage.set(STORAGE_KEYS.ACHIEVEMENTS, sanitizedAch);
+    
     setUserProfile(storage.get(STORAGE_KEYS.USER_PROFILE, {}));
     setPomodoroSessions(storage.get(STORAGE_KEYS.POMODORO_SESSIONS, []));
   };
@@ -163,7 +180,10 @@ export const AppProvider = ({ children }) => {
               level: updated.level || 1,
               streak: updated.streak || 0,
               last_log_date: updated.lastLogDate || null,
-              avatar: updated.avatar || '🎓'
+              avatar: updated.avatar || '🎓',
+              bio: updated.bio || '',
+              linkedin: updated.linkedin || '',
+              instagram: updated.instagram || ''
             });
         }
       }
@@ -181,7 +201,12 @@ export const AppProvider = ({ children }) => {
   }, [updateUserProfileStateAndStorage]);
 
   const checkAchievements = useCallback((logs, subs) => {
-    const current = storage.get(STORAGE_KEYS.ACHIEVEMENTS, []);
+    const storedAch = storage.get(STORAGE_KEYS.ACHIEVEMENTS, []);
+    const current = ACHIEVEMENT_DEFS.map(base => {
+      const found = storedAch.find(a => a.id === base.id);
+      return found ? { ...base, ...found } : { ...base, unlocked: false, unlockedAt: null };
+    });
+    
     let changed = false;
     const now = new Date().toISOString();
 
@@ -209,6 +234,7 @@ export const AppProvider = ({ children }) => {
       if (h < 7) unlock('early_bird');
       if (h >= 22) unlock('night_owl');
     }
+    if (totalHours >= 40) unlock('goal_crusher');
 
     if (changed) {
       storage.set(STORAGE_KEYS.ACHIEVEMENTS, current);
@@ -403,6 +429,9 @@ export const AppProvider = ({ children }) => {
         streak: 0,
         last_log_date: null,
         avatar: '🎓',
+        bio: '',
+        linkedin: '',
+        instagram: '',
       };
       
       const { error: profileError } = await supabase
@@ -419,6 +448,9 @@ export const AppProvider = ({ children }) => {
         streak: profile.streak,
         lastLogDate: profile.last_log_date,
         avatar: profile.avatar,
+        bio: profile.bio,
+        linkedin: profile.linkedin,
+        instagram: profile.instagram,
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -440,6 +472,10 @@ export const AppProvider = ({ children }) => {
         level: 1,
         streak: 0,
         lastLogDate: null,
+        avatar: '🎓',
+        bio: '',
+        linkedin: '',
+        instagram: '',
       };
       
       users.push(newUser);
@@ -452,6 +488,10 @@ export const AppProvider = ({ children }) => {
         level: newUser.level,
         streak: newUser.streak,
         lastLogDate: newUser.lastLogDate,
+        avatar: newUser.avatar,
+        bio: newUser.bio,
+        linkedin: newUser.linkedin,
+        instagram: newUser.instagram,
       };
       storage.set(STORAGE_KEYS.USER_PROFILE, profile);
       setUserProfile(profile);
@@ -489,6 +529,9 @@ export const AppProvider = ({ children }) => {
         streak: profile?.streak || 0,
         lastLogDate: profile?.last_log_date || null,
         avatar: profile?.avatar || '🎓',
+        bio: profile?.bio || '',
+        linkedin: profile?.linkedin || '',
+        instagram: profile?.instagram || '',
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -515,6 +558,10 @@ export const AppProvider = ({ children }) => {
         level: user.level || 1,
         streak: user.streak || 0,
         lastLogDate: user.lastLogDate || null,
+        avatar: user.avatar || '🎓',
+        bio: user.bio || '',
+        linkedin: user.linkedin || '',
+        instagram: user.instagram || '',
       };
       storage.set(STORAGE_KEYS.USER_PROFILE, profile);
       setUserProfile(profile);
@@ -563,7 +610,7 @@ export const AppProvider = ({ children }) => {
     toasts, isAuthenticated,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
-    addPomodoroSession,
+    addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,
     login, logout, register, checkEmailExists,
     exportData, clearAllData,
     addToast, removeToast,

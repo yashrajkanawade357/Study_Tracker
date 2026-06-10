@@ -19,7 +19,8 @@ const Settings = () => {
   const {
     subjects, addSubject, updateSubject, removeSubject,
     exams, addExam, removeExam,
-    exportData, clearAllData, addToast, reload
+    exportData, clearAllData, addToast, reload,
+    userProfile, updateProfile
   } = useApp();
 
   const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
@@ -27,7 +28,36 @@ const Settings = () => {
   const [newExam, setNewExam] = useState({ name: '', date: '', subject: '' });
   const [apiKey, setApiKey] = useState(storage.get('anthropicApiKey') || '');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [activeSection, setActiveSection] = useState('subjects');
+  const [activeSection, setActiveSection] = useState('profile');
+
+  const [profileForm, setProfileForm] = useState({
+    name: userProfile?.name || '',
+    avatar: userProfile?.avatar || '🎓',
+    bio: userProfile?.bio || '',
+    linkedin: userProfile?.linkedin || '',
+    instagram: userProfile?.instagram || '',
+  });
+
+  React.useEffect(() => {
+    if (userProfile) {
+      setProfileForm({
+        name: userProfile.name || '',
+        avatar: userProfile.avatar || '🎓',
+        bio: userProfile.bio || '',
+        linkedin: userProfile.linkedin || '',
+        instagram: userProfile.instagram || '',
+      });
+    }
+  }, [userProfile]);
+
+  const handleSaveProfile = async () => {
+    try {
+      await updateProfile({ ...userProfile, ...profileForm });
+      addToast('✅ Profile updated', 'success');
+    } catch (err) {
+      addToast('Error updating profile', 'error');
+    }
+  };
 
   const handleAddSubject = () => {
     if (!newSubject.name.trim()) { addToast('Subject name required', 'warning'); return; }
@@ -69,6 +99,7 @@ const Settings = () => {
   };
 
   const sections = [
+    { id: 'profile', label: '👤 Profile', icon: '👤' },
     { id: 'subjects', label: '📚 Subjects', icon: '📚' },
     { id: 'exams', label: '📅 Exams', icon: '📅' },
     { id: 'api', label: '🔑 API Key', icon: '🔑' },
@@ -102,6 +133,89 @@ const Settings = () => {
         {/* Content */}
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
+            {activeSection === 'profile' && (
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="font-display font-bold text-white mb-6 text-lg">👤 Profile Settings</h3>
+                  <div className="space-y-4 max-w-md">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Name</label>
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={profileForm.name}
+                        onChange={e => setProfileForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="Your display name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Profile Photo (Emoji or Image URL)</label>
+                      <div className="flex gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-lg flex-shrink-0 overflow-hidden">
+                          {(profileForm.avatar.startsWith('http') || profileForm.avatar.startsWith('data:')) ? 
+                            <img src={profileForm.avatar} alt="Avatar" className="w-full h-full object-cover" /> : 
+                            profileForm.avatar || '🎓'}
+                        </div>
+                        <input
+                          type="text"
+                          className="input-field flex-1"
+                          value={profileForm.avatar}
+                          onChange={e => setProfileForm(f => ({ ...f, avatar: e.target.value }))}
+                          placeholder="Paste an image URL or type an emoji"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Bio</label>
+                      <textarea
+                        className="input-field min-h-[80px] resize-y"
+                        value={profileForm.bio}
+                        onChange={e => setProfileForm(f => ({ ...f, bio: e.target.value }))}
+                        placeholder="Tell others a bit about your study goals..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">LinkedIn Profile URL (Optional)</label>
+                      <input
+                        type="url"
+                        className="input-field"
+                        value={profileForm.linkedin}
+                        onChange={e => setProfileForm(f => ({ ...f, linkedin: e.target.value }))}
+                        placeholder="https://linkedin.com/in/..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Instagram Username (Optional)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                        <input
+                          type="text"
+                          className="input-field pl-8"
+                          value={profileForm.instagram}
+                          onChange={e => setProfileForm(f => ({ ...f, instagram: e.target.value }))}
+                          placeholder="username"
+                        />
+                      </div>
+                    </div>
+
+                    <button onClick={handleSaveProfile} className="btn-primary w-full flex items-center justify-center gap-2 mt-2">
+                      <CheckIcon className="w-4 h-4" />
+                      Save Profile
+                    </button>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
+
             {activeSection === 'subjects' && (
               <motion.div
                 key="subjects"
