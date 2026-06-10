@@ -1,0 +1,404 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../context/AppContext';
+import Layout from '../components/Layout';
+import GlassCard from '../components/GlassCard';
+import { storage } from '../utils/storage';
+import {
+  PlusIcon, TrashIcon, PencilIcon, Cog6ToothIcon,
+  ArrowDownTrayIcon, ExclamationCircleIcon, CheckIcon
+} from '@heroicons/react/24/outline';
+
+const PRESET_COLORS = [
+  '#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444',
+  '#8b5cf6', '#22d3ee', '#34d399', '#fbbf24', '#f87171',
+  '#a78bfa', '#67e8f9', '#6ee7b7', '#fcd34d', '#fca5a5',
+];
+
+const Settings = () => {
+  const {
+    subjects, addSubject, updateSubject, removeSubject,
+    exams, addExam, removeExam,
+    exportData, clearAllData, addToast, reload
+  } = useApp();
+
+  const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
+  const [editingSubject, setEditingSubject] = useState(null);
+  const [newExam, setNewExam] = useState({ name: '', date: '' });
+  const [apiKey, setApiKey] = useState(storage.get('anthropicApiKey') || '');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [activeSection, setActiveSection] = useState('subjects');
+
+  const handleAddSubject = () => {
+    if (!newSubject.name.trim()) { addToast('Subject name required', 'warning'); return; }
+    if (subjects.some(s => s.name.toLowerCase() === newSubject.name.toLowerCase())) {
+      addToast('Subject already exists', 'warning'); return;
+    }
+    addSubject(newSubject);
+    setNewSubject({ name: '', color: '#7c3aed', weeklyGoal: 5 });
+    addToast(`✅ Added ${newSubject.name}`, 'success');
+  };
+
+  const handleSaveSubject = (id, updates) => {
+    updateSubject(id, updates);
+    setEditingSubject(null);
+    addToast('✅ Subject updated', 'success');
+  };
+
+  const handleRemoveSubject = (id, name) => {
+    removeSubject(id);
+    addToast(`Removed ${name}`, 'info');
+  };
+
+  const handleAddExam = () => {
+    if (!newExam.name || !newExam.date) { addToast('Fill in exam name and date', 'warning'); return; }
+    addExam(newExam);
+    setNewExam({ name: '', date: '' });
+    addToast(`✅ Exam "${newExam.name}" added`, 'success');
+  };
+
+  const handleSaveApiKey = () => {
+    storage.set('anthropicApiKey', apiKey);
+    addToast('✅ API key saved!', 'success');
+  };
+
+  const handleClearData = () => {
+    clearAllData();
+    setShowClearConfirm(false);
+    addToast('All data cleared', 'info');
+  };
+
+  const sections = [
+    { id: 'subjects', label: '📚 Subjects', icon: '📚' },
+    { id: 'exams', label: '📅 Exams', icon: '📅' },
+    { id: 'api', label: '🔑 API Key', icon: '🔑' },
+    { id: 'data', label: '💾 Data', icon: '💾' },
+  ];
+
+  return (
+    <Layout title="Settings">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Sidebar Nav */}
+        <div className="lg:col-span-1">
+          <GlassCard className="p-4">
+            <nav className="flex flex-col gap-1">
+              {sections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSection(s.id)}
+                  className={`text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                    activeSection === s.id
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+                      : 'text-gray-400 hover:text-white hover:bg-navy-700/30'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </nav>
+          </GlassCard>
+        </div>
+
+        {/* Content */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {activeSection === 'subjects' && (
+              <motion.div
+                key="subjects"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="font-display font-bold text-white mb-6 text-lg">📚 Manage Subjects</h3>
+
+                  {/* Add Subject */}
+                  <div className="bg-navy-800/50 rounded-xl p-4 mb-6">
+                    <p className="text-sm font-semibold text-gray-300 mb-3">Add New Subject</p>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <input
+                        type="text"
+                        className="input-field"
+                        placeholder="Subject name"
+                        value={newSubject.name}
+                        onChange={e => setNewSubject(s => ({ ...s, name: e.target.value }))}
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          className="input-field"
+                          placeholder="Weekly goal (hrs)"
+                          value={newSubject.weeklyGoal}
+                          onChange={e => setNewSubject(s => ({ ...s, weeklyGoal: parseFloat(e.target.value) || 0 }))}
+                          min="0" max="50"
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-500 mb-2">Color</p>
+                      <div className="flex flex-wrap gap-2">
+                        {PRESET_COLORS.map(c => (
+                          <button
+                            key={c}
+                            onClick={() => setNewSubject(s => ({ ...s, color: c }))}
+                            className={`w-7 h-7 rounded-lg transition-all ${newSubject.color === c ? 'ring-2 ring-white ring-offset-1 ring-offset-navy-800' : 'hover:scale-110'}`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={newSubject.color}
+                          onChange={e => setNewSubject(s => ({ ...s, color: e.target.value }))}
+                          className="w-7 h-7 rounded-lg cursor-pointer border-0 bg-transparent"
+                          title="Custom color"
+                        />
+                      </div>
+                    </div>
+                    <button onClick={handleAddSubject} className="btn-primary flex items-center gap-2">
+                      <PlusIcon className="w-4 h-4" />
+                      Add Subject
+                    </button>
+                  </div>
+
+                  {/* Subject List */}
+                  <div className="flex flex-col gap-2">
+                    {subjects.map(s => (
+                      <div key={s.id} className="p-4 rounded-xl bg-navy-800/30 hover:bg-navy-700/30 transition-colors">
+                        {editingSubject === s.id ? (
+                          <EditSubjectRow subject={s} onSave={updates => handleSaveSubject(s.id, updates)} onCancel={() => setEditingSubject(null)} />
+                        ) : (
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-white">{s.name}</p>
+                              <p className="text-xs text-gray-500">Goal: {s.weeklyGoal}h/week</p>
+                            </div>
+                            <button onClick={() => setEditingSubject(s.id)} className="text-gray-400 hover:text-purple-400 transition-colors p-1">
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleRemoveSubject(s.id, s.name)} className="text-gray-400 hover:text-red-400 transition-colors p-1">
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {subjects.length === 0 && (
+                      <p className="text-gray-500 text-sm text-center py-6">No subjects yet. Add one above!</p>
+                    )}
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
+
+            {activeSection === 'exams' && (
+              <motion.div
+                key="exams"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="font-display font-bold text-white mb-6 text-lg">📅 Manage Exams</h3>
+
+                  <div className="bg-navy-800/50 rounded-xl p-4 mb-6">
+                    <p className="text-sm font-semibold text-gray-300 mb-3">Add Exam</p>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <input
+                        type="text"
+                        className="input-field"
+                        placeholder="Exam name (e.g. Physics Final)"
+                        value={newExam.name}
+                        onChange={e => setNewExam(v => ({ ...v, name: e.target.value }))}
+                      />
+                      <input
+                        type="date"
+                        className="input-field"
+                        value={newExam.date}
+                        onChange={e => setNewExam(v => ({ ...v, date: e.target.value }))}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                    <button onClick={handleAddExam} className="btn-primary flex items-center gap-2">
+                      <PlusIcon className="w-4 h-4" />
+                      Add Exam
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    {exams.map(exam => {
+                      const days = Math.ceil((new Date(exam.date) - new Date()) / (1000 * 60 * 60 * 24));
+                      return (
+                        <div key={exam.id} className="flex items-center justify-between p-4 rounded-xl bg-navy-800/30">
+                          <div>
+                            <p className="text-sm font-semibold text-white">{exam.name}</p>
+                            <p className="text-xs text-gray-500">{new Date(exam.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-sm font-bold px-3 py-1 rounded-full ${days < 0 ? 'bg-gray-800 text-gray-500' : days <= 3 ? 'bg-red-900/40 text-red-400' : days <= 7 ? 'bg-amber-900/40 text-amber-400' : 'bg-emerald-900/40 text-emerald-400'}`}>
+                              {days < 0 ? 'Past' : `${days}d`}
+                            </span>
+                            <button onClick={() => removeExam(exam.id)} className="text-gray-400 hover:text-red-400 transition-colors p-1">
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {exams.length === 0 && <p className="text-gray-500 text-sm text-center py-6">No exams added yet.</p>}
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
+
+            {activeSection === 'api' && (
+              <motion.div
+                key="api"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="font-display font-bold text-white mb-2 text-lg">🔑 Anthropic API Key</h3>
+                  <p className="text-gray-400 text-sm mb-6">
+                    Required for AI Suggestions (Page 4) and Timetable Analyzer (Page 5). Your key is stored locally and never sent to our servers.
+                  </p>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">API Key</label>
+                      <input
+                        type="password"
+                        className="input-field font-mono text-sm"
+                        placeholder="sk-ant-api03-..."
+                        value={apiKey}
+                        onChange={e => setApiKey(e.target.value)}
+                      />
+                    </div>
+                    <button onClick={handleSaveApiKey} className="btn-primary flex items-center gap-2">
+                      <CheckIcon className="w-4 h-4" />
+                      Save API Key
+                    </button>
+                    {apiKey && (
+                      <div className="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30 text-emerald-400 text-sm">
+                        ✅ API key is saved and will be used for Claude AI features.
+                      </div>
+                    )}
+                    <div className="p-4 rounded-xl bg-navy-800/50 text-xs text-gray-500 leading-relaxed">
+                      <p className="font-semibold text-gray-400 mb-2">How to get your API key:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Visit <span className="text-purple-400">console.anthropic.com</span></li>
+                        <li>Sign in or create an account</li>
+                        <li>Go to API Keys section</li>
+                        <li>Create a new key and paste it here</li>
+                      </ol>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
+
+            {activeSection === 'data' && (
+              <motion.div
+                key="data"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="font-display font-bold text-white mb-6 text-lg">💾 Data Management</h3>
+
+                  <div className="flex flex-col gap-4">
+                    <div className="p-4 rounded-xl bg-navy-800/30 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-white">Export All Data</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Download all your study data as JSON</p>
+                      </div>
+                      <button onClick={exportData} className="btn-cyan flex items-center gap-2">
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        Export JSON
+                      </button>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-red-900/10 border border-red-500/20 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-red-400">Clear All Data</p>
+                        <p className="text-xs text-gray-500 mt-0.5">⚠️ This action cannot be undone</p>
+                      </div>
+                      <button
+                        onClick={() => setShowClearConfirm(true)}
+                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all flex items-center gap-2"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                        Clear Data
+                      </button>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Clear Confirm Modal */}
+      <AnimatePresence>
+        {showClearConfirm && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="glass-card p-8 w-full max-w-sm text-center"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+            >
+              <ExclamationCircleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-xl font-display font-bold text-white mb-2">Clear All Data?</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                This will permanently delete all study logs, subjects, exams, achievements, and profile data.
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowClearConfirm(false)} className="btn-secondary flex-1">Cancel</button>
+                <button onClick={handleClearData} className="flex-1 py-2.5 px-6 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold transition-all">Delete All</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Layout>
+  );
+};
+
+const EditSubjectRow = ({ subject, onSave, onCancel }) => {
+  const [name, setName] = useState(subject.name);
+  const [color, setColor] = useState(subject.color);
+  const [goal, setGoal] = useState(subject.weeklyGoal);
+
+  const PRESET_COLORS = [
+    '#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444',
+    '#8b5cf6', '#22d3ee', '#34d399', '#fbbf24', '#f87171',
+  ];
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <input type="text" className="input-field flex-1 text-sm" value={name} onChange={e => setName(e.target.value)} />
+        <input type="number" className="input-field w-24 text-sm" value={goal} onChange={e => setGoal(parseFloat(e.target.value))} min="0" max="50" />
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {PRESET_COLORS.map(c => (
+          <button key={c} onClick={() => setColor(c)} className={`w-6 h-6 rounded-md ${color === c ? 'ring-2 ring-white' : ''}`} style={{ backgroundColor: c }} />
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <button onClick={() => onSave({ name, color, weeklyGoal: goal })} className="btn-primary flex-1 text-sm py-2">Save</button>
+        <button onClick={onCancel} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
