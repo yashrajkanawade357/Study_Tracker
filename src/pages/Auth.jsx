@@ -120,8 +120,39 @@ const Auth = () => {
           >
             📚
           </motion.div>
-          <h1 className="text-3xl font-display font-bold gradient-text">StudyTracker</h1>
-          <p className="text-gray-400 mt-1 text-sm">Your AI-powered study companion</p>
+          <motion.div
+            className="flex justify-center gap-1.5 mb-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {["Welcome", "to"].map((word, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.2, duration: 0.5 }}
+                className="text-2xl font-display font-semibold text-gray-300"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.div>
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="text-3xl md:text-4xl font-display font-bold gradient-text drop-shadow-lg"
+          >
+            StudyTracker
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="text-gray-400 mt-2 text-sm"
+          >
+            Your AI-powered study companion
+          </motion.p>
         </div>
 
         <div className="glass-card p-8">
