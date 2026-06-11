@@ -137,14 +137,16 @@ const Achievements = () => {
   
   const [leaderboard, setLeaderboard] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [leaderboardError, setLeaderboardError] = useState(false);
 
   useEffect(() => {
     if (isSupabaseConfigured()) {
       const fetchLeaderboard = async () => {
         try {
+          // Do NOT select email — it's sensitive and causes 400 with public policies
           const { data, error } = await supabase
             .from('profiles')
-            .select('id, name, email, level, xp, streak, avatar, bio, linkedin, instagram')
+            .select('id, name, level, xp, streak, avatar, bio, linkedin, instagram')
             .order('xp', { ascending: false })
             .limit(10);
             
@@ -153,7 +155,7 @@ const Achievements = () => {
           if (data) {
             const mapped = data.map((p, index) => ({
               rank: index + 1,
-              name: p.name || p.email.split('@')[0],
+              name: p.name || 'Anonymous',
               level: p.level || 1,
               xp: p.xp || 0,
               streak: p.streak || 0,
@@ -161,12 +163,33 @@ const Achievements = () => {
               bio: p.bio || '',
               linkedin: p.linkedin || '',
               instagram: p.instagram || '',
-              isCurrentUser: p.id === userProfile?.id || p.email === userProfile?.email,
+              isCurrentUser: p.id === userProfile?.id,
             }));
             setLeaderboard(mapped);
+            setLeaderboardError(false);
           }
         } catch (err) {
           console.error('Error fetching leaderboard:', err);
+          setLeaderboardError(true);
+          // Fallback to local mock data
+          const userRank = MOCK_LEADERBOARD.filter(u => u.xp > xp).length + 1;
+          const localLeaderboard = [
+            ...MOCK_LEADERBOARD.filter((_, i) => i < Math.min(userRank - 1, 5)),
+            {
+              rank: userRank,
+              name: userProfile?.name || 'You',
+              level,
+              xp,
+              streak: userProfile?.streak || 0,
+              avatar: userProfile?.avatar || '🎓',
+              bio: userProfile?.bio || '',
+              linkedin: userProfile?.linkedin || '',
+              instagram: userProfile?.instagram || '',
+              isCurrentUser: true,
+            },
+            ...MOCK_LEADERBOARD.slice(Math.min(userRank - 1, 5)),
+          ].slice(0, 6);
+          setLeaderboard(localLeaderboard);
         }
       };
       
@@ -296,7 +319,11 @@ const Achievements = () => {
             );
           })}
         </div>
-        <p className="text-xs text-gray-600 text-center mt-4">* Top 5 positions show demo users. Your real rank is based on total XP.</p>
+        <p className="text-xs text-gray-600 text-center mt-4">
+          {leaderboardError
+            ? '⚠️ Could not load live leaderboard — showing demo data.'
+            : '* Rankings update in real-time based on total XP earned.'}
+        </p>
       </GlassCard>
 
       {/* Profile Modal */}

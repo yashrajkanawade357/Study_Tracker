@@ -6,6 +6,8 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+
 const Auth = () => {
   const [mode, setMode] = useState('login'); // login | signup | otp
   const [email, setEmail] = useState('');
@@ -27,13 +29,21 @@ const Auth = () => {
       setError('All fields are required');
       return;
     }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address (e.g. you@example.com)');
+      return;
+    }
+    if (name.trim().length < 2) {
+      setError('Name must be at least 2 characters');
+      return;
+    }
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
     setLoading(true);
     try {
-      const exists = await checkEmailExists(email);
+      const exists = await checkEmailExists(email.trim());
       if (exists) {
         setError('This email is already registered. Please sign in instead.');
         setLoading(false);
@@ -77,9 +87,13 @@ const Auth = () => {
       setError('Email and password are required');
       return;
     }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address (e.g. you@example.com)');
+      return;
+    }
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
       addToast('👋 Welcome back!', 'success');
       navigate('/dashboard');
     } catch (err) {
