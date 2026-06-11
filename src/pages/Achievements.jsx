@@ -143,16 +143,30 @@ const Achievements = () => {
     if (isSupabaseConfigured()) {
       const fetchLeaderboard = async () => {
         try {
-          // Do NOT select email — it's sensitive and causes 400 with public policies
+          // Ensure we have an active session (needed for sb_publishable_ key format)
+          const { data: sessionData } = await supabase.auth.getSession();
+          console.log('🔑 Leaderboard fetch — session:', sessionData?.session ? 'active' : 'none');
+
           const { data, error } = await supabase
             .from('profiles')
-            .select('id, name, level, xp, streak, avatar, bio, linkedin, instagram')
+            .select('*')
             .order('xp', { ascending: false })
             .limit(10);
-            
-          if (error) throw error;
-          
-          if (data) {
+
+          if (error) {
+            console.error('❌ Leaderboard fetch error:', {
+              message: error.message,
+              code: error.code,
+              hint: error.hint,
+              details: error.details,
+              status: error.status,
+            });
+            throw error;
+          }
+
+          console.log('✅ Leaderboard data fetched:', data?.length, 'profiles');
+
+          if (data && data.length > 0) {
             const mapped = data.map((p, index) => ({
               rank: index + 1,
               name: p.name || 'Anonymous',
@@ -166,6 +180,21 @@ const Achievements = () => {
               isCurrentUser: p.id === userProfile?.id,
             }));
             setLeaderboard(mapped);
+            setLeaderboardError(false);
+          } else {
+            // No data yet — show user's own entry
+            setLeaderboard([{
+              rank: 1,
+              name: userProfile?.name || 'You',
+              level,
+              xp,
+              streak: userProfile?.streak || 0,
+              avatar: userProfile?.avatar || '🎓',
+              bio: userProfile?.bio || '',
+              linkedin: userProfile?.linkedin || '',
+              instagram: userProfile?.instagram || '',
+              isCurrentUser: true,
+            }]);
             setLeaderboardError(false);
           }
         } catch (err) {
@@ -192,7 +221,7 @@ const Achievements = () => {
           setLeaderboard(localLeaderboard);
         }
       };
-      
+
       fetchLeaderboard();
     } else {
       const userRank = MOCK_LEADERBOARD.filter(u => u.xp > xp).length + 1;
