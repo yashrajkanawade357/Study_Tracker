@@ -9,7 +9,6 @@ const Navbar = ({ title, onMenuClick }) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const streak = currentStreak;
   const avatar = userProfile?.avatar || '🎓';
   const isImage = avatar.startsWith('http') || avatar.startsWith('data:');
