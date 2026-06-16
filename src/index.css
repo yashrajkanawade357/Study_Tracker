@@ -250,6 +250,63 @@
   .btn-pill-secondary {
     @apply bg-transparent border border-gray-600 text-gray-300 hover:border-white hover:text-white font-medium py-2 px-6 rounded-full transition-all duration-300;
   }
+
+  /* Light Mode Landing Page Styles */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .btn-light-primary {
+    @apply bg-black hover:bg-gray-800 text-white font-medium py-3 px-8 rounded-full transition-all duration-300;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-light-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-light-secondary {
+    @apply bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 font-medium py-3 px-8 rounded-full transition-all duration-300;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  }
+
+  .float-animation {
+    animation: floating 6s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .orb-1 {
+    animation: float1 20s ease-in-out infinite alternate;
+  }
+  .orb-2 {
+    animation: float2 25s ease-in-out infinite alternate;
+  }
+  .orb-3 {
+    animation: float3 30s ease-in-out infinite alternate;
+  }
+  
+  @keyframes float1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(10%, 10%) scale(1.2); }
+  }
+  @keyframes float2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-10%, 5%) scale(1.1); }
+  }
+  @keyframes float3 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(5%, -10%) scale(1.3); }
+  }
 }
 
 @layer utilities {
