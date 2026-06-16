@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { storage, STORAGE_KEYS, ACHIEVEMENT_DEFS, initializeStorage } from '../utils/storage';
 import { calculateStreak, formatDate } from '../utils/dateUtils';
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
