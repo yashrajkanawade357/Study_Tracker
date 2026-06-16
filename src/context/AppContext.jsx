@@ -648,9 +648,26 @@ export const AppProvider = ({ children }) => {
 
   const currentStreak = useMemo(() => calculateStreak(studyLogs), [studyLogs]);
 
+  const currentXp = useMemo(() => {
+    const logsXp = studyLogs.length * 5;
+    const achXp = achievements.filter(a => a.unlocked).reduce((sum, a) => sum + (ACHIEVEMENT_DEFS.find(d => d.id === a.id)?.xp || 0), 0);
+    return logsXp + achXp;
+  }, [studyLogs, achievements]);
+
+  useEffect(() => {
+    if (isSupabaseConfigured() && isAuthenticated && userProfile?.id) {
+      if (currentXp !== (userProfile.xp || 0)) {
+        supabase.from('profiles').update({ xp: currentXp }).eq('id', userProfile.id).then();
+        const updated = { ...userProfile, xp: currentXp };
+        storage.set(STORAGE_KEYS.USER_PROFILE, updated);
+        setUserProfile(updated);
+      }
+    }
+  }, [currentXp, isAuthenticated, userProfile]);
+
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
-    toasts, isAuthenticated, currentStreak,
+    toasts, isAuthenticated, currentStreak, currentXp,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,

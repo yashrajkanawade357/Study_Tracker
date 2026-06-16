@@ -5,12 +5,12 @@ import { BellIcon, FireIcon, ArrowRightOnRectangleIcon, Cog6ToothIcon, Bars3Icon
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = ({ title, onMenuClick }) => {
-  const { userProfile, exams, logout, currentStreak } = useApp();
+  const { userProfile, exams, logout, currentStreak, currentXp } = useApp();
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
   const streak = currentStreak;
-  const xp = userProfile?.xp || 0;
+  const xp = currentXp;
   const level = Math.floor(xp / 100) + 1;
   const avatar = userProfile?.avatar || '🎓';
   const isImage = avatar.startsWith('http') || avatar.startsWith('data:');

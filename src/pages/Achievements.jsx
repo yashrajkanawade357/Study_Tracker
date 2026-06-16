@@ -128,10 +128,10 @@ const getProgress = (id) => {
 };
 
 const Achievements = () => {
-  const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak } = useApp();
+  const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak, currentXp } = useApp();
   const [activeTab, setActiveTab] = useState('badges');
   
-  const xp = userProfile?.xp || 0;
+  const xp = currentXp;
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
   const totalAchievements = achievements.filter(a => a.unlocked).length;
