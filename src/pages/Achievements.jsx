@@ -269,20 +269,7 @@ const Achievements = () => {
           </div>
         </div>
 
-        <div className="mb-2">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-400">Progress to Level {level + 1}</span>
-            <span className="text-purple-400 font-semibold">{xpInLevel}/100 XP</span>
-          </div>
-          <div className="progress-bar h-4">
-            <motion.div
-              className="progress-fill bg-gradient-to-r from-purple-600 via-purple-500 to-cyan-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${xpInLevel}%` }}
-              transition={{ duration: 1.2, ease: 'easeOut' }}
-            />
-          </div>
-        </div>
+
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mt-6">

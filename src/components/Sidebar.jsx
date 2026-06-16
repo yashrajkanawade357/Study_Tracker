@@ -70,15 +70,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-400 mb-1.5">
             <span className="font-display font-semibold text-purple-400">Level {level}</span>
-            <span>{xpInLevel} / 100 XP</span>
-          </div>
-          <div className="progress-bar">
-            <motion.div
-              className="progress-fill bg-gradient-to-r from-purple-600 to-cyan-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${xpInLevel}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-            />
+            <span>{xp} XP</span>
           </div>
         </div>
 
