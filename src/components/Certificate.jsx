@@ -90,21 +90,28 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
             In sincere appreciation of your relentless dedication and outstanding study streaks. You have successfully unlocked <span className="font-bold text-[#ECA620] text-2xl mx-1">{unlockedDefs.length}</span> achievement badges.
           </p>
           
-          {/* Badges Grid */}
-          <div className="flex flex-wrap justify-center gap-6 max-w-3xl mb-12 min-h-[120px] p-6 bg-gray-50/50 rounded-2xl border border-gray-200/50">
-            {unlockedDefs.map(def => (
-              <div key={def.id} className="flex flex-col items-center justify-start w-20">
-                <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center text-3xl shadow-sm mb-2 hover:shadow-md transition-shadow">
-                  {def.icon}
+          {/* Badges Box */}
+          <div className="w-full max-w-3xl border-2 border-[#132B40] p-6 rounded-lg mb-12 relative mt-6">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-[#132B40] font-bold tracking-widest uppercase text-sm">
+              Badges Achieved
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-8 mt-2 min-h-[80px]">
+              {unlockedDefs.map(def => (
+                <div key={def.id} className="flex flex-col items-center justify-start w-20">
+                  {/* Icon without the circle background */}
+                  <div className="text-4xl mb-2 drop-shadow-md">
+                    {def.icon}
+                  </div>
+                  <span className="text-[10px] text-[#132B40] font-bold uppercase text-center leading-tight tracking-wider">
+                    {def.name}
+                  </span>
                 </div>
-                <span className="text-[9px] text-gray-500 font-bold uppercase text-center leading-tight tracking-wider">
-                  {def.name}
-                </span>
-              </div>
-            ))}
-            {unlockedDefs.length === 0 && (
-              <p className="text-gray-400 italic">No badges unlocked yet. Keep studying!</p>
-            )}
+              ))}
+              {unlockedDefs.length === 0 && (
+                <p className="text-gray-400 italic text-center w-full mt-4">No badges unlocked yet. Keep studying!</p>
+              )}
+            </div>
           </div>
           
           <p className="text-[#132B40] text-2xl font-bold mb-16">
