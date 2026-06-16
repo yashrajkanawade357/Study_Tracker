@@ -120,12 +120,22 @@ const Auth = () => {
             Track study sessions, crush goals, analyze habits, and get AI-powered study assistance — all in one beautiful place.
           </p>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 mb-10">
-            {stats.map((s) => (
-              <div key={s.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-                <p className="text-xl font-display font-bold text-white mb-1">{s.value}</p>
-                <p className="text-xs text-gray-400">{s.label}</p>
+          {/* How to use */}
+          <div className="flex flex-col gap-3 mb-10">
+            {[
+              { step: '01', icon: '📝', title: 'Log Your Sessions', desc: 'Add study sessions with subject, duration & notes using Quick Log.' },
+              { step: '02', icon: '🎯', title: 'Set Your Goals', desc: 'Create daily & weekly targets, then track your streaks on the dashboard.' },
+              { step: '03', icon: '📊', title: 'Analyze Progress', desc: 'View detailed charts and insights to see where you study best.' },
+              { step: '04', icon: '🏆', title: 'Earn Achievements', desc: 'Unlock badges and certificates as you hit study milestones.' },
+            ].map(({ step, icon, title, desc }) => (
+              <div key={step} className="flex items-start gap-4 bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+                <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-lg">
+                  {icon}
+                </div>
+                <div>
+                  <p className="text-white text-sm font-semibold mb-0.5">{title}</p>
+                  <p className="text-gray-500 text-xs leading-relaxed">{desc}</p>
+                </div>
               </div>
             ))}
           </div>
