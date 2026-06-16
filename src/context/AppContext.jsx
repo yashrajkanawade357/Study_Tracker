@@ -252,13 +252,19 @@ export const AppProvider = ({ children }) => {
     const totalHours = logs.reduce((s, l) => s + l.hours, 0);
     if (totalHours >= 50) unlock('fifty_hours');
     if (totalHours >= 100) unlock('hundred_hours');
+    if (totalHours >= 250) unlock('two_fifty_hours');
+    if (totalHours >= 500) unlock('five_hundred_hours');
     const streak = calculateStreak(logs);
     if (streak >= 7) unlock('streak_7');
     if (streak >= 30) unlock('streak_30');
+    if (streak >= 100) unlock('streak_100');
+    if (streak >= 365) unlock('streak_365');
     const subjectTotals = {};
     logs.forEach(l => { subjectTotals[l.subject] = (subjectTotals[l.subject] || 0) + l.hours; });
     if (Object.values(subjectTotals).some(h => h >= 20)) unlock('subject_master');
+    if (Object.values(subjectTotals).some(h => h >= 100)) unlock('subject_grandmaster');
     if (Object.keys(subjectTotals).length >= 4) unlock('polymath');
+    if (Object.keys(subjectTotals).length >= 8) unlock('renaissance_student');
     if (logs.some(l => l.hours >= 4)) unlock('marathoner');
     if (logs.some(l => {
       const d = l.timestamp ? new Date(l.timestamp).getDay() : new Date(l.date).getDay();
