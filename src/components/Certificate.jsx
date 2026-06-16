@@ -6,59 +6,68 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
   const achId = `VYORA-MST-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
   return (
-    <div ref={ref} className="flex items-center justify-center w-[1200px] h-[848px] p-0 font-sans bg-white text-slate-800">
-      <div className="relative w-full h-full bg-white overflow-hidden shadow-2xl flex flex-col items-center justify-center">
+    <div 
+      ref={ref} 
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '1200px',
+        height: '848px',
+        padding: 0,
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        backgroundColor: '#ffffff',
+        color: '#1e293b'
+      }}
+    >
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#ffffff',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box'
+      }}>
         
         {/* === GEOMETRIC BACKGROUND SHAPES === */}
 
         {/* Top Left Corner */}
-        <svg className="absolute top-0 left-0 w-[450px] h-[450px] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* Yellow outer line */}
+        <svg style={{ position: 'absolute', top: 0, left: 0, width: '450px', height: '450px', pointerEvents: 'none' }} viewBox="0 0 100 100" preserveAspectRatio="none">
           <polygon points="0,95 95,0 100,0 0,100" fill="#ECA620" />
-          {/* Yellow Triangle */}
           <polygon points="0,0 75,0 0,75" fill="#ECA620" />
-          {/* Navy Triangle */}
           <polygon points="0,0 60,0 0,60" fill="#132B40" />
         </svg>
 
         {/* Middle Left Triangle */}
-        <svg className="absolute top-[45%] left-0 w-[120px] h-[160px] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg style={{ position: 'absolute', top: '45%', left: 0, width: '120px', height: '160px', pointerEvents: 'none' }} viewBox="0 0 100 100" preserveAspectRatio="none">
           <polygon points="0,0 100,50 0,100" fill="#ECA620" />
         </svg>
 
         {/* Middle Right Triangle */}
-        <svg className="absolute top-[40%] right-0 w-[150px] h-[200px] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg style={{ position: 'absolute', top: '40%', right: 0, width: '150px', height: '200px', pointerEvents: 'none' }} viewBox="0 0 100 100" preserveAspectRatio="none">
           <polygon points="100,0 0,50 100,100" fill="#ECA620" />
         </svg>
 
         {/* Bottom Right Corner */}
-        <svg className="absolute bottom-0 right-0 w-[550px] h-[450px] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* Yellow outer line */}
+        <svg style={{ position: 'absolute', bottom: 0, right: 0, width: '550px', height: '450px', pointerEvents: 'none' }} viewBox="0 0 100 100" preserveAspectRatio="none">
           <polygon points="0,100 100,0 100,5 5,100" fill="#ECA620" />
-          {/* Navy outer line */}
           <polygon points="10,100 100,10 100,20 20,100" fill="#132B40" />
-          {/* Yellow Triangle */}
           <polygon points="100,100 35,100 100,35" fill="#ECA620" />
-          {/* Navy Triangle */}
           <polygon points="100,100 50,100 100,50" fill="#132B40" />
         </svg>
 
         {/* Top Right Seal */}
-        <div className="absolute top-16 right-24 z-10 flex flex-col items-center">
-          <svg width="150" height="180" viewBox="0 0 100 120" className="drop-shadow-lg">
-             {/* Left Ribbon */}
+        <div style={{ position: 'absolute', top: '64px', right: '96px', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <svg width="150" height="180" viewBox="0 0 100 120" style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))' }}>
              <polygon points="25,70 10,115 35,105 45,115" fill="#ECA620" />
-             {/* Right Ribbon */}
              <polygon points="75,70 90,115 65,105 55,115" fill="#ECA620" />
-             
-             {/* Left Navy Ribbon Shadow */}
              <polygon points="28,70 15,110 35,100 45,110" fill="#132B40" opacity="0.9" />
-             {/* Right Navy Ribbon Shadow */}
              <polygon points="72,70 85,110 65,100 55,110" fill="#132B40" opacity="0.9" />
-
-             {/* Scalloped edge base */}
              <circle cx="50" cy="50" r="42" fill="#132B40" />
-             {/* Inner rings */}
              <circle cx="50" cy="50" r="35" fill="#ECA620" />
              <circle cx="50" cy="50" r="31" fill="#FFFFFF" />
              <circle cx="50" cy="50" r="27" fill="none" stroke="#132B40" strokeWidth="1.5" strokeDasharray="3,3" />
@@ -66,71 +75,71 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
         </div>
 
         {/* === CERTIFICATE CONTENT === */}
-        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mt-8">
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '900px', marginTop: '32px' }}>
           
-          <h3 className="text-gray-600 uppercase tracking-[0.3em] text-sm mb-6 font-bold">
+          <h3 style={{ color: '#475569', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '14px', marginBottom: '24px', fontWeight: 'bold' }}>
             Vyora Study Tracker
           </h3>
           
-          <h1 className="text-5xl md:text-6xl font-serif font-bold text-[#132B40] mb-6 tracking-wide uppercase">
+          <h1 style={{ fontSize: '60px', fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', marginBottom: '24px', letterSpacing: '0.025em', textTransform: 'uppercase', margin: '0 0 24px 0' }}>
             Certificate of Consistency
           </h1>
           
-          <p className="text-gray-600 text-lg mb-4 font-medium">
+          <p style={{ color: '#475569', fontSize: '18px', marginBottom: '16px', fontWeight: '500', margin: '0 0 16px 0' }}>
             This Certificate is Proudly Presented to
           </p>
           
-          <h2 className="text-6xl md:text-7xl font-bold text-[#ECA620] mb-6 tracking-tight font-sans">
+          <h2 style={{ fontSize: '72px', fontWeight: 'bold', color: '#ECA620', marginBottom: '24px', letterSpacing: '-0.025em', fontFamily: 'system-ui, -apple-system, sans-serif', margin: '0 0 24px 0' }}>
             {user.name}
           </h2>
           
-          <div className="w-full max-w-xl border-b-[4px] border-[#ECA620] mb-8" />
+          <div style={{ width: '100%', maxWidth: '576px', borderBottom: '4px solid #ECA620', marginBottom: '32px' }} />
           
-          <p className="text-gray-700 text-center text-xl max-w-3xl mb-8 leading-relaxed font-medium">
-            In sincere appreciation of your relentless dedication and outstanding study streaks. You have successfully unlocked <span className="font-bold text-[#ECA620] text-2xl mx-1">{unlockedDefs.length}</span> achievement badges.
+          <p style={{ color: '#334155', textAlign: 'center', fontSize: '20px', maxWidth: '768px', marginBottom: '32px', lineHeight: '1.6', fontWeight: '500', margin: '0 0 32px 0' }}>
+            In sincere appreciation of your relentless dedication and outstanding study streaks. You have successfully unlocked <span style={{ fontWeight: 'bold', color: '#ECA620', fontSize: '24px', margin: '0 4px' }}>{unlockedDefs.length}</span> achievement badges.
           </p>
           
           {/* Badges Box */}
-          <div className="w-full max-w-3xl border-2 border-[#132B40] p-6 rounded-lg mb-12 relative mt-6">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-[#132B40] font-bold tracking-widest uppercase text-sm">
+          <div style={{ width: '100%', maxWidth: '768px', border: '2px solid #132B40', padding: '24px', borderRadius: '8px', marginBottom: '48px', position: 'relative', marginTop: '24px', boxSizing: 'border-box' }}>
+            <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#ffffff', padding: '0 16px', color: '#132B40', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '14px' }}>
               Badges Achieved
             </div>
             
-            <div className="flex flex-wrap justify-center gap-8 mt-2 min-h-[80px]">
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '32px', marginTop: '8px', minHeight: '80px' }}>
               {unlockedDefs.map(def => (
-                <div key={def.id} className="flex flex-col items-center justify-start w-20">
+                <div key={def.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '80px' }}>
                   {/* Icon without the circle background */}
-                  <div className="text-4xl mb-2 drop-shadow-md">
+                  <div style={{ fontSize: '36px', marginBottom: '8px', filter: 'drop-shadow(0 4px 3px rgba(0,0,0,0.07))' }}>
                     {def.icon}
                   </div>
-                  <span className="text-[10px] text-[#132B40] font-bold uppercase text-center leading-tight tracking-wider">
+                  <span style={{ fontSize: '10px', color: '#132B40', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', lineHeight: '1.2', letterSpacing: '0.05em' }}>
                     {def.name}
                   </span>
                 </div>
               ))}
               {unlockedDefs.length === 0 && (
-                <p className="text-gray-400 italic text-center w-full mt-4">No badges unlocked yet. Keep studying!</p>
+                <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', width: '100%', margin: '16px 0 0 0' }}>No badges unlocked yet. Keep studying!</p>
               )}
             </div>
           </div>
           
-          <p className="text-[#132B40] text-2xl font-bold mb-16">
+          <p style={{ color: '#132B40', fontSize: '24px', fontWeight: 'bold', marginBottom: '64px', margin: '0 0 64px 0' }}>
             Awarded on {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </p>
           
         </div>
 
         {/* Signature Area */}
-        <div className="absolute bottom-20 left-24 z-10 flex flex-col items-start">
-          <div className="w-64 border-b-2 border-gray-400 mb-2" />
-          <span className="text-[#ECA620] font-bold text-xl">System AI</span>
-          <span className="text-gray-600 font-semibold">Program Director</span>
+        <div style={{ position: 'absolute', bottom: '80px', left: '96px', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div style={{ width: '256px', borderBottom: '2px solid #94a3b8', marginBottom: '8px' }} />
+          <span style={{ color: '#ECA620', fontWeight: 'bold', fontSize: '20px' }}>System AI</span>
+          <span style={{ color: '#475569', fontWeight: '600' }}>Program Director</span>
         </div>
 
         {/* Verification ID */}
-        <div className="absolute bottom-20 right-24 z-10 flex flex-col items-end text-right">
-            <span className="text-gray-400 text-xs font-mono mb-1">ID: {achId}</span>
-            <span className="text-[#132B40] font-bold text-sm uppercase tracking-wider">Official Master Certificate</span>
+        <div style={{ position: 'absolute', bottom: '80px', right: '96px', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+            <span style={{ color: '#94a3b8', fontSize: '12px', fontFamily: 'monospace', marginBottom: '4px' }}>ID: {achId}</span>
+            <span style={{ color: '#132B40', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Official Master Certificate</span>
         </div>
 
       </div>
