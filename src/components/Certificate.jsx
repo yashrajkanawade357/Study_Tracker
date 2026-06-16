@@ -60,19 +60,7 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
           <polygon points="100,100 50,100 100,50" fill="#132B40" />
         </svg>
 
-        {/* Top Right Seal */}
-        <div style={{ position: 'absolute', top: '64px', right: '96px', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <svg width="150" height="180" viewBox="0 0 100 120" style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))' }}>
-             <polygon points="25,70 10,115 35,105 45,115" fill="#ECA620" />
-             <polygon points="75,70 90,115 65,105 55,115" fill="#ECA620" />
-             <polygon points="28,70 15,110 35,100 45,110" fill="#132B40" opacity="0.9" />
-             <polygon points="72,70 85,110 65,100 55,110" fill="#132B40" opacity="0.9" />
-             <circle cx="50" cy="50" r="42" fill="#132B40" />
-             <circle cx="50" cy="50" r="35" fill="#ECA620" />
-             <circle cx="50" cy="50" r="31" fill="#FFFFFF" />
-             <circle cx="50" cy="50" r="27" fill="none" stroke="#132B40" strokeWidth="1.5" strokeDasharray="3,3" />
-          </svg>
-        </div>
+
 
         {/* === CERTIFICATE CONTENT === */}
         <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '950px', marginTop: '100px' }}>
