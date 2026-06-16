@@ -221,6 +221,35 @@
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(124, 58, 237, 0.1);
   }
+
+  /* Contour Lines Animation for Landing Page */
+  .contour-layer {
+    position: absolute;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    border: 1px solid transparent;
+    animation: morph 12s ease-in-out infinite both alternate;
+  }
+
+  @keyframes morph {
+    0% {
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      transform: rotate(0deg) scale(1);
+    }
+    100% {
+      border-radius: 60% 40% 30% 70% / 60% 50% 40% 50%;
+      transform: rotate(15deg) scale(1.05);
+    }
+  }
+
+  /* Sleek Pill Buttons */
+  .btn-pill-primary {
+    @apply bg-[#5bb2ff] hover:bg-[#4a9deb] text-black font-semibold py-2 px-6 rounded-full transition-all duration-300;
+    box-shadow: 0 0 15px rgba(91, 178, 255, 0.4);
+  }
+
+  .btn-pill-secondary {
+    @apply bg-transparent border border-gray-600 text-gray-300 hover:border-white hover:text-white font-medium py-2 px-6 rounded-full transition-all duration-300;
+  }
 }
 
 @layer utilities {

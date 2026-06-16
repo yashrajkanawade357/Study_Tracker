@@ -3,28 +3,58 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
+  MagnifyingGlassIcon,
   SparklesIcon, 
   ClockIcon, 
   CalendarDaysIcon, 
-  TrophyIcon,
-  BookOpenIcon,
-  ArrowRightIcon
+  TrophyIcon
 } from '@heroicons/react/24/outline';
 
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
     transition={{ delay, duration: 0.5 }}
-    className="glass-card p-6 flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-300"
+    className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-3xl hover:bg-white/[0.04] transition-colors"
   >
-    <div className="w-16 h-16 rounded-2xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(124,58,237,0.3)]">
-      <Icon className="w-8 h-8 text-cyan-400" />
+    <div className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center mb-6">
+      <Icon className="w-5 h-5 text-gray-300" />
     </div>
-    <h3 className="text-xl font-display font-bold text-white mb-3">{title}</h3>
-    <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+    <h3 className="text-xl font-display font-medium text-white mb-3 tracking-wide">{title}</h3>
+    <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
   </motion.div>
 );
+
+const ContourLines = () => {
+  return (
+    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-[800px] h-[600px] pointer-events-none opacity-80 mix-blend-screen flex items-center justify-center lg:translate-x-[10%]">
+      {/* Generate concentric animated rings */}
+      {[...Array(12)].map((_, i) => {
+        const r = Math.floor(124 - i * 5);
+        const g = Math.floor(58 + i * 10);
+        const b = Math.floor(237 + i * 1);
+        
+        return (
+          <div
+            key={i}
+            className="contour-layer"
+            style={{
+              width: `${(i + 1) * 60}px`,
+              height: `${(i + 1) * 55}px`,
+              animationDelay: `${i * -1.2}s`,
+              animationDuration: `${15 + i * 0.5}s`,
+              border: `1.5px solid rgba(${r}, ${g}, ${b}, ${0.15 + (12-i)*0.03})`,
+              boxShadow: `0 0 10px rgba(${r}, ${g}, ${b}, 0.1)`
+            }}
+          />
+        );
+      })}
+      <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] bg-purple-600/10 rounded-full blur-[100px] mix-blend-screen" />
+      <div className="absolute bottom-[20%] left-[20%] w-[300px] h-[300px] bg-cyan-500/10 rounded-full blur-[100px] mix-blend-screen" />
+    </div>
+  );
+};
 
 const Landing = () => {
   const { addToast } = useApp();
@@ -35,185 +65,182 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white font-body relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen bg-black text-white font-body relative overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0 mr-2">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-            <img src="/logo.png" alt="Vyora Logo" className="w-full h-full object-cover" />
+      <header className="w-full px-6 py-8 flex items-center justify-between relative z-20 max-w-7xl mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 16L20 6V26L6 16Z" fill="white"/>
+              <circle cx="22" cy="16" r="6" stroke="white" strokeWidth="3"/>
+            </svg>
           </div>
-          <span className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white truncate">
-            Vyora
+          <span className="text-lg font-display font-bold tracking-widest text-white uppercase ml-2 leading-none flex flex-col">
+            <span>Vyora</span>
+            <span className="text-[10px] text-gray-400">STUDY</span>
           </span>
         </div>
-        <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
-          <Link to="/auth" className="text-gray-300 hover:text-white font-medium transition-colors text-base sm:text-lg whitespace-nowrap">
-            Log In
+        
+        <div className="hidden md:flex items-center gap-10 text-xs font-semibold tracking-widest uppercase text-gray-300">
+          <a href="#about" className="hover:text-white transition-colors">About</a>
+          <a href="#features" className="hover:text-white transition-colors">Features</a>
+          <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <Link to="/auth" className="btn-pill-primary text-xs uppercase tracking-widest py-2.5 px-8 hidden sm:block">
+            Sign In
           </Link>
-          <Link to="/auth" className="btn-primary py-2.5 px-4 sm:px-6 text-sm sm:text-base whitespace-nowrap">
-            Sign Up <span className="hidden sm:inline">Free</span>
-          </Link>
+          <button className="text-white hover:text-gray-300 transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="container mx-auto px-6 pt-20 pb-32 relative z-10">
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-24">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-900/30 border border-purple-500/30 text-purple-300 text-sm font-medium mb-8"
-          >
-            <SparklesIcon className="w-4 h-4 text-cyan-400" />
-            <span>AI-Powered Study Companion</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="text-5xl md:text-7xl font-display font-bold leading-tight mb-6"
-          >
-            Master Your Studies with <br className="hidden md:block" />
-            <span className="gradient-text glow-text-purple">Intelligent Tracking</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl leading-relaxed"
-          >
-            Your personalized, AI-powered companion designed to track habits, optimize your timetable, and help you crush your exams.
-          </motion.p>
-          
+      {/* Main Hero Content */}
+      <main className="w-full max-w-7xl mx-auto px-6 relative z-10 flex flex-col justify-center min-h-[90vh]">
+        <ContourLines />
+
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-16 mt-8 lg:mt-0 pb-24">
+          {/* Left Side: Typography & Input */}
+          <div className="w-full lg:w-1/2 flex flex-col relative z-20 pt-10">
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-6xl sm:text-7xl lg:text-[110px] font-display font-bold leading-[1.1] tracking-tight mb-10"
+            >
+              Welcome.
+            </motion.h1>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="relative w-full max-w-md mb-8 group"
+            >
+              <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none transition-transform group-hover:scale-110">
+                <MagnifyingGlassIcon className="w-5 h-5 text-gray-300" />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Search your goals..." 
+                className="w-full bg-transparent border border-gray-600 rounded-full py-3.5 pl-6 pr-12 text-white focus:outline-none focus:border-white transition-colors"
+              />
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+              className="flex items-center gap-4"
+            >
+              <Link to="/auth" className="btn-pill-primary text-xs uppercase tracking-widest py-3 px-8">
+                Free Trial
+              </Link>
+              <a href="#features" className="btn-pill-secondary text-xs lowercase tracking-wider py-3 px-8">
+                see more
+              </a>
+            </motion.div>
+          </div>
+
+          {/* Right Side: Text Block over contours */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center gap-4"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+            className="w-full lg:w-[45%] flex flex-col relative z-20 lg:pl-16 mt-16 lg:mt-0"
           >
-            <Link to="/auth" className="btn-primary flex items-center gap-2 text-lg py-3 px-8 w-full sm:w-auto justify-center">
-              Start for Free <ArrowRightIcon className="w-5 h-5" />
-            </Link>
+            <div className="flex items-center gap-3 mb-4">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-purple-400 opacity-80">
+                <path d="M10 20L22 10V30L10 20Z" stroke="currentColor" strokeWidth="1.5"/>
+                <circle cx="28" cy="20" r="6" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            </div>
+            
+            <h2 className="text-[40px] font-display font-light text-white leading-tight mb-6">
+              Landing page.
+            </h2>
+            
+            <p className="text-[13px] text-gray-400 leading-relaxed max-w-sm">
+              Your personalized, AI-powered companion designed to track habits, optimize your timetable, and help you crush your exams. Log your sessions, earn achievements, and build long-lasting streaks with ease.
+            </p>
           </motion.div>
         </div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
-          <FeatureCard 
-            delay={0.4}
-            icon={SparklesIcon}
-            title="AI Suggestions"
-            description="Get personalized study tips, tailored schedules, and actionable advice to boost your productivity."
-          />
-          <FeatureCard 
-            delay={0.5}
-            icon={ClockIcon}
-            title="Pomodoro Timer"
-            description="Stay focused and avoid burnout with our integrated, customizable time management system."
-          />
-          <FeatureCard 
-            delay={0.6}
-            icon={CalendarDaysIcon}
-            title="Timetable Analyzer"
-            description="Find the perfect balance for your classes and study blocks with our visual timeline."
-          />
-          <FeatureCard 
-            delay={0.7}
-            icon={TrophyIcon}
-            title="Gamified Rewards"
-            description="Earn badges, level up your profile, and build long-lasting streaks to stay motivated."
-          />
-        </div>
-
-        {/* Author Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto mb-24 glass-card p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 md:gap-12 text-center md:text-left relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-cyan-900/20" />
-          <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-purple-500/30 flex-shrink-0 shadow-[0_0_30px_rgba(124,58,237,0.3)] relative z-10">
-            {/* The user should save the provided image as 'author.jpg' in the public folder */}
-            <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
-          </div>
-          <div className="relative z-10">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Meet the Author</h3>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Yashraj Kanawade</h2>
-            <p className="text-xl text-cyan-400 font-medium mb-6">Creator of Vyora</p>
-            <div className="relative mb-8">
-              <svg className="absolute -top-4 -left-4 w-8 h-8 text-purple-500/20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-              </svg>
-              <p className="text-gray-300 italic text-lg leading-relaxed relative z-10 pl-6 border-l-2 border-purple-500/30">
-                "Technology should empower us to reach our highest potential. I built Vyora to help students transform their ambitions into achievable habits and measurable success."
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <a 
-                href="https://www.linkedin.com/in/yashraj-kanawade-289039223/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-[#0077b5]/10 text-[#0077b5] border border-[#0077b5]/30 hover:bg-[#0077b5] hover:text-white transition-all font-medium"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                </svg>
-                Connect on LinkedIn
-              </a>
-              <a 
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=Vyora%20Query"
-                onClick={handleEmailClick}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 hover:bg-purple-500 hover:text-white transition-all font-medium"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Email for Queries
-              </a>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card-cyan p-12 text-center relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 to-cyan-900/50" />
-          <div className="relative z-10">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6">
-              Ready to elevate your grades?
-            </h2>
-            <p className="text-cyan-100/70 mb-8 max-w-xl mx-auto text-lg">
-              Join thousands of students who have transformed their academic journey with Vyora.
-            </p>
-            <Link to="/auth" className="btn-cyan flex items-center gap-2 text-lg py-3 px-10 w-max mx-auto shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-              Create Your Account
-            </Link>
-          </div>
-        </motion.div>
       </main>
 
+      {/* Features Section */}
+      <section id="features" className="w-full bg-black py-32 relative z-10 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-medium text-white mb-4">Features.</h2>
+            <p className="text-gray-500 max-w-lg">Everything you need to master your study habits and achieve your goals.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard delay={0.1} icon={SparklesIcon} title="AI Suggestions" description="Get personalized study tips, tailored schedules, and actionable advice to boost productivity." />
+            <FeatureCard delay={0.2} icon={ClockIcon} title="Pomodoro Timer" description="Stay focused and avoid burnout with our integrated, customizable time management system." />
+            <FeatureCard delay={0.3} icon={CalendarDaysIcon} title="Timetable Analyzer" description="Find the perfect balance for your classes and study blocks with our visual timeline." />
+            <FeatureCard delay={0.4} icon={TrophyIcon} title="Gamified Rewards" description="Earn badges, level up your profile, and build long-lasting streaks to stay motivated." />
+          </div>
+        </div>
+      </section>
+
+      {/* About/Author Section */}
+      <section id="about" className="w-full bg-black py-32 relative z-10 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row items-center gap-16"
+          >
+            <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 border border-gray-800">
+              <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Meet the Author</h3>
+              <h2 className="text-3xl md:text-5xl font-display font-medium text-white mb-2">Yashraj Kanawade.</h2>
+              <p className="text-sm text-cyan-500/70 uppercase tracking-widest mb-8">Creator of Vyora</p>
+              
+              <p className="text-gray-400 italic text-lg leading-relaxed max-w-2xl mb-8 border-l-2 border-white/[0.1] pl-6">
+                "Technology should empower us to reach our highest potential. I built Vyora to help students transform their ambitions into achievable habits and measurable success."
+              </p>
+
+              <div className="flex items-center gap-6">
+                <a 
+                  href="https://www.linkedin.com/in/yashraj-kanawade-289039223/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1"
+                >
+                  LinkedIn
+                </a>
+                <a 
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=Vyora%20Query"
+                  onClick={handleEmailClick}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1"
+                >
+                  Email Me
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-white/5 py-8 mt-auto relative z-10 bg-black/20">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
+      <footer id="contact" className="w-full border-t border-white/[0.05] py-12 relative z-10 bg-black">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 uppercase tracking-widest">
           <p>&copy; {new Date().getFullYear()} Vyora. All rights reserved.</p>
-          <div className="flex items-center gap-6 mt-4 md:mt-0">
-            <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=Vyora%20Query" onClick={handleEmailClick} target="_blank" rel="noopener noreferrer" className="hover:text-white cursor-pointer transition-colors">Contact</a>
+          <div className="flex items-center gap-8 mt-6 md:mt-0">
+            <span className="hover:text-gray-300 cursor-pointer transition-colors">Privacy Policy</span>
+            <span className="hover:text-gray-300 cursor-pointer transition-colors">Terms of Service</span>
           </div>
         </div>
       </footer>
