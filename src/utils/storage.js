@@ -67,7 +67,7 @@ export const ACHIEVEMENT_DEFS = [
 
 export const initializeStorage = () => {
   if (!storage.get(STORAGE_KEYS.SUBJECTS)) {
-    storage.set(STORAGE_KEYS.SUBJECTS, DEFAULT_SUBJECTS);
+    storage.set(STORAGE_KEYS.SUBJECTS, []);
   }
   if (!storage.get(STORAGE_KEYS.STUDY_LOGS)) {
     storage.set(STORAGE_KEYS.STUDY_LOGS, []);

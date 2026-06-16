@@ -48,7 +48,7 @@ export const AppProvider = ({ children }) => {
 
       // Fetch subjects
       const { data: subjectList } = await supabase.from('subjects').select('*').eq('user_id', userId);
-      if (subjectList && subjectList.length > 0) {
+      if (subjectList) {
         const mappedSubjects = subjectList.map(s => ({ ...s, weeklyGoal: s.weekly_goal }));
         setSubjects(mappedSubjects);
         storage.set(STORAGE_KEYS.SUBJECTS, mappedSubjects);
@@ -640,8 +640,23 @@ export const AppProvider = ({ children }) => {
     if (isSupabaseConfigured()) {
       await supabase.auth.signOut();
     }
-    const profile = storage.get(STORAGE_KEYS.USER_PROFILE, {});
-    storage.set(STORAGE_KEYS.USER_PROFILE, { ...profile, email: '' });
+    storage.remove(STORAGE_KEYS.USER_PROFILE);
+    storage.remove(STORAGE_KEYS.STUDY_LOGS);
+    storage.remove(STORAGE_KEYS.SUBJECTS);
+    storage.remove(STORAGE_KEYS.SLEEP_LOGS);
+    storage.remove(STORAGE_KEYS.EXAMS);
+    storage.remove(STORAGE_KEYS.ACHIEVEMENTS);
+    storage.remove(STORAGE_KEYS.POMODORO_SESSIONS);
+
+    setUserProfile(null);
+    setStudyLogs([]);
+    setSubjects([]);
+    setSleepLogs([]);
+    setExams([]);
+    setAchievements(ACHIEVEMENT_DEFS.map(a => ({ id: a.id, unlocked: false, unlockedAt: null })));
+    setPomodoroSessions([]);
+
+    initializeStorage();
     setIsAuthenticated(false);
   }, []);
 
