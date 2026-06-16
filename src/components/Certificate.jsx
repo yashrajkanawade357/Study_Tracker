@@ -73,7 +73,7 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
           </h3>
           
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-[#132B40] mb-6 tracking-wide uppercase">
-            Master Achievement Certificate
+            Certificate of Consistency
           </h1>
           
           <p className="text-gray-600 text-lg mb-4 font-medium">
