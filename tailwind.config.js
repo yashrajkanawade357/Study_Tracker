@@ -56,6 +56,7 @@ export default {
         'glow': 'glow 2s ease-in-out infinite alternate',
         'float': 'float 3s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
+        'shimmer': 'shimmer 3s infinite linear',
       },
       keyframes: {
         glow: {
@@ -65,6 +66,10 @@ export default {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-6px)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(200%)' },
         }
       },
       backdropBlur: {

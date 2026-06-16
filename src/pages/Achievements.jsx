@@ -9,6 +9,7 @@ import { formatFull, calculateLongestStreak, calculateTotalActiveDays } from '..
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
 import html2canvas from 'html2canvas';
 import Certificate from '../components/Certificate';
+import AchievementCard from '../components/AchievementCard';
 
 const MOCK_LEADERBOARD = [
   { rank: 1, name: 'Alex Chen', level: 12, xp: 1187, streak: 45, avatar: '🎯', bio: 'Coding my way through college!', linkedin: 'https://linkedin.com', instagram: 'alex' },
@@ -310,6 +311,11 @@ const Achievements = () => {
 
   return (
     <Layout title="Achievements">
+      {/* Featured Achievement Showcase */}
+      <div className="mb-8 flex justify-center w-full">
+        <AchievementCard />
+      </div>
+
       {/* XP Bar Section */}
       <GlassCard className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
