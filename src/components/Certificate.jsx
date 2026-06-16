@@ -75,44 +75,44 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
         </div>
 
         {/* === CERTIFICATE CONTENT === */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '900px', marginTop: '32px' }}>
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '950px', marginTop: '16px' }}>
           
-          <h3 style={{ color: '#475569', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '14px', marginBottom: '24px', fontWeight: 'bold' }}>
+          <h3 style={{ color: '#475569', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '12px', marginBottom: '16px', fontWeight: 'bold' }}>
             Vyora Study Tracker
           </h3>
           
-          <h1 style={{ fontSize: '60px', fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', marginBottom: '24px', letterSpacing: '0.025em', textTransform: 'uppercase', margin: '0 0 24px 0' }}>
+          <h1 style={{ fontSize: '54px', fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', marginBottom: '16px', letterSpacing: '0.025em', textTransform: 'uppercase', margin: '0 0 16px 0' }}>
             Certificate of Consistency
           </h1>
           
-          <p style={{ color: '#475569', fontSize: '18px', marginBottom: '16px', fontWeight: '500', margin: '0 0 16px 0' }}>
+          <p style={{ color: '#475569', fontSize: '16px', marginBottom: '12px', fontWeight: '500', margin: '0 0 12px 0' }}>
             This Certificate is Proudly Presented to
           </p>
           
-          <h2 style={{ fontSize: '72px', fontWeight: 'bold', color: '#ECA620', marginBottom: '24px', letterSpacing: '-0.025em', fontFamily: 'system-ui, -apple-system, sans-serif', margin: '0 0 24px 0' }}>
+          <h2 style={{ fontSize: '64px', fontWeight: 'bold', color: '#ECA620', marginBottom: '16px', letterSpacing: '-0.025em', fontFamily: 'system-ui, -apple-system, sans-serif', margin: '0 0 16px 0' }}>
             {user.name}
           </h2>
           
-          <div style={{ width: '100%', maxWidth: '576px', borderBottom: '4px solid #ECA620', marginBottom: '32px' }} />
+          <div style={{ width: '100%', maxWidth: '576px', borderBottom: '3px solid #ECA620', marginBottom: '24px' }} />
           
-          <p style={{ color: '#334155', textAlign: 'center', fontSize: '20px', maxWidth: '768px', marginBottom: '32px', lineHeight: '1.6', fontWeight: '500', margin: '0 0 32px 0' }}>
-            In sincere appreciation of your relentless dedication and outstanding study streaks. You have successfully unlocked <span style={{ fontWeight: 'bold', color: '#ECA620', fontSize: '24px', margin: '0 4px' }}>{unlockedDefs.length}</span> achievement badges.
+          <p style={{ color: '#334155', textAlign: 'center', fontSize: '18px', maxWidth: '768px', marginBottom: '24px', lineHeight: '1.5', fontWeight: '500', margin: '0 0 24px 0' }}>
+            In sincere appreciation of your relentless dedication and outstanding study streaks. You have successfully unlocked <span style={{ fontWeight: 'bold', color: '#ECA620', fontSize: '22px', margin: '0 4px' }}>{unlockedDefs.length}</span> achievement badges.
           </p>
           
           {/* Badges Box */}
-          <div style={{ width: '100%', maxWidth: '768px', border: '2px solid #132B40', padding: '24px', borderRadius: '8px', marginBottom: '48px', position: 'relative', marginTop: '24px', boxSizing: 'border-box' }}>
-            <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#ffffff', padding: '0 16px', color: '#132B40', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '14px' }}>
+          <div style={{ width: '100%', maxWidth: '850px', border: '2px solid #132B40', padding: '16px', borderRadius: '8px', marginBottom: '24px', position: 'relative', marginTop: '16px', boxSizing: 'border-box' }}>
+            <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#ffffff', padding: '0 16px', color: '#132B40', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '12px' }}>
               Badges Achieved
             </div>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '32px', marginTop: '8px', minHeight: '80px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', marginTop: '8px', minHeight: '60px' }}>
               {unlockedDefs.map(def => (
-                <div key={def.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '80px' }}>
+                <div key={def.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '75px' }}>
                   {/* Icon without the circle background */}
-                  <div style={{ fontSize: '36px', marginBottom: '8px', filter: 'drop-shadow(0 4px 3px rgba(0,0,0,0.07))' }}>
+                  <div style={{ fontSize: '30px', marginBottom: '6px', filter: 'drop-shadow(0 4px 3px rgba(0,0,0,0.07))' }}>
                     {def.icon}
                   </div>
-                  <span style={{ fontSize: '10px', color: '#132B40', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', lineHeight: '1.2', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: '9px', color: '#132B40', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', lineHeight: '1.1', letterSpacing: '0.05em' }}>
                     {def.name}
                   </span>
                 </div>
@@ -123,7 +123,7 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
             </div>
           </div>
           
-          <p style={{ color: '#132B40', fontSize: '24px', fontWeight: 'bold', marginBottom: '64px', margin: '0 0 64px 0' }}>
+          <p style={{ color: '#132B40', fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', margin: '0 0 32px 0' }}>
             Awarded on {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </p>
           
