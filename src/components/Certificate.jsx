@@ -69,9 +69,10 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
             Vyora Study Tracker
           </h3>
           
-          <h1 style={{ fontSize: '50px', fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', marginBottom: '16px', letterSpacing: '0.025em', textTransform: 'uppercase', margin: '0 0 16px 0' }}>
-            Certificate of Consistency
-          </h1>
+          <div style={{ fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 16px 0' }}>
+            <div style={{ fontSize: '64px', letterSpacing: '0.05em', lineHeight: '1.1' }}>Certificate Of</div>
+            <div style={{ fontSize: '88px', letterSpacing: '0.02em', lineHeight: '1.1' }}>Consistency</div>
+          </div>
           
           <p style={{ color: '#475569', fontSize: '16px', marginBottom: '12px', fontWeight: '500', margin: '0 0 12px 0' }}>
             This Certificate is Proudly Presented to

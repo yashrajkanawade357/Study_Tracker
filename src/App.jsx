@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import Toast from './components/Toast';
 import Auth from './pages/Auth';
@@ -11,10 +11,18 @@ import Achievements from './pages/Achievements';
 import Pomodoro from './pages/Pomodoro';
 import Settings from './pages/Settings';
 import Landing from './pages/Landing';
+import UserManual from './pages/UserManual';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useApp();
+const ProtectedRoute = ({ children, requireManual = true }) => {
+  const { isAuthenticated, userProfile } = useApp();
+  const location = useLocation();
+
   if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  
+  if (requireManual && userProfile && !userProfile.hasSeenManual && location.pathname !== '/manual') {
+    return <Navigate to="/manual" replace />;
+  }
+
   return children;
 };
 
@@ -34,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/manual" element={<ProtectedRoute requireManual={false}><UserManual /></ProtectedRoute>} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

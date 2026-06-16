@@ -102,6 +102,7 @@ export const AppProvider = ({ children }) => {
                   bio: profile.bio || '',
                   linkedin: profile.linkedin || '',
                   instagram: profile.instagram || '',
+                  hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
                 };
                 storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
                 setUserProfile(profileData);
@@ -494,6 +495,7 @@ export const AppProvider = ({ children }) => {
         bio: profile.bio,
         linkedin: profile.linkedin,
         instagram: profile.instagram,
+        hasSeenManual: false,
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -519,6 +521,7 @@ export const AppProvider = ({ children }) => {
         bio: '',
         linkedin: '',
         instagram: '',
+        hasSeenManual: false,
       };
       
       users.push(newUser);
@@ -535,6 +538,7 @@ export const AppProvider = ({ children }) => {
         bio: newUser.bio,
         linkedin: newUser.linkedin,
         instagram: newUser.instagram,
+        hasSeenManual: false,
       };
       storage.set(STORAGE_KEYS.USER_PROFILE, profile);
       setUserProfile(profile);
@@ -575,6 +579,7 @@ export const AppProvider = ({ children }) => {
         bio: profile?.bio || '',
         linkedin: profile?.linkedin || '',
         instagram: profile?.instagram || '',
+        hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -617,6 +622,7 @@ export const AppProvider = ({ children }) => {
         bio: user.bio || '',
         linkedin: user.linkedin || '',
         instagram: user.instagram || '',
+        hasSeenManual: user.hasSeenManual || false,
       };
       
       if (actualStreak !== (user.streak || 0)) {
@@ -685,6 +691,13 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentXp, isAuthenticated, userProfile]);
 
+  const completeManual = useCallback(() => {
+    if (userProfile) {
+      const updated = { ...userProfile, hasSeenManual: true };
+      updateUserProfileStateAndStorage(updated);
+    }
+  }, [userProfile, updateUserProfileStateAndStorage]);
+
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
     toasts, isAuthenticated, currentStreak, currentXp,
@@ -695,6 +708,7 @@ export const AppProvider = ({ children }) => {
     exportData, clearAllData,
     addToast, removeToast,
     reload: loadAll,
+    completeManual,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
