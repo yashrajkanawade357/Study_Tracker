@@ -14,12 +14,6 @@ const stats = [
   { value: '4.8★',  label: 'App Rating'  },
 ];
 
-const testimonial = {
-  text: '"Vyora completely changed how I study. I went from failing to a B+ in one semester."',
-  name: 'Alex M.',
-  role: 'High School Student',
-};
-
 // ── Google SVG icon ───────────────────────────────────────────────
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -136,19 +130,21 @@ const Auth = () => {
             ))}
           </div>
 
-          {/* Testimonial */}
+          {/* Author Quote */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="flex gap-0.5 mb-3">
-              {[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm">★</span>)}
-            </div>
-            <p className="text-gray-300 text-sm italic leading-relaxed mb-4">{testimonial.text}</p>
+            <svg className="w-7 h-7 text-purple-500/40 mb-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+            <p className="text-gray-300 text-sm italic leading-relaxed mb-4">
+              "Technology should empower us to reach our highest potential. I built Vyora to help students transform their ambitions into achievable habits and measurable success."
+            </p>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white">
-                {testimonial.name[0]}
+                Y
               </div>
               <div>
-                <p className="text-white text-sm font-semibold">{testimonial.name}</p>
-                <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                <p className="text-white text-sm font-semibold">Yashraj Kanawade</p>
+                <p className="text-gray-500 text-xs">Creator of Vyora</p>
               </div>
             </div>
           </div>
