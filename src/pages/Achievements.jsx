@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
@@ -130,11 +131,16 @@ const getProgress = (id) => {
 const Achievements = () => {
   const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak, currentXp } = useApp();
   const [activeTab, setActiveTab] = useState('badges');
+  const [showXpInfo, setShowXpInfo] = useState(false);
   
   const xp = currentXp;
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
+  const xpNeeded = 100 - xpInLevel;
   const totalAchievements = achievements.filter(a => a.unlocked).length;
+
+  const logsXp = studyLogs.length * 5;
+  const achXp = achievements.filter(a => a.unlocked).reduce((sum, a) => sum + (ACHIEVEMENT_DEFS.find(d => d.id === a.id)?.xp || 0), 0);
   
   const [leaderboard, setLeaderboard] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -269,7 +275,64 @@ const Achievements = () => {
           </div>
         </div>
 
-
+        <div className="mb-2">
+          <div 
+            className="flex justify-between text-sm mb-2 cursor-pointer hover:text-white transition-colors group"
+            onClick={() => setShowXpInfo(!showXpInfo)}
+            title="Click to see XP breakdown"
+          >
+            <span className="text-gray-400 group-hover:text-gray-300 flex items-center gap-1 transition-colors">
+              Progress to Level {level + 1}
+              <InformationCircleIcon className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+            </span>
+            <span className="text-purple-400 font-semibold">{xpInLevel}/100 XP</span>
+          </div>
+          <div 
+            className="progress-bar h-4 cursor-pointer hover:shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-shadow"
+            onClick={() => setShowXpInfo(!showXpInfo)}
+            title="Click to see XP breakdown"
+          >
+            <motion.div
+              className="progress-fill bg-gradient-to-r from-purple-600 via-purple-500 to-cyan-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${xpInLevel}%` }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+            />
+          </div>
+          
+          <AnimatePresence>
+            {showXpInfo && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="p-4 rounded-xl bg-navy-800/50 border border-purple-700/20 text-sm">
+                  <h4 className="font-display font-semibold text-white mb-3">How XP is Calculated</h4>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-400">Study Sessions ({studyLogs.length} × 5 XP)</span>
+                    <span className="text-cyan-400 font-semibold">+{logsXp} XP</span>
+                  </div>
+                  <div className="flex justify-between mb-2 pb-2 border-b border-gray-700/50">
+                    <span className="text-gray-400">Achievement Badges</span>
+                    <span className="text-cyan-400 font-semibold">+{achXp} XP</span>
+                  </div>
+                  <div className="flex justify-between mb-4">
+                    <span className="text-white font-semibold">Total XP Earned</span>
+                    <span className="text-purple-400 font-bold">{xp} XP</span>
+                  </div>
+                  
+                  <div className="p-3 rounded-lg bg-purple-900/20 border border-purple-500/20 text-center">
+                    <p className="text-gray-300">
+                      You need <span className="text-white font-bold">{xpNeeded} more XP</span> to reach Level {level + 1}!
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mt-6">
