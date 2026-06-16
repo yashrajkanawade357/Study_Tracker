@@ -169,7 +169,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const addToast = useCallback((message, type = 'info', duration = 4000) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), duration);
   }, []);
@@ -279,7 +279,7 @@ export const AppProvider = ({ children }) => {
               unlocked_at: a.unlockedAt
             }));
             if (unlockedList.length > 0) {
-              supabase.from('achievements').upsert(unlockedList);
+              supabase.from('achievements').upsert(unlockedList).then();
             }
           }
         });

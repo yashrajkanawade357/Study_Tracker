@@ -171,9 +171,9 @@ const Achievements = () => {
             const mapped = data.map((p, index) => ({
               rank: index + 1,
               name: p.name || 'Anonymous',
-              level: Math.floor((p.xp || 0) / 100) + 1,
-              xp: p.xp || 0,
-              streak: p.streak || 0,
+              level: p.id === userProfile?.id ? level : Math.floor((p.xp || 0) / 100) + 1,
+              xp: p.id === userProfile?.id ? xp : (p.xp || 0),
+              streak: p.id === userProfile?.id ? currentStreak : (p.streak || 0),
               avatar: p.avatar || '🎓',
               bio: p.bio || '',
               linkedin: p.linkedin || '',
