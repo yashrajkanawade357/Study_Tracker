@@ -46,17 +46,18 @@ const clearCorruptedAuthData = () => {
 clearCorruptedAuthData();
 
 // Support both new publishable key (sb_publishable_...) and legacy anon key (eyJ...)
+// detectSessionInUrl must be true for Google OAuth redirect flow
 const clientOptions = supabaseAnonKey?.startsWith('sb_publishable_')
   ? {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
       },
     }
   : {
       auth: {
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
       },
     };
 

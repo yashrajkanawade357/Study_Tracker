@@ -636,6 +636,34 @@ export const AppProvider = ({ children }) => {
     }
   }, [loadUserDataFromSupabase]);
 
+  const loginWithGithub = useCallback(async () => {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: window.location.origin + '/dashboard',
+        }
+      });
+      if (error) throw error;
+    } else {
+      throw new Error('Supabase is not configured. GitHub Sign-In requires Supabase.');
+    }
+  }, []);
+
+  const sendMagicLink = useCallback(async (email) => {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + '/dashboard',
+        }
+      });
+      if (error) throw error;
+    } else {
+      throw new Error('Supabase is not configured. Magic Link requires Supabase.');
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     if (isSupabaseConfigured()) {
       await supabase.auth.signOut();
@@ -719,7 +747,7 @@ export const AppProvider = ({ children }) => {
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,
-    login, logout, register, checkEmailExists,
+    login, logout, register, checkEmailExists, loginWithGithub, sendMagicLink,
     exportData, clearAllData,
     addToast, removeToast,
     reload: loadAll,
