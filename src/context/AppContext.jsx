@@ -193,7 +193,7 @@ export const AppProvider = ({ children }) => {
       if (isSupabaseConfigured()) {
         const session = (await supabase.auth.getSession()).data.session;
         if (session?.user) {
-          await supabase
+          const { error } = await supabase
             .from('profiles')
             .upsert({
               id: session.user.id,
@@ -208,6 +208,11 @@ export const AppProvider = ({ children }) => {
               linkedin: updated.linkedin || '',
               instagram: updated.instagram || ''
             });
+            
+          if (error) {
+            console.error('Supabase profile update error:', error);
+            throw error;
+          }
         }
       }
     }
