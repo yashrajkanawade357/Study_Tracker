@@ -51,10 +51,13 @@ const HexBadge = ({ icon }) => (
     {/* Emoji icon */}
     <div style={{
       position: 'absolute', top: '50%', left: '50%',
-      transform: 'translate(-50%, -52%)',
-      fontSize: '90px', zIndex: 4,
+      transform: 'translate(-50%, -50%)',
+      fontSize: '80px', zIndex: 4,
       filter: 'drop-shadow(0 4px 24px rgba(251,191,36,0.5))',
-      lineHeight: 1,
+      lineHeight: '1',
+      width: '100px', height: '100px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      textAlign: 'center',
     }}>
       {icon}
     </div>
@@ -81,10 +84,11 @@ const XpPill = ({ xp }) => (
   <div style={{
     display: 'inline-flex', alignItems: 'center', gap: '10px',
     padding: '10px 28px',
-    background: 'rgba(15,10,46,0.8)',
-    border: '1px solid rgba(139,92,246,0.4)',
+    background: '#1a1530',
+    border: '1.5px solid rgba(139,92,246,0.5)',
     borderRadius: '50px',
     marginTop: '14px',
+    boxShadow: '0 0 20px rgba(139,92,246,0.15)',
   }}>
     <span style={{ color: '#a855f7', fontSize: '18px' }}>✦</span>
     <span style={{ color: '#e2e8f0', fontSize: '20px', fontWeight: '700' }}>+{xp} XP</span>
@@ -120,10 +124,12 @@ const Certificate = React.forwardRef(({ user, badge, achievement, stats }, ref) 
       </svg>
     </div>
   );
-  // Flame icon (orange)
+  // Flame icon (orange) - SVG instead of emoji for alignment
   const FlameIcon = (
     <div style={{ width:'48px', height:'48px', borderRadius:'50%', background:'rgba(249,115,22,0.12)', border:'1.5px solid rgba(249,115,22,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <span style={{ fontSize:'26px', lineHeight:1 }}>🔥</span>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="#f97316" stroke="none">
+        <path d="M12 23c-3.866 0-7-3.134-7-7 0-3.866 4-9 7-12 3 3 7 8.134 7 12 0 3.866-3.134 7-7 7zm-1-9c-1.5 1.5-2 3-2 4 0 1.657 1.343 3 3 3s3-1.343 3-3c0-1-.5-2.5-2-4l-1-1-1 1z"/>
+      </svg>
     </div>
   );
   // Calendar icon (green)
@@ -216,47 +222,49 @@ const Certificate = React.forwardRef(({ user, badge, achievement, stats }, ref) 
             {/* XP Pill */}
             <XpPill xp={badge.xp} />
 
-            {/* User + Date row */}
-            <div style={{ display:'flex', alignItems:'center', marginTop:'22px', gap:'30px' }}>
-              {/* Avatar + name */}
-              <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
-                <div style={{
-                  width:'52px', height:'52px', borderRadius:'50%',
-                  background:'linear-gradient(135deg, #7c3aed, #2563eb)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:'22px', fontWeight:'800', color:'#fff',
-                  boxShadow:'0 0 16px rgba(124,58,237,0.5)',
-                }}>
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p style={{ margin:0, fontSize:'10px', color:'#6366f1', fontWeight:'700', letterSpacing:'1.5px' }}>AWARDED TO</p>
-                  <p style={{ margin:'3px 0 0', fontSize:'20px', fontWeight:'700', color:'#f1f5f9' }}>
-                    {user.name.replace(/\s+/g, '_')}
-                  </p>
-                </div>
-              </div>
+          </div>
+        </div>
 
-              {/* Divider */}
-              <div style={{ width:'1px', height:'44px', background:'rgba(148,163,184,0.15)' }}/>
-
-              {/* Unlock date */}
-              <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
-                </svg>
-                <div>
-                  <p style={{ margin:0, fontSize:'10px', color:'#6366f1', fontWeight:'700', letterSpacing:'1.5px' }}>UNLOCKED ON</p>
-                  <p style={{ margin:'3px 0 0', fontSize:'18px', fontWeight:'700', color:'#f1f5f9' }}>
-                    {achievement?.unlockedAt ? formatFull(achievement.unlockedAt) : new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
-                  </p>
-                </div>
-              </div>
+        {/* ── USER + DATE ROW ── */}
+        <div style={{ display:'flex', alignItems:'center', marginTop:'16px', gap:'30px', padding:'0 10px' }}>
+          {/* Avatar + name */}
+          <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
+            <div style={{
+              width:'48px', height:'48px', borderRadius:'50%',
+              background:'linear-gradient(135deg, #7c3aed, #2563eb)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:'20px', fontWeight:'800', color:'#fff',
+              boxShadow:'0 0 16px rgba(124,58,237,0.5)',
+              flexShrink: 0,
+            }}>
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p style={{ margin:0, fontSize:'10px', color:'#6366f1', fontWeight:'700', letterSpacing:'1.5px' }}>AWARDED TO</p>
+              <p style={{ margin:'3px 0 0', fontSize:'20px', fontWeight:'700', color:'#f1f5f9' }}>
+                {user.name.replace(/\s+/g, '_')}
+              </p>
             </div>
           </div>
+
+          {/* Divider */}
+          <div style={{ width:'1px', height:'40px', background:'rgba(148,163,184,0.2)', flexShrink:0 }}/>
+
+          {/* Unlock date */}
+          <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <div>
+              <p style={{ margin:0, fontSize:'10px', color:'#6366f1', fontWeight:'700', letterSpacing:'1.5px' }}>UNLOCKED ON</p>
+              <p style={{ margin:'3px 0 0', fontSize:'18px', fontWeight:'700', color:'#f1f5f9' }}>
+                {achievement?.unlockedAt ? formatFull(achievement.unlockedAt) : new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
+              </p>
+            </div>
+          </div>
+        </div>
         </div>
 
         {/* ── STATS PANEL ── */}
@@ -271,7 +279,7 @@ const Certificate = React.forwardRef(({ user, badge, achievement, stats }, ref) 
           backdropFilter:'blur(12px)',
         }}>
           <Stat iconEl={ClockIcon} label={{ text:'Total Hours', color:'#3b82f6' }} value={stats.totalHours} sub="Time Invested" />
-          <Stat iconEl={FlameIcon} label={{ text:'Longest Streak', color:'#f97316' }} value={`${stats.longestStreak} Days`} sub="Keep it going! 🔥" borderLeft />
+          <Stat iconEl={FlameIcon} label={{ text:'Longest Streak', color:'#f97316' }} value={`${stats.longestStreak} Days`} sub="Keep it going!" borderLeft />
           <Stat iconEl={CalIcon} label={{ text:'Active Days', color:'#22c55e' }} value={stats.activeDays} sub="Days Active" borderLeft />
         </div>
 
