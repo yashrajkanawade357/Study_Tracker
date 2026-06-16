@@ -37,6 +37,7 @@ const Dashboard = () => {
   const { studyLogs, subjects, exams, userProfile, addStudyLog, addToast, currentStreak } = useApp();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [hoursInput, setHoursInput] = useState('');
+  const [minutesInput, setMinutesInput] = useState('');
   const [noteInput, setNoteInput] = useState('');
   const [dateInput, setDateInput] = useState(formatDate(new Date()));
 
@@ -76,11 +77,15 @@ const Dashboard = () => {
 
   const handleLog = () => {
     if (!selectedSubject) { addToast('Please select a subject', 'warning'); return; }
-    const hours = parseFloat(hoursInput);
-    if (!hours || hours <= 0 || hours > 24) { addToast('Enter valid hours (0-24)', 'warning'); return; }
-    addStudyLog({ subject: selectedSubject, hours, note: noteInput, timestamp: new Date(dateInput).toISOString(), date: dateInput });
-    addToast(`✅ Logged ${hours}h for ${selectedSubject}!`, 'success');
+    const hrs = parseInt(hoursInput) || 0;
+    const mins = parseInt(minutesInput) || 0;
+    const totalHours = hrs + (mins / 60);
+    
+    if (totalHours <= 0 || totalHours > 24) { addToast('Enter valid duration (up to 24h)', 'warning'); return; }
+    addStudyLog({ subject: selectedSubject, hours: totalHours, note: noteInput, timestamp: new Date(dateInput).toISOString(), date: dateInput });
+    addToast(`✅ Logged ${hrs > 0 ? hrs + 'h ' : ''}${mins}m for ${selectedSubject}!`, 'success');
     setHoursInput('');
+    setMinutesInput('');
     setNoteInput('');
   };
 
@@ -136,16 +141,28 @@ const Dashboard = () => {
                   <option key={s.id} value={s.name}>{s.name}</option>
                 ))}
               </select>
-              <input
-                type="number"
-                className="input-field"
-                placeholder="Hours studied (e.g. 2.5)"
-                value={hoursInput}
-                onChange={e => setHoursInput(e.target.value)}
-                min="0.1"
-                max="24"
-                step="0.1"
-              />
+              <div className="flex gap-3">
+                <input
+                  type="number"
+                  className="input-field flex-1"
+                  placeholder="Hours"
+                  value={hoursInput}
+                  onChange={e => setHoursInput(e.target.value)}
+                  min="0"
+                  max="24"
+                  step="1"
+                />
+                <input
+                  type="number"
+                  className="input-field flex-1"
+                  placeholder="Minutes"
+                  value={minutesInput}
+                  onChange={e => setMinutesInput(e.target.value)}
+                  min="0"
+                  max="59"
+                  step="1"
+                />
+              </div>
               <input
                 type="date"
                 className="input-field"
