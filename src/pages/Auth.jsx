@@ -67,7 +67,7 @@ const Auth = () => {
       setLoading(true);
       try {
         await register(name, email, password);
-        addToast('✅ Account verified! Welcome to StudyTracker.', 'success');
+        addToast('🎉 Account verified! Welcome to Vyora.', 'success');
         setShowOtpModal(false);
         navigate('/dashboard');
       } catch (err) {
@@ -128,11 +128,11 @@ const Auth = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <motion.div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl mb-4 shadow-glow-purple"
+            className="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden mb-6 shadow-glow-purple"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
-            📚
+            <img src="/logo.png" alt="Vyora Logo" className="w-full h-full object-cover" />
           </motion.div>
           <motion.div
             className="flex justify-center gap-1.5 mb-2"
@@ -157,7 +157,7 @@ const Auth = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="text-3xl md:text-4xl font-display font-bold gradient-text drop-shadow-lg"
           >
-            StudyTracker
+            Vyora
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}

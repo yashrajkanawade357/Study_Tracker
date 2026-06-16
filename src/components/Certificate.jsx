@@ -66,7 +66,7 @@ const Certificate = React.forwardRef(({ user, unlockedDefs, stats }, ref) => {
         <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: '950px', marginTop: '100px' }}>
           
           <h3 style={{ color: '#475569', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '12px', marginBottom: '12px', fontWeight: 'bold' }}>
-            Vyora Study Tracker
+            Vyora
           </h3>
           
           <div style={{ fontFamily: 'Georgia, serif', fontWeight: 'bold', color: '#132B40', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 16px 0' }}>

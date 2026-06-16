@@ -76,7 +76,7 @@ const AchievementCard = () => {
           
           {/* Subtitle / Organization */}
           <h3 className="text-gray-600 uppercase tracking-widest text-sm mb-6 font-medium">
-            Vyora Study Tracker
+            Vyora
           </h3>
           
           {/* Main Title */}

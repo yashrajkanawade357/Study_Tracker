@@ -41,21 +41,21 @@ const Landing = () => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header */}
-      <header className="container mx-auto px-6 py-6 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-            <BookOpenIcon className="w-6 h-6 text-white" />
+      <header className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 mr-2">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+            <img src="/logo.png" alt="Vyora Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="text-2xl font-display font-bold tracking-tight text-white">
-            StudyTracker
+          <span className="text-lg sm:text-2xl font-display font-bold tracking-tight text-white truncate">
+            Vyora
           </span>
         </div>
-        <div className="flex items-center gap-4">
-          <Link to="/auth" className="text-gray-300 hover:text-white font-medium transition-colors text-sm">
+        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <Link to="/auth" className="text-gray-300 hover:text-white font-medium transition-colors text-sm whitespace-nowrap">
             Log In
           </Link>
-          <Link to="/auth" className="btn-primary py-2 px-5 text-sm">
-            Sign Up Free
+          <Link to="/auth" className="btn-primary py-2 px-3 sm:px-5 text-xs sm:text-sm whitespace-nowrap">
+            Sign Up <span className="hidden sm:inline">Free</span>
           </Link>
         </div>
       </header>
@@ -147,13 +147,13 @@ const Landing = () => {
           <div className="relative z-10">
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Meet the Author</h3>
             <h2 className="text-3xl font-display font-bold text-white mb-2">Yashraj Kanawade</h2>
-            <p className="text-xl text-cyan-400 font-medium mb-6">Creator of StudyTracker</p>
+            <p className="text-xl text-cyan-400 font-medium mb-6">Creator of Vyora</p>
             <div className="relative mb-8">
               <svg className="absolute -top-4 -left-4 w-8 h-8 text-purple-500/20" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
               <p className="text-gray-300 italic text-lg leading-relaxed relative z-10 pl-6 border-l-2 border-purple-500/30">
-                "Technology should empower us to reach our highest potential. I built StudyTracker to help students transform their ambitions into achievable habits and measurable success."
+                "Technology should empower us to reach our highest potential. I built Vyora to help students transform their ambitions into achievable habits and measurable success."
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -169,7 +169,7 @@ const Landing = () => {
                 Connect on LinkedIn
               </a>
               <a 
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=StudyTracker%20Query"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=Vyora%20Query"
                 onClick={handleEmailClick}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -197,7 +197,7 @@ const Landing = () => {
               Ready to elevate your grades?
             </h2>
             <p className="text-cyan-100/70 mb-8 max-w-xl mx-auto text-lg">
-              Join thousands of students who have transformed their academic journey with StudyTracker.
+              Join thousands of students who have transformed their academic journey with Vyora.
             </p>
             <Link to="/auth" className="btn-cyan flex items-center gap-2 text-lg py-3 px-10 w-max mx-auto shadow-[0_0_30px_rgba(6,182,212,0.5)]">
               Create Your Account
@@ -209,11 +209,11 @@ const Landing = () => {
       {/* Footer */}
       <footer className="border-t border-white/5 py-8 mt-auto relative z-10 bg-black/20">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} StudyTracker. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Vyora. All rights reserved.</p>
           <div className="flex items-center gap-6 mt-4 md:mt-0">
             <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
             <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=StudyTracker%20Query" onClick={handleEmailClick} target="_blank" rel="noopener noreferrer" className="hover:text-white cursor-pointer transition-colors">Contact</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=Vyora%20Query" onClick={handleEmailClick} target="_blank" rel="noopener noreferrer" className="hover:text-white cursor-pointer transition-colors">Contact</a>
           </div>
         </div>
       </footer>

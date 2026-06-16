@@ -28,7 +28,7 @@ const UserManual = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight"
           >
-            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">Vyora Study Tracker</span>
+            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">Vyora</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
