@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import {
   HomeIcon, ChartBarIcon, SparklesIcon, CalendarDaysIcon,
-  TrophyIcon, ClockIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon
+  TrophyIcon, ClockIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon, BookOpenIcon
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -15,6 +15,7 @@ const navItems = [
   { path: '/achievements', label: 'Achievements', icon: TrophyIcon },
   { path: '/pomodoro', label: 'Pomodoro', icon: ClockIcon },
   { path: '/settings', label: 'Settings', icon: Cog6ToothIcon },
+  { path: '/manual', label: 'User Manual', icon: BookOpenIcon },
 ];
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
