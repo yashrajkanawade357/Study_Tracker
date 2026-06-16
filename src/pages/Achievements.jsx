@@ -1,12 +1,14 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
 import { ACHIEVEMENT_DEFS } from '../utils/storage';
-import { formatFull } from '../utils/dateUtils';
+import { formatFull, calculateLongestStreak, calculateTotalActiveDays } from '../utils/dateUtils';
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
+import html2canvas from 'html2canvas';
+import Certificate from '../components/Certificate';
 
 const MOCK_LEADERBOARD = [
   { rank: 1, name: 'Alex Chen', level: 12, xp: 1187, streak: 45, avatar: '🎯', bio: 'Coding my way through college!', linkedin: 'https://linkedin.com', instagram: 'alex' },
@@ -82,39 +84,49 @@ const PublicProfileModal = ({ user, onClose }) => {
   );
 };
 
-const BadgeCard = ({ def, achievement, index }) => {
+const BadgeCard = ({ def, achievement, index, onDownload }) => {
   const unlocked = achievement?.unlocked;
-  const progress = getProgress(def.id);
   
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.05 }}
-      className={`badge ${unlocked ? 'unlocked' : 'locked'} group relative`}
+      className={`badge ${unlocked ? 'unlocked' : 'locked'} group relative flex flex-col h-full`}
     >
-      <div className={`text-4xl mb-2 ${!unlocked && 'grayscale'} transition-transform group-hover:scale-110 duration-200`}>
-        {def.icon}
+      <div className="flex-1 flex flex-col items-center justify-center mt-2">
+        <div className={`text-4xl mb-2 ${!unlocked && 'grayscale'} transition-transform group-hover:scale-110 duration-200`}>
+          {def.icon}
+        </div>
+        <p className={`text-sm font-display font-bold ${unlocked ? 'text-white' : 'text-gray-600'}`}>
+          {def.name}
+        </p>
+        <p className={`text-xs ${unlocked ? 'text-gray-400' : 'text-gray-600'} leading-tight mt-1 flex-1`}>
+          {def.description}
+        </p>
       </div>
-      <p className={`text-sm font-display font-bold ${unlocked ? 'text-white' : 'text-gray-600'}`}>
-        {def.name}
-      </p>
-      <p className={`text-xs ${unlocked ? 'text-gray-400' : 'text-gray-600'} leading-tight`}>
-        {def.description}
-      </p>
+      
       {unlocked ? (
-        <>
-          <div className="mt-2 text-xs text-purple-400 font-semibold">+{def.xp} XP</div>
+        <div className="mt-auto w-full pt-2">
+          <div className="text-xs text-purple-400 font-semibold mb-0.5">+{def.xp} XP</div>
           {achievement.unlockedAt && (
-            <div className="text-xs text-gray-600 mt-0.5">{formatFull(achievement.unlockedAt)}</div>
+            <div className="text-[10px] text-gray-500 mb-2">{formatFull(achievement.unlockedAt)}</div>
           )}
-        </>
+          <button 
+            onClick={() => onDownload(def, achievement)}
+            className="w-full py-1.5 px-2 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 rounded-lg text-[11px] font-semibold text-purple-300 flex items-center justify-center gap-1 transition-all"
+            title="Download Certificate for LinkedIn"
+          >
+            <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+            Certificate
+          </button>
+        </div>
       ) : (
-        <div className="mt-2 text-xs text-gray-600">Locked</div>
+        <div className="mt-auto pt-2 text-xs text-gray-600 pb-2">Locked</div>
       )}
       {unlocked && (
         <div className="absolute -top-1 -right-1">
-          <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-xs">
+          <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-xs shadow-lg">
             ✓
           </div>
         </div>
@@ -129,9 +141,11 @@ const getProgress = (id) => {
 };
 
 const Achievements = () => {
-  const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak, currentXp } = useApp();
+  const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak, currentXp, addToast } = useApp();
   const [activeTab, setActiveTab] = useState('badges');
   const [showXpInfo, setShowXpInfo] = useState(false);
+  const [downloadingBadge, setDownloadingBadge] = useState(null);
+  const certificateRef = useRef(null);
   
   const xp = currentXp;
   const level = Math.floor(xp / 100) + 1;
@@ -145,6 +159,40 @@ const Achievements = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [leaderboardError, setLeaderboardError] = useState(false);
+
+  const stats = useMemo(() => {
+    return {
+      totalHours: studyLogs.reduce((s, l) => s + l.hours, 0).toFixed(1) + 'h',
+      longestStreak: calculateLongestStreak(studyLogs),
+      activeDays: calculateTotalActiveDays(studyLogs)
+    };
+  }, [studyLogs]);
+
+  const handleDownloadCertificate = async (def, achievement) => {
+    setDownloadingBadge({ def, achievement });
+    
+    setTimeout(async () => {
+      if (certificateRef.current) {
+        try {
+          const canvas = await html2canvas(certificateRef.current, {
+            scale: 2,
+            backgroundColor: '#0f172a',
+            logging: false
+          });
+          const image = canvas.toDataURL('image/png');
+          const a = document.createElement('a');
+          a.href = image;
+          a.download = `StudyTracker_Achievement_${def.name.replace(/\s+/g, '_')}.png`;
+          a.click();
+          addToast('✅ Certificate downloaded successfully!', 'success');
+        } catch (err) {
+          console.error('Error generating certificate:', err);
+          addToast('Error generating certificate', 'error');
+        }
+        setDownloadingBadge(null);
+      }
+    }, 500);
+  };
 
   useEffect(() => {
     if (isSupabaseConfigured()) {
@@ -356,10 +404,23 @@ const Achievements = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {ACHIEVEMENT_DEFS.map((def, i) => {
             const achievement = achievements.find(a => a.id === def.id);
-            return <BadgeCard key={def.id} def={def} achievement={achievement} index={i} />;
+            return <BadgeCard key={def.id} def={def} achievement={achievement} index={i} onDownload={handleDownloadCertificate} />;
           })}
         </div>
       </GlassCard>
+
+      {/* Hidden Certificate for Download */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+        {downloadingBadge && (
+          <Certificate 
+            ref={certificateRef}
+            user={userProfile}
+            badge={downloadingBadge.def}
+            achievement={downloadingBadge.achievement}
+            stats={stats}
+          />
+        )}
+      </div>
 
       {/* Leaderboard */}
       <GlassCard className="p-6">

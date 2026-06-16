@@ -104,3 +104,26 @@ export const calculateStreak = (logs) => {
   
   return streak;
 };
+
+export const calculateLongestStreak = (logs) => {
+  if (!logs.length) return 0;
+  const uniqueDates = [...new Set(logs.map(l => l.date))].sort((a, b) => new Date(a) - new Date(b));
+  let currentStreak = 1;
+  let maxStreak = 1;
+  for (let i = 1; i < uniqueDates.length; i++) {
+    const prevDate = new Date(uniqueDates[i-1]);
+    const currDate = new Date(uniqueDates[i]);
+    const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      currentStreak++;
+      if (currentStreak > maxStreak) maxStreak = currentStreak;
+    } else if (diffDays > 1) {
+      currentStreak = 1;
+    }
+  }
+  return maxStreak;
+};
+
+export const calculateTotalActiveDays = (logs) => {
+  return new Set(logs.map(l => l.date)).size;
+};
