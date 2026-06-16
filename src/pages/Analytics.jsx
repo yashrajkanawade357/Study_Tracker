@@ -7,7 +7,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
-import { getLast7Days, getLast30Days, formatDate, formatDisplay, aggregateHoursByDay } from '../utils/dateUtils';
+import { getLast7Days, getLast30Days, formatDate, formatDisplay, aggregateHoursByDay, getStudyLogsForWeek } from '../utils/dateUtils';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 const COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -113,11 +113,10 @@ const Analytics = () => {
 
   // Goal progress
   const goalProgress = useMemo(() => {
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+    const weekLogs = getStudyLogsForWeek(studyLogs);
     return subjects.map(s => {
-      const actual = studyLogs
-        .filter(l => l.subject === s.name && new Date(l.date) >= weekStart)
+      const actual = weekLogs
+        .filter(l => l.subject === s.name)
         .reduce((sum, l) => sum + l.hours, 0);
       const goal = s.weeklyGoal || s.weekly_goal || 0;
       const pct = goal > 0 ? Math.min((actual / goal) * 100, 100) : 0;
