@@ -42,19 +42,19 @@ const Landing = () => {
 
       {/* Header */}
       <header className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 mr-2">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0 mr-2">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
             <img src="/logo.png" alt="Vyora Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="text-lg sm:text-2xl font-display font-bold tracking-tight text-white truncate">
+          <span className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white truncate">
             Vyora
           </span>
         </div>
-        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-          <Link to="/auth" className="text-gray-300 hover:text-white font-medium transition-colors text-sm whitespace-nowrap">
+        <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
+          <Link to="/auth" className="text-gray-300 hover:text-white font-medium transition-colors text-base sm:text-lg whitespace-nowrap">
             Log In
           </Link>
-          <Link to="/auth" className="btn-primary py-2 px-3 sm:px-5 text-xs sm:text-sm whitespace-nowrap">
+          <Link to="/auth" className="btn-primary py-2.5 px-4 sm:px-6 text-sm sm:text-base whitespace-nowrap">
             Sign Up <span className="hidden sm:inline">Free</span>
           </Link>
         </div>
