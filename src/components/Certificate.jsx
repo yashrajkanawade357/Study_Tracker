@@ -41,7 +41,7 @@ const Certificate = React.forwardRef(({ user, badge, achievement, stats }, ref) 
         height: '660px',
         background: '#090914',
         position: 'relative',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
         boxSizing: 'border-box',
         overflow: 'hidden',
         color: '#ffffff',
@@ -87,9 +87,8 @@ const Certificate = React.forwardRef(({ user, badge, achievement, stats }, ref) 
               margin: 0, 
               fontSize: '64px', 
               fontWeight: '800', 
-              background: '-webkit-linear-gradient(0deg, #c084fc 0%, #60a5fa 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#c4b5fd',
+              textShadow: '0 0 30px rgba(168, 85, 247, 0.4)',
               lineHeight: '1.2'
             }}>
               {badge.name}
