@@ -83,13 +83,20 @@ export const AppProvider = ({ children }) => {
           loadUserDataFromSupabase(session.user.id).then(() => {
             supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data: profile }) => {
               if (profile) {
+                const logs = storage.get(STORAGE_KEYS.STUDY_LOGS) || [];
+                const actualStreak = calculateStreak(logs);
+                
+                if (actualStreak !== (profile.streak || 0)) {
+                  supabase.from('profiles').update({ streak: actualStreak }).eq('id', profile.id).then();
+                }
+
                 const profileData = {
                   id: profile.id,
                   email: profile.email,
                   name: profile.name,
                   xp: profile.xp || 0,
                   level: profile.level || 1,
-                  streak: profile.streak || 0,
+                  streak: actualStreak,
                   lastLogDate: profile.last_log_date || null,
                   avatar: profile.avatar || '🎓',
                   bio: profile.bio || '',
@@ -141,7 +148,23 @@ export const AppProvider = ({ children }) => {
     setAchievements(sanitizedAch);
     storage.set(STORAGE_KEYS.ACHIEVEMENTS, sanitizedAch);
     
-    setUserProfile(storage.get(STORAGE_KEYS.USER_PROFILE, {}));
+    const profile = storage.get(STORAGE_KEYS.USER_PROFILE, {});
+    const logs = storage.get(STORAGE_KEYS.STUDY_LOGS, []);
+    const actualStreak = calculateStreak(logs);
+    
+    if (profile.streak !== actualStreak) {
+      profile.streak = actualStreak;
+      storage.set(STORAGE_KEYS.USER_PROFILE, profile);
+      
+      const users = storage.get(STORAGE_KEYS.USERS, []);
+      const idx = users.findIndex(u => u.email?.toLowerCase() === profile.email?.toLowerCase());
+      if (idx >= 0) {
+        users[idx].streak = actualStreak;
+        storage.set(STORAGE_KEYS.USERS, users);
+      }
+    }
+    
+    setUserProfile(profile);
     setPomodoroSessions(storage.get(STORAGE_KEYS.POMODORO_SESSIONS, []));
   };
 
@@ -526,7 +549,7 @@ export const AppProvider = ({ children }) => {
         name: profile?.name || email.split('@')[0],
         xp: profile?.xp || 0,
         level: profile?.level || 1,
-        streak: profile?.streak || 0,
+        streak: profile?.streak || 0, // This will be fixed after loadUserDataFromSupabase finishes
         lastLogDate: profile?.last_log_date || null,
         avatar: profile?.avatar || '🎓',
         bio: profile?.bio || '',
@@ -538,6 +561,16 @@ export const AppProvider = ({ children }) => {
       setUserProfile(profileData);
       setIsAuthenticated(true);
       await loadUserDataFromSupabase(user.id);
+      
+      // Recalculate streak now that logs are loaded
+      const logs = storage.get(STORAGE_KEYS.STUDY_LOGS) || [];
+      const actualStreak = calculateStreak(logs);
+      if (actualStreak !== (profile?.streak || 0)) {
+        await supabase.from('profiles').update({ streak: actualStreak }).eq('id', user.id);
+        const updatedProfile = { ...profileData, streak: actualStreak };
+        storage.set(STORAGE_KEYS.USER_PROFILE, updatedProfile);
+        setUserProfile(updatedProfile);
+      }
     } else {
       const users = storage.get(STORAGE_KEYS.USERS, []);
       const normalizedEmail = email.toLowerCase();
@@ -551,18 +584,26 @@ export const AppProvider = ({ children }) => {
         throw new Error('Incorrect password. Please try again.');
       }
       
+      const actualStreak = calculateStreak(storage.get(STORAGE_KEYS.STUDY_LOGS, []));
+      
       const profile = {
         name: user.name,
         email: user.email,
         xp: user.xp || 0,
         level: user.level || 1,
-        streak: user.streak || 0,
+        streak: actualStreak,
         lastLogDate: user.lastLogDate || null,
         avatar: user.avatar || '🎓',
         bio: user.bio || '',
         linkedin: user.linkedin || '',
         instagram: user.instagram || '',
       };
+      
+      if (actualStreak !== (user.streak || 0)) {
+        user.streak = actualStreak;
+        storage.set(STORAGE_KEYS.USERS, users);
+      }
+      
       storage.set(STORAGE_KEYS.USER_PROFILE, profile);
       setUserProfile(profile);
       setIsAuthenticated(true);
