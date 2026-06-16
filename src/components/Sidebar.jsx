@@ -18,7 +18,7 @@ const navItems = [
 ];
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  const { userProfile, logout } = useApp();
+  const { userProfile, logout, currentXp } = useApp();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -26,8 +26,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     navigate('/auth');
   };
 
-  const level = userProfile?.level || 1;
-  const xp = userProfile?.xp || 0;
+  const xp = currentXp;
+  const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
   const avatar = userProfile?.avatar || '🎓';
   const isImage = avatar.startsWith('http') || avatar.startsWith('data:');
@@ -70,7 +70,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-400 mb-1.5">
             <span className="font-display font-semibold text-purple-400">Level {level}</span>
-            <span>{xpInLevel}/100 XP</span>
+            <span>{xpInLevel} / 100 XP</span>
           </div>
           <div className="progress-bar">
             <motion.div
