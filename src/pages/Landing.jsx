@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 import { 
   SparklesIcon, 
   ClockIcon, 
@@ -26,6 +27,13 @@ const FeatureCard = ({ icon: Icon, title, description, delay }) => (
 );
 
 const Landing = () => {
+  const { addToast } = useApp();
+
+  const handleEmailClick = () => {
+    navigator.clipboard.writeText('yashrajkanawade895@gmail.com');
+    addToast('Email address copied to clipboard!', 'success');
+  };
+
   return (
     <div className="min-h-screen bg-navy-900 text-white font-body relative overflow-hidden">
       {/* Background Effects */}
@@ -161,7 +169,10 @@ const Landing = () => {
                 Connect on LinkedIn
               </a>
               <a 
-                href="mailto:yashrajkanawade895@gmail.com?subject=StudyTracker%20Query" 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=StudyTracker%20Query"
+                onClick={handleEmailClick}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 hover:bg-purple-500 hover:text-white transition-all font-medium"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +213,7 @@ const Landing = () => {
           <div className="flex items-center gap-6 mt-4 md:mt-0">
             <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
             <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
-            <a href="mailto:yashrajkanawade895@gmail.com?subject=StudyTracker%20Query" className="hover:text-white cursor-pointer transition-colors">Contact</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com&su=StudyTracker%20Query" onClick={handleEmailClick} target="_blank" rel="noopener noreferrer" className="hover:text-white cursor-pointer transition-colors">Contact</a>
           </div>
         </div>
       </footer>
