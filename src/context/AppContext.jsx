@@ -251,11 +251,20 @@ export const AppProvider = ({ children }) => {
     if (logs.length >= 1) unlock('first_log');
     const totalHours = logs.reduce((s, l) => s + l.hours, 0);
     if (totalHours >= 50) unlock('fifty_hours');
+    if (totalHours >= 100) unlock('hundred_hours');
     const streak = calculateStreak(logs);
     if (streak >= 7) unlock('streak_7');
+    if (streak >= 30) unlock('streak_30');
     const subjectTotals = {};
     logs.forEach(l => { subjectTotals[l.subject] = (subjectTotals[l.subject] || 0) + l.hours; });
     if (Object.values(subjectTotals).some(h => h >= 20)) unlock('subject_master');
+    if (Object.keys(subjectTotals).length >= 4) unlock('polymath');
+    if (logs.some(l => l.hours >= 4)) unlock('marathoner');
+    if (logs.some(l => {
+      const d = l.timestamp ? new Date(l.timestamp).getDay() : new Date(l.date).getDay();
+      return d === 0 || d === 6;
+    })) unlock('weekend_warrior');
+
     const lastLog = logs[logs.length - 1];
     if (lastLog?.timestamp) {
       const h = new Date(lastLog.timestamp).getHours();

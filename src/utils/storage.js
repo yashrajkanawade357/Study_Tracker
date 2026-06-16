@@ -47,10 +47,15 @@ export const DEFAULT_SUBJECTS = [
 export const ACHIEVEMENT_DEFS = [
   { id: 'first_log', name: 'First Step', description: 'Log your first study session', icon: '🎯', xp: 10 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Study 7 days in a row', icon: '🔥', xp: 50 },
+  { id: 'streak_30', name: '30-Day Streak', description: 'Study 30 days in a row', icon: '☄️', xp: 300 },
   { id: 'fifty_hours', name: '50 Hours Club', description: 'Log 50 total study hours', icon: '⏱️', xp: 100 },
+  { id: 'hundred_hours', name: '100 Hours Club', description: 'Log 100 total study hours', icon: '👑', xp: 250 },
   { id: 'subject_master', name: 'Subject Master', description: '20+ hours in a single subject', icon: '🎓', xp: 75 },
+  { id: 'polymath', name: 'Polymath', description: 'Study 4 different subjects', icon: '🧠', xp: 100 },
   { id: 'early_bird', name: 'Early Bird', description: 'Log a session before 7am', icon: '🌅', xp: 30 },
   { id: 'night_owl', name: 'Night Owl', description: 'Log a session after 10pm', icon: '🦉', xp: 30 },
+  { id: 'marathoner', name: 'Marathoner', description: 'Log a single session of 4+ hours', icon: '🏃‍♂️', xp: 80 },
+  { id: 'weekend_warrior', name: 'Weekend Warrior', description: 'Study on a weekend', icon: '⛺', xp: 40 },
   { id: 'goal_crusher', name: 'Goal Crusher', description: 'Hit weekly goal 4 weeks in a row', icon: '🏆', xp: 150 },
 ];
 

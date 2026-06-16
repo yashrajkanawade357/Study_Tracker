@@ -353,7 +353,7 @@ const Achievements = () => {
       {/* Badges */}
       <GlassCard className="p-6 mb-6">
         <h3 className="font-display font-bold text-white mb-6">🏅 Achievement Badges</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {ACHIEVEMENT_DEFS.map((def, i) => {
             const achievement = achievements.find(a => a.id === def.id);
             return <BadgeCard key={def.id} def={def} achievement={achievement} index={i} />;
