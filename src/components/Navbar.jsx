@@ -10,6 +10,8 @@ const Navbar = ({ title, onMenuClick }) => {
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
   const streak = currentStreak;
+  const xp = userProfile?.xp || 0;
+  const level = Math.floor(xp / 100) + 1;
   const avatar = userProfile?.avatar || '🎓';
   const isImage = avatar.startsWith('http') || avatar.startsWith('data:');
 
@@ -123,11 +125,11 @@ const Navbar = ({ title, onMenuClick }) => {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mb-4 pb-4 border-b border-gray-700/40">
                   <div className="text-center">
-                    <p className="text-base font-bold text-purple-400 font-display">{userProfile?.level || 1}</p>
+                    <p className="text-base font-bold text-purple-400 font-display">{level}</p>
                     <p className="text-xs text-gray-500">Level</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-base font-bold text-cyan-400 font-display">{userProfile?.xp || 0}</p>
+                    <p className="text-base font-bold text-cyan-400 font-display">{xp}</p>
                     <p className="text-xs text-gray-500">XP</p>
                   </div>
                   <div className="text-center">

@@ -132,7 +132,7 @@ const Achievements = () => {
   const [activeTab, setActiveTab] = useState('badges');
   
   const xp = userProfile?.xp || 0;
-  const level = userProfile?.level || 1;
+  const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
   const totalAchievements = achievements.filter(a => a.unlocked).length;
   
@@ -171,7 +171,7 @@ const Achievements = () => {
             const mapped = data.map((p, index) => ({
               rank: index + 1,
               name: p.name || 'Anonymous',
-              level: p.level || 1,
+              level: Math.floor((p.xp || 0) / 100) + 1,
               xp: p.xp || 0,
               streak: p.streak || 0,
               avatar: p.avatar || '🎓',
