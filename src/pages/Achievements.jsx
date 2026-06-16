@@ -9,7 +9,6 @@ import { formatFull, calculateLongestStreak, calculateTotalActiveDays } from '..
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
 import html2canvas from 'html2canvas';
 import Certificate from '../components/Certificate';
-import AchievementCard from '../components/AchievementCard';
 
 const MOCK_LEADERBOARD = [
   { rank: 1, name: 'Alex Chen', level: 12, xp: 1187, streak: 45, avatar: '🎯', bio: 'Coding my way through college!', linkedin: 'https://linkedin.com', instagram: 'alex' },
@@ -113,14 +112,6 @@ const BadgeCard = ({ def, achievement, index, onDownload }) => {
           {achievement.unlockedAt && (
             <div className="text-[10px] text-gray-500 mb-2">{formatFull(achievement.unlockedAt)}</div>
           )}
-          <button 
-            onClick={() => onDownload(def, achievement)}
-            className="w-full py-1.5 px-2 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 rounded-lg text-[11px] font-semibold text-purple-300 flex items-center justify-center gap-1 transition-all"
-            title="Download Certificate for LinkedIn"
-          >
-            <ArrowDownTrayIcon className="w-3.5 h-3.5" />
-            Certificate
-          </button>
         </div>
       ) : (
         <div className="mt-auto pt-2 text-xs text-gray-600 pb-2">Locked</div>
@@ -145,7 +136,7 @@ const Achievements = () => {
   const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak, currentXp, addToast } = useApp();
   const [activeTab, setActiveTab] = useState('badges');
   const [showXpInfo, setShowXpInfo] = useState(false);
-  const [downloadingBadge, setDownloadingBadge] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const certificateRef = useRef(null);
   
   const xp = currentXp;
@@ -169,28 +160,28 @@ const Achievements = () => {
     };
   }, [studyLogs]);
 
-  const handleDownloadCertificate = async (def, achievement) => {
-    setDownloadingBadge({ def, achievement });
+  const handleDownloadMasterCertificate = async () => {
+    setIsDownloading(true);
     
     setTimeout(async () => {
       if (certificateRef.current) {
         try {
           const canvas = await html2canvas(certificateRef.current, {
             scale: 2,
-            backgroundColor: '#0f172a',
+            backgroundColor: '#ffffff',
             logging: false
           });
           const image = canvas.toDataURL('image/png');
           const a = document.createElement('a');
           a.href = image;
-          a.download = `StudyTracker_Achievement_${def.name.replace(/\s+/g, '_')}.png`;
+          a.download = `Vyora_Master_Certificate_${userProfile?.name?.replace(/\s+/g, '_') || 'User'}.png`;
           a.click();
-          addToast('✅ Certificate downloaded successfully!', 'success');
+          addToast('✅ Master Certificate downloaded successfully!', 'success');
         } catch (err) {
           console.error('Error generating certificate:', err);
           addToast('Error generating certificate', 'error');
         }
-        setDownloadingBadge(null);
+        setIsDownloading(false);
       }
     }, 500);
   };
@@ -311,10 +302,6 @@ const Achievements = () => {
 
   return (
     <Layout title="Achievements">
-      {/* Featured Achievement Showcase */}
-      <div className="mb-8 flex justify-center w-full">
-        <AchievementCard />
-      </div>
 
       {/* XP Bar Section */}
       <GlassCard className="p-6 mb-6">
@@ -323,9 +310,21 @@ const Achievements = () => {
             <h3 className="font-display font-bold text-2xl gradient-text">Level {level}</h3>
             <p className="text-gray-400 text-sm">{xp.toLocaleString()} total XP earned</p>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold font-display text-purple-400">{totalAchievements}/{ACHIEVEMENT_DEFS.length}</p>
-            <p className="text-xs text-gray-500">Badges Unlocked</p>
+          <div className="text-right flex flex-col items-end gap-3">
+            <div>
+              <p className="text-3xl font-bold font-display text-purple-400">{totalAchievements}/{ACHIEVEMENT_DEFS.length}</p>
+              <p className="text-xs text-gray-500">Badges Unlocked</p>
+            </div>
+            {totalAchievements > 0 && (
+              <button 
+                onClick={handleDownloadMasterCertificate}
+                disabled={isDownloading}
+                className="btn-primary py-1.5 px-4 text-xs flex items-center gap-2"
+              >
+                <ArrowDownTrayIcon className="w-4 h-4" />
+                {isDownloading ? 'Generating...' : 'Download Master Certificate'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -410,19 +409,18 @@ const Achievements = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {ACHIEVEMENT_DEFS.map((def, i) => {
             const achievement = achievements.find(a => a.id === def.id);
-            return <BadgeCard key={def.id} def={def} achievement={achievement} index={i} onDownload={handleDownloadCertificate} />;
+            return <BadgeCard key={def.id} def={def} achievement={achievement} index={i} />;
           })}
         </div>
       </GlassCard>
 
       {/* Hidden Certificate for Download */}
       <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
-        {downloadingBadge && (
+        {isDownloading && (
           <Certificate 
             ref={certificateRef}
             user={userProfile}
-            badge={downloadingBadge.def}
-            achievement={downloadingBadge.achievement}
+            unlockedDefs={ACHIEVEMENT_DEFS.filter(def => achievements.find(a => a.id === def.id)?.unlocked)}
             stats={stats}
           />
         )}
