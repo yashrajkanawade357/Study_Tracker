@@ -646,9 +646,11 @@ export const AppProvider = ({ children }) => {
     setIsAuthenticated(false);
   }, []);
 
+  const currentStreak = useMemo(() => calculateStreak(studyLogs), [studyLogs]);
+
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
-    toasts, isAuthenticated,
+    toasts, isAuthenticated, currentStreak,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,

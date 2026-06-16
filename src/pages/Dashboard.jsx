@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const Dashboard = () => {
-  const { studyLogs, subjects, exams, userProfile, addStudyLog, addToast } = useApp();
+  const { studyLogs, subjects, exams, userProfile, addStudyLog, addToast, currentStreak } = useApp();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [hoursInput, setHoursInput] = useState('');
   const [noteInput, setNoteInput] = useState('');
@@ -50,7 +50,7 @@ const Dashboard = () => {
   const monthLogs = useMemo(() => studyLogs.filter(l => new Date(l.date) >= monthStart), [studyLogs]);
   const monthHours = useMemo(() => monthLogs.reduce((s, l) => s + l.hours, 0), [monthLogs]);
   const activeSubjects = subjects.length;
-  const streak = userProfile?.streak || 0;
+  const streak = currentStreak;
 
   // Chart data
   const barData = useMemo(() => aggregateHoursByDay(studyLogs, last7Days), [studyLogs, last7Days]);

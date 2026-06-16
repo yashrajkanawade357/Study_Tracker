@@ -128,7 +128,8 @@ const getProgress = (id) => {
 };
 
 const Achievements = () => {
-  const { achievements, userProfile, studyLogs, subjects, checkAchievements } = useApp();
+  const { achievements, userProfile, studyLogs, subjects, checkAchievements, currentStreak } = useApp();
+  const [activeTab, setActiveTab] = useState('badges');
   
   const xp = userProfile?.xp || 0;
   const level = userProfile?.level || 1;
@@ -188,7 +189,7 @@ const Achievements = () => {
               name: userProfile?.name || 'You',
               level,
               xp,
-              streak: userProfile?.streak || 0,
+              streak: currentStreak,
               avatar: userProfile?.avatar || '🎓',
               bio: userProfile?.bio || '',
               linkedin: userProfile?.linkedin || '',
@@ -209,7 +210,7 @@ const Achievements = () => {
               name: userProfile?.name || 'You',
               level,
               xp,
-              streak: userProfile?.streak || 0,
+              streak: currentStreak,
               avatar: userProfile?.avatar || '🎓',
               bio: userProfile?.bio || '',
               linkedin: userProfile?.linkedin || '',
@@ -232,7 +233,7 @@ const Achievements = () => {
           name: userProfile?.name || 'You',
           level,
           xp,
-          streak: userProfile?.streak || 0,
+          streak: currentStreak,
           avatar: userProfile?.avatar || '🎓',
           bio: userProfile?.bio || '',
           linkedin: userProfile?.linkedin || '',
@@ -287,7 +288,7 @@ const Achievements = () => {
         <div className="grid grid-cols-3 gap-4 mt-6">
           {[
             { label: 'Total Hours', value: totalHours.toFixed(1) + 'h', icon: '⏱️' },
-            { label: 'Current Streak', value: (userProfile?.streak || 0) + ' days', icon: '🔥' },
+            { label: 'Current Streak', value: currentStreak + ' days', icon: '🔥' },
             { label: 'Sessions', value: studyLogs.length, icon: '📚' },
           ].map(({ label, value, icon }) => (
             <div key={label} className="text-center p-3 rounded-xl bg-navy-800/50">
