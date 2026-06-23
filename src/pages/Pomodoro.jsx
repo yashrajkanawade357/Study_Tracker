@@ -43,6 +43,9 @@ const CircularTimer = ({ progress, isBreak, isLongBreak, timeLeft, size = 240 })
   const strokeColor = isBreak ? (isLongBreak ? '#f59e0b' : '#06b6d4') : '#7c3aed';
   const glowColor = isBreak ? (isLongBreak ? 'rgba(245,158,11,0.4)' : 'rgba(6,182,212,0.4)') : 'rgba(124,58,237,0.4)';
 
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="absolute">
@@ -181,7 +184,7 @@ const Pomodoro = () => {
               if (selectedSubject) {
                 addPomodoroSession({ subject: selectedSubject, duration: focusDurationSecs });
               }
-              const newCount = c + 1;
+              const newCount = sessionCount + 1;
               setSessionCount(newCount);
               const isLong = newCount > 0 && newCount % 4 === 0;
               
