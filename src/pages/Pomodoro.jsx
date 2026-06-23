@@ -235,12 +235,16 @@ const Pomodoro = () => {
 
   const handleAddTask = () => {
     if (!newTaskText.trim()) return;
-    const dur = parseInt(newTaskDuration) || 10;
+    const dur = Math.min(parseInt(newTaskDuration) || 10, focusDurationSetting);
     const allocatedSecs = tasks.reduce((sum, t) => sum + t.duration, 0);
     const remainingBudget = focusDurationSecs - allocatedSecs;
 
+    if (dur <= 0) {
+      addToast('Task must be at least 1 minute', 'warning');
+      return;
+    }
     if (dur * 60 > focusDurationSecs) {
-      addToast(`Task time can't exceed the total session time (${focusDurationSetting} min)`, 'warning');
+      addToast(`Task time can't exceed the session time (${focusDurationSetting} min)`, 'warning');
       return;
     }
     if (dur * 60 > remainingBudget) {
@@ -463,10 +467,18 @@ const Pomodoro = () => {
                     <input
                       type="number"
                       min="1"
+                      max={focusDurationSetting}
                       className="input-field py-1 px-2 text-sm w-16 bg-navy-800/50 text-center"
                       placeholder="Mins"
                       value={newTaskDuration}
-                      onChange={e => setNewTaskDuration(e.target.value)}
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) {
+                          setNewTaskDuration(String(Math.min(Math.max(1, val), focusDurationSetting)));
+                        } else {
+                          setNewTaskDuration(e.target.value);
+                        }
+                      }}
                       onKeyDown={e => e.key === 'Enter' && handleAddTask()}
                     />
                     <button onClick={handleAddTask} className="text-purple-400 hover:text-purple-300 transition-colors">
