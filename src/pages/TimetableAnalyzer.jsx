@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
-import { callClaude } from '../utils/claude';
+import { callAI, getAvailableProvider } from '../utils/claude';
 import { CloudArrowUpIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { storage } from '../utils/storage';
 
@@ -110,7 +110,7 @@ const TimetableAnalyzer = () => {
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [suggestedEntries, setSuggestedEntries] = useState([]);
   const [rawText, setRawText] = useState('');
-  const hasApiKey = !!storage.get('anthropicApiKey');
+  const hasApiKey = !!getAvailableProvider();
 
   const processFile = useCallback(async (file) => {
     if (!file) return;
@@ -174,7 +174,7 @@ Please:
 
 Make the timetable cover Monday-Friday primarily, with optional Saturday sessions.`;
 
-      const response = await callClaude([{ role: 'user', content: prompt }], 
+      const response = await callAI([{ role: 'user', content: prompt }], 
         'You are a study timetable optimizer. Provide practical, balanced schedules.');
       
       setAiSuggestion(response);

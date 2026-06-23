@@ -193,8 +193,42 @@ const StudyCard = () => (
   </motion.div>
 );
 
+/* ── FAQ Accordion Item ───────────────────────────────────── */
+const FaqItem = ({ question, answer, delay }) => {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.4 }}
+      className="rounded-2xl border border-white/[0.06] overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.02)' }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-white/[0.02] transition-colors"
+      >
+        <span className="text-white font-semibold text-base pr-4">{question}</span>
+        <span className="flex-shrink-0 w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-violet-400 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)', background: 'rgba(124,58,237,0.1)' }}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <div className="px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-white/[0.04] pt-4">
+          {answer}
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
 /* ── Main Component ───────────────────────────────────────── */
 const Landing = () => {
+
   return (
     <div className="min-h-screen text-white font-body relative overflow-x-hidden"
       style={{ background: 'radial-gradient(ellipse at 20% 0%, #1a0533 0%, #080818 40%, #060612 100%)' }}>
@@ -417,6 +451,155 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── FAQ Section ── */}
+      <section id="faq" className="relative z-10 py-32 border-t border-white/[0.05]">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <motion.span
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-violet-500/20"
+              style={{ background: 'rgba(124,58,237,0.1)' }}
+            >
+              Got Questions?
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+            >
+              Frequently Asked{' '}
+              <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Questions
+              </span>
+            </motion.h2>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: 'What is Vyora?',
+                a: 'Vyora is a free, AI-powered study tracking platform built for students. It helps you log study sessions, set goals, manage your timetable, and stay motivated through gamified achievements and streaks.',
+              },
+              {
+                q: 'Is Vyora completely free?',
+                a: 'Yes! Vyora is 100% free for all students. There are no hidden fees, no credit card required, and no premium paywalls. Just sign up and start tracking.',
+              },
+              {
+                q: 'How does the AI Study Coach work?',
+                a: 'The AI coach analyses your study patterns, subject distribution, and goals to give you personalised recommendations — like which subjects need more focus, optimal study times, and motivational nudges.',
+              },
+              {
+                q: 'What is the Pomodoro timer?',
+                a: 'The Pomodoro technique is a proven productivity method: study for 25 minutes, take a 5-minute break, and repeat. Vyora\'s built-in timer guides you through this cycle automatically, helping you stay focused without burning out.',
+              },
+              {
+                q: 'Can I track multiple subjects?',
+                a: 'Absolutely. You can add unlimited subjects, set individual goals for each, and Vyora will track your time per subject, show you breakdowns, and help you maintain a healthy balance across all of them.',
+              },
+              {
+                q: 'How do streaks and achievements work?',
+                a: 'Every day you log a study session, your streak grows. You also unlock badges for hitting milestones like "First 10 hours", "7-day streak", "Night Owl", and many more. It\'s designed to make studying feel rewarding.',
+              },
+              {
+                q: 'Is my data safe?',
+                a: 'Yes. Vyora uses Supabase, a secure and open-source backend, to store your data. Your information is encrypted and never sold to third parties.',
+              },
+            ].map((faq, i) => (
+              <FaqItem key={i} question={faq.q} answer={faq.a} delay={i * 0.05} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── About Vyora Section ── */}
+      <section className="relative z-10 py-32 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* Left: text */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+            >
+              <span className="inline-block text-sm font-semibold text-cyan-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-cyan-500/20"
+                style={{ background: 'rgba(34,211,238,0.08)' }}>
+                Why Vyora?
+              </span>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6 leading-tight">
+                Built by a student,{' '}
+                <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  for students.
+                </span>
+              </h2>
+              <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                Vyora was born out of frustration with generic productivity apps that don't understand the unique pressures students face — exam seasons, multiple subjects, burnout, and the constant need for motivation.
+              </p>
+              <p className="text-gray-400 text-lg leading-relaxed mb-10">
+                Every feature in Vyora was designed with one question in mind: <span className="text-white font-medium">"Does this actually help a student study better?"</span> No bloat, no distractions — just a focused, beautiful tool that works.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { num: '10,000+', label: 'Active Students' },
+                  { num: '500h+', label: 'Hours Tracked Daily' },
+                  { num: '4.9★', label: 'Average Rating' },
+                  { num: '100%', label: 'Free Forever' },
+                ].map(stat => (
+                  <div key={stat.label} className="p-4 rounded-2xl border border-white/[0.06]"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}>
+                    <div className="text-2xl font-display font-bold text-white mb-1"
+                      style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      {stat.num}
+                    </div>
+                    <div className="text-sm text-gray-500">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: feature list */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="space-y-4"
+            >
+              {[
+                { icon: '📊', title: 'Detailed Analytics', desc: 'See exactly how you spend your study time with beautiful charts and subject breakdowns.' },
+                { icon: '🎯', title: 'Goal Setting', desc: 'Set daily, weekly, and subject-specific study goals. Vyora tracks your progress automatically.' },
+                { icon: '🔥', title: 'Study Streaks', desc: 'Build momentum with daily streaks. Missing a day breaks your streak — the perfect motivation.' },
+                { icon: '🤖', title: 'AI-Powered Insights', desc: 'Get smart suggestions based on your performance to continuously improve your study strategy.' },
+                { icon: '📅', title: 'Timetable Management', desc: 'Plan your week visually and let Vyora help you find the optimal balance between subjects.' },
+                { icon: '🏆', title: 'Badges & Rewards', desc: 'Unlock achievements as you study. From "Early Bird" to "Study Legend" — there\'s always a goal to chase.' },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                  className="flex items-start gap-4 p-4 rounded-2xl border border-white/[0.05] hover:border-violet-500/20 transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.02)' }}
+                >
+                  <span className="text-2xl mt-0.5">{item.icon}</span>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">{item.title}</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA Section ── */}
       <section className="relative z-10 py-28 border-t border-white/[0.05]">
         <div className="max-w-4xl mx-auto px-6 text-center">
@@ -464,6 +647,7 @@ const Landing = () => {
             <span className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Vyora. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
+            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
             <span className="hover:text-white cursor-pointer transition-colors">Privacy</span>
             <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a>
@@ -475,3 +659,4 @@ const Landing = () => {
 };
 
 export default Landing;
+

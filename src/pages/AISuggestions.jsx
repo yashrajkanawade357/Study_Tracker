@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
-import { callClaude, buildStudyContext } from '../utils/claude';
+import { callAI, buildStudyContext, getAvailableProvider } from '../utils/claude';
 import { PaperAirplaneIcon, SparklesIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { storage } from '../utils/storage';
 
@@ -46,7 +46,8 @@ const AISuggestions = () => {
   const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
-  const hasApiKey = !!storage.get('anthropicApiKey');
+  const provider = getAvailableProvider();
+  const hasApiKey = !!provider;
 
   const fetchSuggestions = async () => {
     setLoading(true);
@@ -67,7 +68,7 @@ ${JSON.stringify(context, null, 2)}
 
 Please analyze this and provide suggestions in the JSON format specified.`;
 
-      const response = await callClaude([{ role: 'user', content: userMessage }], systemPrompt);
+      const response = await callAI([{ role: 'user', content: userMessage }], systemPrompt);
       
       // Parse JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -110,7 +111,7 @@ Please analyze this and provide suggestions in the JSON format specified.`;
       const history = chatMessages.map(m => ({ role: m.role, content: m.content }));
       history.push({ role: 'user', content: userMsg });
 
-      const response = await callClaude(history, systemPrompt);
+      const response = await callAI(history, systemPrompt);
       setChatMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (err) {
       setChatMessages(prev => [...prev, { role: 'assistant', content: `❌ Error: ${err.message}` }]);
@@ -138,7 +139,7 @@ Please analyze this and provide suggestions in the JSON format specified.`;
           <div>
             <p className="text-sm font-semibold text-amber-400">API Key Required</p>
             <p className="text-xs text-amber-300/70 mt-1">
-              Go to <strong>Settings</strong> and paste your Anthropic API key to enable AI features.
+              Go to <strong>Settings → API Keys</strong> and paste your OpenAI or Anthropic API key to enable AI features.
             </p>
           </div>
         </motion.div>
@@ -155,7 +156,7 @@ Please analyze this and provide suggestions in the JSON format specified.`;
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-white">AI Study Analysis</h3>
-                  <p className="text-xs text-gray-400">Powered by Claude Sonnet</p>
+                  <p className="text-xs text-gray-400">Powered by {provider === 'openai' ? 'GPT-4o Mini' : 'Claude Sonnet'}</p>
                 </div>
               </div>
               <button

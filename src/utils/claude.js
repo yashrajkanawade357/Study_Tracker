@@ -1,6 +1,22 @@
-// Claude API wrapper
+// Smart AI Router - tries OpenAI first, then Anthropic
+import { storage } from './storage';
+
+export const getAvailableProvider = () => {
+  if (storage.get('openaiApiKey')) return 'openai';
+  if (storage.get('anthropicApiKey')) return 'anthropic';
+  return null;
+};
+
+export const callAI = async (messages, systemPrompt = '') => {
+  const provider = getAvailableProvider();
+  if (provider === 'openai') return callOpenAI(messages, systemPrompt);
+  if (provider === 'anthropic') return callClaude(messages, systemPrompt);
+  throw new Error('No API key found. Please add your OpenAI or Anthropic API key in Settings.');
+};
+
+// Anthropic (Claude)
 export const callClaude = async (messages, systemPrompt = '') => {
-  const apiKey = localStorage.getItem('anthropicApiKey');
+  const apiKey = storage.get('anthropicApiKey');
   if (!apiKey) throw new Error('No Anthropic API key set. Please add it in Settings.');
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -21,11 +37,42 @@ export const callClaude = async (messages, systemPrompt = '') => {
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API error: ${response.status}`);
+    throw new Error(err.error?.message || `Anthropic API error: ${response.status}`);
   }
 
   const data = await response.json();
   return data.content[0].text;
+};
+
+// OpenAI (GPT) — routed through /api/openai proxy to avoid CORS
+export const callOpenAI = async (messages, systemPrompt = '') => {
+  const apiKey = storage.get('openaiApiKey');
+  if (!apiKey) throw new Error('No OpenAI API key set. Please add it in Settings.');
+
+  const formattedMessages = [
+    ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+    ...messages,
+  ];
+
+  // Use serverless proxy to bypass CORS
+  const response = await fetch('/api/openai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      apiKey,
+      model: 'gpt-4o-mini',
+      max_tokens: 2048,
+      messages: formattedMessages,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `OpenAI API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
 };
 
 export const buildStudyContext = (studyLogs, subjects, sleepLogs, exams) => {
@@ -51,3 +98,5 @@ export const buildStudyContext = (studyLogs, subjects, sleepLogs, exams) => {
 
   return { subjectHours, avgSleepHours: avgSleep, upcomingExams };
 };
+
+
