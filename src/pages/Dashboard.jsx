@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
@@ -33,6 +33,81 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const calculateTimeLeft = (targetDate) => {
+  // Assuming targetDate is just a date string like YYYY-MM-DD, 
+  // we set it to the end of that day or start of that day.
+  // Let's set it to the end of the day (23:59:59) for the countdown, 
+  // or just use the exact date object.
+  const target = new Date(targetDate);
+  // If the target has no time, let's assume it's the end of the day so they have until midnight.
+  target.setHours(23, 59, 59, 999);
+  
+  const difference = target - new Date();
+  let timeLeft = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  };
+
+  if (difference > 0) {
+    timeLeft = {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60)
+    };
+  }
+  return timeLeft;
+};
+
+const ExamCountdownItem = ({ exam }) => {
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(exam.date));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(exam.date));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [exam.date]);
+
+  const urgency = timeLeft.days <= 3 ? 'red' : timeLeft.days <= 7 ? 'amber' : 'emerald';
+  const colors = {
+    red: 'border-red-500/30 bg-red-900/20 text-red-400',
+    amber: 'border-amber-500/30 bg-amber-900/20 text-amber-400',
+    emerald: 'border-emerald-500/30 bg-emerald-900/20 text-emerald-400',
+  };
+
+  return (
+    <div className={`flex flex-col p-3 rounded-xl border ${colors[urgency]}`}>
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <p className="text-sm font-semibold text-white">{exam.name}</p>
+          <p className="text-xs opacity-70">{formatFull(exam.date)}</p>
+        </div>
+      </div>
+      <div className="flex justify-between items-center bg-black/20 rounded-lg p-2">
+        <div className="text-center flex-1">
+          <p className="text-lg font-display font-bold leading-none">{timeLeft.days}</p>
+          <p className="text-[10px] uppercase tracking-wider opacity-70">Days</p>
+        </div>
+        <div className="text-center flex-1">
+          <p className="text-lg font-display font-bold leading-none">{timeLeft.hours.toString().padStart(2, '0')}</p>
+          <p className="text-[10px] uppercase tracking-wider opacity-70">Hrs</p>
+        </div>
+        <div className="text-center flex-1">
+          <p className="text-lg font-display font-bold leading-none">{timeLeft.minutes.toString().padStart(2, '0')}</p>
+          <p className="text-[10px] uppercase tracking-wider opacity-70">Min</p>
+        </div>
+        <div className="text-center flex-1">
+          <p className="text-lg font-display font-bold leading-none">{timeLeft.seconds.toString().padStart(2, '0')}</p>
+          <p className="text-[10px] uppercase tracking-wider opacity-70">Sec</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { studyLogs, subjects, exams, userProfile, addStudyLog, addToast, currentStreak } = useApp();
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -63,12 +138,15 @@ const Dashboard = () => {
   }, [weekLogs, subjects]);
 
   // Exam countdowns
-  const upcomingExams = useMemo(() =>
-    exams
-      .map(e => ({ ...e, daysLeft: getDaysRemaining(e.date) }))
-      .filter(e => e.daysLeft >= 0)
-      .sort((a, b) => a.daysLeft - b.daysLeft)
-  , [exams]);
+  const upcomingExams = useMemo(() => {
+    return exams
+      .filter(e => {
+        const target = new Date(e.date);
+        target.setHours(23, 59, 59, 999);
+        return target.getTime() > new Date().getTime();
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [exams]);
 
   // Recent activity
   const recentLogs = useMemo(() =>
@@ -268,27 +346,10 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-600">Add exams in Settings</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-2 overflow-y-auto max-h-48">
-                {upcomingExams.map(exam => {
-                  const urgency = exam.daysLeft <= 3 ? 'red' : exam.daysLeft <= 7 ? 'amber' : 'emerald';
-                  const colors = {
-                    red: 'border-red-500/30 bg-red-900/20 text-red-400',
-                    amber: 'border-amber-500/30 bg-amber-900/20 text-amber-400',
-                    emerald: 'border-emerald-500/30 bg-emerald-900/20 text-emerald-400',
-                  };
-                  return (
-                    <div key={exam.id} className={`flex items-center justify-between p-3 rounded-xl border ${colors[urgency]}`}>
-                      <div>
-                        <p className="text-sm font-semibold text-white">{exam.name}</p>
-                        <p className="text-xs opacity-70">{formatFull(exam.date)}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-display font-bold">{exam.daysLeft}</p>
-                        <p className="text-xs opacity-70">days</p>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col gap-2 overflow-y-auto max-h-[300px]">
+                {upcomingExams.map(exam => (
+                  <ExamCountdownItem key={exam.id} exam={exam} />
+                ))}
               </div>
             )}
           </GlassCard>
