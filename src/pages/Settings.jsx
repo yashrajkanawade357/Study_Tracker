@@ -26,7 +26,16 @@ const Settings = () => {
   const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
   const [editingSubject, setEditingSubject] = useState(null);
   const [newExam, setNewExam] = useState({ name: '', date: '', subject: '' });
-  const [apiKey, setApiKey] = useState(storage.get('anthropicApiKey') || '');
+  const [apiKeys, setApiKeys] = useState({
+    anthropic: storage.get('anthropicApiKey') || '',
+    openai: storage.get('openaiApiKey') || '',
+    gemini: storage.get('geminiApiKey') || '',
+  });
+  const [savedKeys, setSavedKeys] = useState({
+    anthropic: !!storage.get('anthropicApiKey'),
+    openai: !!storage.get('openaiApiKey'),
+    gemini: !!storage.get('geminiApiKey'),
+  });
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
 
@@ -87,9 +96,15 @@ const Settings = () => {
     addToast(`✅ Exam "${newExam.name}" added`, 'success');
   };
 
-  const handleSaveApiKey = () => {
-    storage.set('anthropicApiKey', apiKey);
-    addToast('✅ API key saved!', 'success');
+  const handleSaveApiKey = (provider) => {
+    const storageKeys = {
+      anthropic: 'anthropicApiKey',
+      openai: 'openaiApiKey',
+      gemini: 'geminiApiKey',
+    };
+    storage.set(storageKeys[provider], apiKeys[provider]);
+    setSavedKeys(s => ({ ...s, [provider]: !!apiKeys[provider] }));
+    addToast(`✅ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key saved!`, 'success');
   };
 
   const handleClearData = () => {
@@ -102,7 +117,7 @@ const Settings = () => {
     { id: 'profile', label: '👤 Profile', icon: '👤' },
     { id: 'subjects', label: '📚 Subjects', icon: '📚' },
     { id: 'exams', label: '📅 Exams', icon: '📅' },
-    { id: 'api', label: '🔑 API Key', icon: '🔑' },
+    { id: 'api', label: '🔑 API Keys', icon: '🔑' },
     { id: 'data', label: '💾 Data', icon: '💾' },
   ];
 
@@ -383,39 +398,83 @@ const Settings = () => {
                 exit={{ opacity: 0, x: -10 }}
               >
                 <GlassCard className="p-6">
-                  <h3 className="font-display font-bold text-white mb-2 text-lg">🔑 Anthropic API Key</h3>
+                  <h3 className="font-display font-bold text-white mb-1 text-lg">🔑 API Keys</h3>
                   <p className="text-gray-400 text-sm mb-6">
-                    Required for AI Suggestions (Page 4) and Timetable Analyzer (Page 5). Your key is stored locally and never sent to our servers.
+                    Your keys are stored locally in your browser and never sent to our servers.
                   </p>
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">API Key</label>
-                      <input
-                        type="password"
-                        className="input-field font-mono text-sm"
-                        placeholder="sk-ant-api03-..."
-                        value={apiKey}
-                        onChange={e => setApiKey(e.target.value)}
-                      />
-                    </div>
-                    <button onClick={handleSaveApiKey} className="btn-primary flex items-center gap-2">
-                      <CheckIcon className="w-4 h-4" />
-                      Save API Key
-                    </button>
-                    {apiKey && (
-                      <div className="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30 text-emerald-400 text-sm">
-                        ✅ API key is saved and will be used for Claude AI features.
+
+                  <div className="flex flex-col gap-6">
+                    {[
+                      {
+                        key: 'anthropic',
+                        label: 'Anthropic (Claude)',
+                        icon: '🤖',
+                        placeholder: 'sk-ant-api03-...',
+                        usedFor: 'AI Suggestions & Timetable Analyzer',
+                        docsUrl: 'https://console.anthropic.com',
+                        docsLabel: 'console.anthropic.com',
+                        color: 'text-purple-400',
+                        border: 'border-purple-500/30',
+                        bg: 'bg-purple-900/10',
+                      },
+                      {
+                        key: 'openai',
+                        label: 'OpenAI (GPT)',
+                        icon: '✨',
+                        placeholder: 'sk-...',
+                        usedFor: 'GPT-powered features',
+                        docsUrl: 'https://platform.openai.com/api-keys',
+                        docsLabel: 'platform.openai.com',
+                        color: 'text-emerald-400',
+                        border: 'border-emerald-500/30',
+                        bg: 'bg-emerald-900/10',
+                      },
+                      {
+                        key: 'gemini',
+                        label: 'Google Gemini',
+                        icon: '💎',
+                        placeholder: 'AIza...',
+                        usedFor: 'Gemini-powered features',
+                        docsUrl: 'https://aistudio.google.com/app/apikey',
+                        docsLabel: 'aistudio.google.com',
+                        color: 'text-cyan-400',
+                        border: 'border-cyan-500/30',
+                        bg: 'bg-cyan-900/10',
+                      },
+                    ].map(provider => (
+                      <div key={provider.key} className={`p-4 rounded-xl border ${provider.border} ${provider.bg}`}>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xl">{provider.icon}</span>
+                          <h4 className={`font-semibold text-sm ${provider.color}`}>{provider.label}</h4>
+                          {savedKeys[provider.key] && (
+                            <span className="ml-auto text-xs bg-emerald-900/40 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">✅ Saved</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mb-3">Used for: <span className="text-gray-400">{provider.usedFor}</span></p>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="password"
+                            className="input-field font-mono text-sm flex-1"
+                            placeholder={provider.placeholder}
+                            value={apiKeys[provider.key]}
+                            onChange={e => setApiKeys(k => ({ ...k, [provider.key]: e.target.value }))}
+                          />
+                          <button
+                            onClick={() => handleSaveApiKey(provider.key)}
+                            className="btn-primary px-4 flex items-center gap-1.5 whitespace-nowrap"
+                          >
+                            <CheckIcon className="w-4 h-4" />
+                            Save
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          Get your key at{' '}
+                          <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer" className={`${provider.color} hover:underline`}>
+                            {provider.docsLabel}
+                          </a>
+                        </p>
                       </div>
-                    )}
-                    <div className="p-4 rounded-xl bg-navy-800/50 text-xs text-gray-500 leading-relaxed">
-                      <p className="font-semibold text-gray-400 mb-2">How to get your API key:</p>
-                      <ol className="list-decimal list-inside space-y-1">
-                        <li>Visit <span className="text-purple-400">console.anthropic.com</span></li>
-                        <li>Sign in or create an account</li>
-                        <li>Go to API Keys section</li>
-                        <li>Create a new key and paste it here</li>
-                      </ol>
-                    </div>
+                    ))}
                   </div>
                 </GlassCard>
               </motion.div>
