@@ -104,15 +104,24 @@ const Settings = () => {
     };
     
     if (!apiKeys[provider]?.trim()) {
-      storage.remove(storageKeys[provider]);
-      setSavedKeys(s => ({ ...s, [provider]: false }));
-      setApiKeys(k => ({ ...k, [provider]: '' }));
-      addToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key removed.`, 'info');
+      handleRemoveApiKey(provider);
     } else {
       storage.set(storageKeys[provider], apiKeys[provider].trim());
       setSavedKeys(s => ({ ...s, [provider]: true }));
       addToast(`✅ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key saved!`, 'success');
     }
+  };
+
+  const handleRemoveApiKey = (provider) => {
+    const storageKeys = {
+      anthropic: 'anthropicApiKey',
+      openai: 'openaiApiKey',
+      gemini: 'geminiApiKey',
+    };
+    storage.remove(storageKeys[provider]);
+    setSavedKeys(s => ({ ...s, [provider]: false }));
+    setApiKeys(k => ({ ...k, [provider]: '' }));
+    addToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key removed.`, 'info');
   };
 
   const handleClearData = () => {
@@ -475,10 +484,7 @@ const Settings = () => {
                             Save
                           </button>
                           <button
-                            onClick={() => {
-                              setApiKeys(k => ({ ...k, [provider.key]: '' }));
-                              setTimeout(() => handleSaveApiKey(provider.key), 0);
-                            }}
+                            onClick={() => handleRemoveApiKey(provider.key)}
                             className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors border border-red-500/20"
                             title="Remove API Key"
                           >
