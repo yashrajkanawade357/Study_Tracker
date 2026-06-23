@@ -6,8 +6,7 @@ import GlassCard from '../components/GlassCard';
 import { PlayIcon, PauseIcon, StopIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { formatDisplay, formatDate } from '../utils/dateUtils';
 
-const FOCUS_DURATION = 25 * 60; // 25 min in seconds
-const BREAK_DURATION = 5 * 60;  // 5 min
+
 
 const CircularTimer = ({ progress, isBreak, timeLeft, size = 240 }) => {
   const radius = (size - 20) / 2;
@@ -67,14 +66,25 @@ const CircularTimer = ({ progress, isBreak, timeLeft, size = 240 }) => {
 const Pomodoro = () => {
   const { subjects, addPomodoroSession, pomodoroSessions, addToast } = useApp();
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [focusDurationSetting, setFocusDurationSetting] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(FOCUS_DURATION);
+  
+  const focusDurationSecs = focusDurationSetting * 60;
+  const breakDurationSecs = focusDurationSetting === 50 ? 10 * 60 : 5 * 60;
+  
+  const [timeLeft, setTimeLeft] = useState(focusDurationSecs);
   const [sessionCount, setSessionCount] = useState(0);
   const intervalRef = useRef(null);
   const audioCtxRef = useRef(null);
 
-  const totalDuration = isBreak ? BREAK_DURATION : FOCUS_DURATION;
+  useEffect(() => {
+    if (!isRunning && !isBreak) {
+      setTimeLeft(focusDurationSecs);
+    }
+  }, [focusDurationSetting, isRunning, isBreak, focusDurationSecs]);
+
+  const totalDuration = isBreak ? breakDurationSecs : focusDurationSecs;
   const progress = 1 - timeLeft / totalDuration;
 
   const playBeep = useCallback(() => {
@@ -103,18 +113,18 @@ const Pomodoro = () => {
             if (!isBreak) {
               // Complete focus session
               if (selectedSubject) {
-                addPomodoroSession({ subject: selectedSubject, duration: FOCUS_DURATION });
+                addPomodoroSession({ subject: selectedSubject, duration: focusDurationSecs });
               }
               setSessionCount(c => c + 1);
               addToast(`🍅 Pomodoro complete! Starting break...`, 'success');
               setIsBreak(true);
               setIsRunning(true);
-              return BREAK_DURATION;
+              return breakDurationSecs;
             } else {
               addToast('☕ Break over! Ready for next focus session?', 'info');
               setIsBreak(false);
               setIsRunning(false);
-              return FOCUS_DURATION;
+              return focusDurationSecs;
             }
           }
           return t - 1;
@@ -124,7 +134,7 @@ const Pomodoro = () => {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isRunning, isBreak, selectedSubject, addPomodoroSession, addToast, playBeep]);
+  }, [isRunning, isBreak, selectedSubject, addPomodoroSession, addToast, playBeep, focusDurationSecs, breakDurationSecs]);
 
   const handleStart = () => {
     if (!selectedSubject && !isBreak) {
@@ -139,7 +149,7 @@ const Pomodoro = () => {
   const handleReset = () => {
     setIsRunning(false);
     setIsBreak(false);
-    setTimeLeft(FOCUS_DURATION);
+    setTimeLeft(focusDurationSecs);
   };
 
   // Today's sessions
@@ -161,13 +171,26 @@ const Pomodoro = () => {
             Session #{sessionCount + 1} · {isBreak ? 'Rest & recharge' : 'Deep work mode'}
           </p>
 
-          {/* Subject Selector */}
+          {/* Subject & Duration Selector */}
           {!isRunning && !isBreak && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
+              className="mb-6 flex flex-col items-center gap-4"
             >
+              <div className="flex gap-2">
+                {[25, 50].map(duration => (
+                  <button
+                    key={duration}
+                    onClick={() => setFocusDurationSetting(duration)}
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                      focusDurationSetting === duration ? 'bg-purple-600 text-white shadow-glow-purple' : 'bg-navy-700 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {duration} min Focus
+                  </button>
+                ))}
+              </div>
               <select
                 className="input-field max-w-xs mx-auto"
                 value={selectedSubject}
@@ -232,7 +255,7 @@ const Pomodoro = () => {
 
           {/* Info */}
           <div className="mt-6 p-3 bg-navy-800/50 rounded-xl text-xs text-gray-500">
-            Each completed pomodoro auto-logs <strong className="text-purple-400">0.42 hours</strong> to your selected subject
+            Each completed pomodoro auto-logs <strong className="text-purple-400">+{(focusDurationSecs / 3600).toFixed(2)}h</strong> to your selected subject
           </div>
         </GlassCard>
 
@@ -267,10 +290,10 @@ const Pomodoro = () => {
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-white">{s.subject}</p>
                       <p className="text-xs text-gray-500">
-                        {new Date(s.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · 25 min focus
+                        {new Date(s.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {Math.round(s.duration / 60)} min focus
                       </p>
                     </div>
-                    <span className="text-xs font-bold text-cyan-400 font-display">+0.42h</span>
+                    <span className="text-xs font-bold text-cyan-400 font-display">+{(s.duration / 3600).toFixed(2)}h</span>
                   </motion.div>
                 );
               })}
