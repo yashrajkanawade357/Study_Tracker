@@ -317,7 +317,7 @@ Make the timetable cover Monday-Friday primarily, with optional Saturday session
 
         {aiSuggestion && (
           <div className="mt-4">
-            <div className="bg-navy-800/50 rounded-xl p-4 text-sm text-gray-300 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto font-mono text-xs mb-4">
+            <div className="bg-navy-800/50 rounded-xl p-4 text-sm text-gray-300 whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto font-mono text-xs mb-4">
               {aiSuggestion}
             </div>
             

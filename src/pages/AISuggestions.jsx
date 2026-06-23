@@ -219,7 +219,7 @@ Please analyze this and provide suggestions in the JSON format specified.`;
         </h3>
 
         {/* Chat History */}
-        <div className="bg-navy-800/50 rounded-xl p-4 h-64 overflow-y-auto flex flex-col gap-3 mb-4">
+        <div className="bg-navy-800/50 rounded-xl p-4 h-[500px] overflow-y-auto flex flex-col gap-3 mb-4">
           {chatMessages.length === 0 && (
             <div className="flex-1 flex flex-col items-center justify-center text-center gap-2">
               <p className="text-gray-500 text-sm">Ask me anything about your study habits!</p>

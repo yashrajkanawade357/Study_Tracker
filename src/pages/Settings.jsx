@@ -102,9 +102,17 @@ const Settings = () => {
       openai: 'openaiApiKey',
       gemini: 'geminiApiKey',
     };
-    storage.set(storageKeys[provider], apiKeys[provider]);
-    setSavedKeys(s => ({ ...s, [provider]: !!apiKeys[provider] }));
-    addToast(`✅ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key saved!`, 'success');
+    
+    if (!apiKeys[provider]?.trim()) {
+      storage.remove(storageKeys[provider]);
+      setSavedKeys(s => ({ ...s, [provider]: false }));
+      setApiKeys(k => ({ ...k, [provider]: '' }));
+      addToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key removed.`, 'info');
+    } else {
+      storage.set(storageKeys[provider], apiKeys[provider].trim());
+      setSavedKeys(s => ({ ...s, [provider]: true }));
+      addToast(`✅ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key saved!`, 'success');
+    }
   };
 
   const handleClearData = () => {
@@ -465,6 +473,16 @@ const Settings = () => {
                           >
                             <CheckIcon className="w-4 h-4" />
                             Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setApiKeys(k => ({ ...k, [provider.key]: '' }));
+                              setTimeout(() => handleSaveApiKey(provider.key), 0);
+                            }}
+                            className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors border border-red-500/20"
+                            title="Remove API Key"
+                          >
+                            <TrashIcon className="w-5 h-5" />
                           </button>
                         </div>
                         <p className="text-xs text-gray-600">
