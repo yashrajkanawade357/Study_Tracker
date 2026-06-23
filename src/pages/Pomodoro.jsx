@@ -19,29 +19,32 @@ const TreeAnimation = ({ progress }) => {
   ];
 
   return (
-    <svg width="240" height="240" className="absolute top-0 left-0 pointer-events-none opacity-30">
-      <path d="M115 180 Q120 130 120 100 Q120 130 125 180 Z" fill="#8B4513" />
-      {petals.map(p => {
-        const hasFallen = progress >= p.delayProgress;
-        return (
-          <motion.circle
-            key={p.id}
-            cx={p.cx}
-            cy={p.cy}
-            r={14}
-            fill="#10b981"
-            initial={false}
-            animate={{
-              y: hasFallen ? 120 : 0,
-              opacity: hasFallen ? 0 : 1,
-              scale: hasFallen ? 0.5 : 1,
-              rotate: hasFallen ? 45 : 0
-            }}
-            transition={{ duration: 2, ease: "easeIn" }}
-          />
-        );
-      })}
-    </svg>
+    <div className="flex flex-col items-center justify-center">
+      <svg width="200" height="200" viewBox="0 0 240 240" className="opacity-90">
+        <path d="M115 180 Q120 130 120 100 Q120 130 125 180 Z" fill="#8B4513" />
+        {petals.map(p => {
+          const hasFallen = progress >= p.delayProgress;
+          return (
+            <motion.circle
+              key={p.id}
+              cx={p.cx}
+              cy={p.cy}
+              r={14}
+              fill="#10b981"
+              initial={false}
+              animate={{
+                y: hasFallen ? 120 : 0,
+                opacity: hasFallen ? 0 : 1,
+                scale: hasFallen ? 0.5 : 1,
+                rotate: hasFallen ? 45 : 0
+              }}
+              transition={{ duration: 2, ease: "easeIn" }}
+            />
+          );
+        })}
+      </svg>
+      <span className="text-xs text-emerald-400 font-semibold mt-2 opacity-70">Growth Progress</span>
+    </div>
   );
 };
 
@@ -57,7 +60,6 @@ const CircularTimer = ({ progress, isBreak, isLongBreak, timeLeft, size = 240 })
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      <TreeAnimation progress={progress} />
       <svg width={size} height={size} className="absolute">
         <circle
           cx={size / 2}
@@ -251,9 +253,9 @@ const Pomodoro = () => {
           </button>
         )}
 
-        {/* Timer Card */}
-        <GlassCard className={`p-8 text-center mb-6 w-full ${isFullscreen ? 'max-w-xl' : ''}`}>
-          <div className="flex justify-between items-start mb-2">
+          {/* Timer Card */}
+        <GlassCard className={`p-8 text-center mb-6 w-full ${isFullscreen ? 'max-w-3xl flex flex-col items-center' : ''}`}>
+          <div className="flex justify-between items-start mb-2 w-full">
             <button 
               onClick={() => setIsSoundEnabled(!isSoundEnabled)}
               className="p-1.5 rounded-full bg-navy-700 text-gray-400 hover:text-white transition-colors"
@@ -276,12 +278,15 @@ const Pomodoro = () => {
               </button>
             )}
           </div>
-          <p className="text-gray-400 text-sm mb-2">
-            Session #{sessionCount + 1} · {isBreak ? 'Rest & recharge' : 'Deep work mode'}
-          </p>
+          
+          {!isFullscreen && (
+            <p className="text-gray-400 text-sm mb-2">
+              Session #{sessionCount + 1} · {isBreak ? 'Rest & recharge' : 'Deep work mode'}
+            </p>
+          )}
 
           {/* Subject & Duration Selector */}
-          {!isRunning && !isBreak && (
+          {!isRunning && !isBreak && !isFullscreen && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -311,14 +316,15 @@ const Pomodoro = () => {
             </motion.div>
           )}
 
-          {selectedSubject && !isBreak && (
+          {selectedSubject && !isBreak && !isFullscreen && (
             <p className="text-purple-400 text-sm font-semibold mb-4">
               📚 Studying: {selectedSubject}
             </p>
           )}
 
-          {/* Circular Timer */}
-          <div className="flex justify-center my-6">
+          {/* Circular Timer and Gamification */}
+          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 my-6">
+            <TreeAnimation progress={progress} />
             <CircularTimer progress={progress} isBreak={isBreak} isLongBreak={isLongBreak} timeLeft={timeLeft} />
           </div>
 
@@ -347,59 +353,64 @@ const Pomodoro = () => {
             </button>
           </div>
 
-          {/* Session dots */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {Array.from({ length: Math.max(sessionCount, 4) }, (_, i) => {
-              const isCurrentCycle = i < (Math.floor(sessionCount / 4) * 4) + 4;
-              const isFilled = i < sessionCount;
-              return (
-                <div
-                  key={i}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    isFilled
-                      ? 'bg-purple-500 shadow-glow-sm-purple'
-                      : (isCurrentCycle ? 'bg-navy-700 border border-gray-700' : 'hidden')
-                  }`}
-                />
-              );
-            })}
-            <span className="text-xs text-gray-500 ml-2">{sessionCount} completed</span>
-          </div>
+          {/* Hidden UI in Fullscreen */}
+          {!isFullscreen && (
+            <>
+              {/* Session dots */}
+              <div className="flex items-center justify-center gap-2 mt-6">
+                {Array.from({ length: Math.max(sessionCount, 4) }, (_, i) => {
+                  const isCurrentCycle = i < (Math.floor(sessionCount / 4) * 4) + 4;
+                  const isFilled = i < sessionCount;
+                  return (
+                    <div
+                      key={i}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        isFilled
+                          ? 'bg-purple-500 shadow-glow-sm-purple'
+                          : (isCurrentCycle ? 'bg-navy-700 border border-gray-700' : 'hidden')
+                      }`}
+                    />
+                  );
+                })}
+                <span className="text-xs text-gray-500 ml-2">{sessionCount} completed</span>
+              </div>
 
-          {/* Mini Task List */}
-          {!isBreak && (
-            <div className="mt-8 pt-6 border-t border-gray-700/50 text-left">
-              <h4 className="text-sm font-semibold text-white mb-3">🎯 Session Tasks</h4>
-              <div className="flex flex-col gap-2 mb-3 max-h-40 overflow-y-auto pr-2">
-                {tasks.map(task => (
-                  <div key={task.id} className="flex items-center gap-2 group">
-                    <button onClick={() => toggleTask(task.id)}>
-                      {task.completed ? <CheckSolid className="w-5 h-5 text-emerald-400" /> : <CheckOutline className="w-5 h-5 text-gray-500 group-hover:text-gray-300 transition-colors" />}
-                    </button>
-                    <span className={`text-sm transition-all ${task.completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>{task.text}</span>
+              {/* Mini Task List */}
+              {!isBreak && (
+                <div className="mt-8 pt-6 border-t border-gray-700/50 text-left">
+                  <h4 className="text-sm font-semibold text-white mb-3">🎯 Session Tasks</h4>
+                  <div className="flex flex-col gap-2 mb-3 max-h-40 overflow-y-auto pr-2">
+                    {tasks.map(task => (
+                      <div key={task.id} className="flex items-center gap-2 group">
+                        <button onClick={() => toggleTask(task.id)}>
+                          {task.completed ? <CheckSolid className="w-5 h-5 text-emerald-400" /> : <CheckOutline className="w-5 h-5 text-gray-500 group-hover:text-gray-300 transition-colors" />}
+                        </button>
+                        <span className={`text-sm transition-all ${task.completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>{task.text}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  className="input-field py-1 px-3 text-sm flex-1 bg-navy-800/50"
-                  placeholder="Add a task for this session..."
-                  value={newTaskText}
-                  onChange={e => setNewTaskText(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleAddTask()}
-                />
-                <button onClick={handleAddTask} className="text-purple-400 hover:text-purple-300 transition-colors">
-                  <PlusCircleIcon className="w-7 h-7" />
-                </button>
-              </div>
-            </div>
-          )}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="input-field py-1 px-3 text-sm flex-1 bg-navy-800/50"
+                      placeholder="Add a task for this session..."
+                      value={newTaskText}
+                      onChange={e => setNewTaskText(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddTask()}
+                    />
+                    <button onClick={handleAddTask} className="text-purple-400 hover:text-purple-300 transition-colors">
+                      <PlusCircleIcon className="w-7 h-7" />
+                    </button>
+                  </div>
+                </div>
+              )}
 
-          {/* Info */}
-          <div className="mt-6 p-3 bg-navy-800/50 rounded-xl text-xs text-gray-500">
-            Each completed pomodoro auto-logs <strong className="text-purple-400">+{(focusDurationSecs / 3600).toFixed(2)}h</strong> to your selected subject
-          </div>
+              {/* Info */}
+              <div className="mt-6 p-3 bg-navy-800/50 rounded-xl text-xs text-gray-500">
+                Each completed pomodoro auto-logs <strong className="text-purple-400">+{(focusDurationSecs / 3600).toFixed(2)}h</strong> to your selected subject
+              </div>
+            </>
+          )}
         </GlassCard>
 
         {/* Today's Session History */}
