@@ -234,11 +234,22 @@ const Pomodoro = () => {
   };
 
   const handleAddTask = () => {
-    if (newTaskText.trim()) {
-      const dur = parseInt(newTaskDuration) || 10;
-      setTasks([...tasks, { id: Date.now(), text: newTaskText, completed: false, duration: dur * 60, timeSpent: 0 }]);
-      setNewTaskText('');
+    if (!newTaskText.trim()) return;
+    const dur = parseInt(newTaskDuration) || 10;
+    const allocatedSecs = tasks.reduce((sum, t) => sum + t.duration, 0);
+    const remainingBudget = focusDurationSecs - allocatedSecs;
+
+    if (dur * 60 > focusDurationSecs) {
+      addToast(`Task time can't exceed the total session time (${focusDurationSetting} min)`, 'warning');
+      return;
     }
+    if (dur * 60 > remainingBudget) {
+      addToast(`Only ${Math.floor(remainingBudget / 60)}m left to allocate in this session`, 'warning');
+      return;
+    }
+    setTasks([...tasks, { id: Date.now(), text: newTaskText, completed: false, duration: dur * 60, timeSpent: 0 }]);
+    setNewTaskText('');
+    setNewTaskDuration('10');
   };
 
   const toggleTask = (id) => {
@@ -420,7 +431,16 @@ const Pomodoro = () => {
               {/* Mini Task List */}
               {!isBreak && (
                 <div className="mt-8 pt-6 border-t border-gray-700/50 text-left">
-                  <h4 className="text-sm font-semibold text-white mb-3">🎯 Session Tasks</h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold text-white">🎯 Session Tasks</h4>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      (focusDurationSecs - tasks.reduce((s, t) => s + t.duration, 0)) <= 0
+                        ? 'bg-red-900/50 text-red-400'
+                        : 'bg-navy-700 text-gray-400'
+                    }`}>
+                      {Math.max(0, Math.floor((focusDurationSecs - tasks.reduce((s, t) => s + t.duration, 0)) / 60))}m left to allocate
+                    </span>
+                  </div>
                   <div className="flex flex-col gap-2 mb-3 max-h-40 overflow-y-auto pr-2">
                     {tasks.map(task => (
                       <div key={task.id} className="flex items-center gap-2 group">
