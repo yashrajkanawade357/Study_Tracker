@@ -3,25 +3,62 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
-import { PlayIcon, PauseIcon, StopIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { PlayIcon, PauseIcon, ArrowPathIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, SpeakerWaveIcon, SpeakerXMarkIcon, CheckCircleIcon as CheckSolid, PlusCircleIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon as CheckOutline } from '@heroicons/react/24/outline';
 import { formatDisplay, formatDate } from '../utils/dateUtils';
 
 
 
-const CircularTimer = ({ progress, isBreak, timeLeft, size = 240 }) => {
+const TreeAnimation = ({ progress }) => {
+  const petals = [
+    { id: 1, cx: 120, cy: 70, delayProgress: 0.15 },
+    { id: 2, cx: 90, cy: 90, delayProgress: 0.35 },
+    { id: 3, cx: 150, cy: 90, delayProgress: 0.55 },
+    { id: 4, cx: 100, cy: 110, delayProgress: 0.75 },
+    { id: 5, cx: 140, cy: 110, delayProgress: 0.95 },
+  ];
+
+  return (
+    <svg width="240" height="240" className="absolute top-0 left-0 pointer-events-none opacity-30">
+      <path d="M115 180 Q120 130 120 100 Q120 130 125 180 Z" fill="#8B4513" />
+      {petals.map(p => {
+        const hasFallen = progress >= p.delayProgress;
+        return (
+          <motion.circle
+            key={p.id}
+            cx={p.cx}
+            cy={p.cy}
+            r={14}
+            fill="#10b981"
+            initial={false}
+            animate={{
+              y: hasFallen ? 120 : 0,
+              opacity: hasFallen ? 0 : 1,
+              scale: hasFallen ? 0.5 : 1,
+              rotate: hasFallen ? 45 : 0
+            }}
+            transition={{ duration: 2, ease: "easeIn" }}
+          />
+        );
+      })}
+    </svg>
+  );
+};
+
+const CircularTimer = ({ progress, isBreak, isLongBreak, timeLeft, size = 240 }) => {
   const radius = (size - 20) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
-  const strokeColor = isBreak ? '#06b6d4' : '#7c3aed';
-  const glowColor = isBreak ? 'rgba(6,182,212,0.4)' : 'rgba(124,58,237,0.4)';
+  const strokeColor = isBreak ? (isLongBreak ? '#f59e0b' : '#06b6d4') : '#7c3aed';
+  const glowColor = isBreak ? (isLongBreak ? 'rgba(245,158,11,0.4)' : 'rgba(6,182,212,0.4)') : 'rgba(124,58,237,0.4)';
   
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <TreeAnimation progress={progress} />
       <svg width={size} height={size} className="absolute">
-        {/* Background ring */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -30,7 +67,6 @@ const CircularTimer = ({ progress, isBreak, timeLeft, size = 240 }) => {
           stroke="rgba(255,255,255,0.05)"
           strokeWidth={10}
         />
-        {/* Progress ring */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -43,20 +79,24 @@ const CircularTimer = ({ progress, isBreak, timeLeft, size = 240 }) => {
           strokeDashoffset={strokeDashoffset}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
           style={{
-            transition: 'stroke-dashoffset 1s linear',
+            transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease',
             filter: `drop-shadow(0 0 8px ${glowColor})`,
           }}
         />
       </svg>
       
-      {/* Center content */}
       <div className="text-center z-10">
-        <div className={`text-5xl font-display font-bold ${isBreak ? 'text-cyan-400' : 'text-purple-400'}`}
-          style={{ textShadow: `0 0 20px ${glowColor}` }}>
+        <motion.div 
+          key={`${minutes}-${seconds}`}
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className={`text-5xl font-display font-bold ${isBreak ? (isLongBreak ? 'text-amber-400' : 'text-cyan-400') : 'text-purple-400'}`}
+          style={{ textShadow: `0 0 20px ${glowColor}` }}
+        >
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-        </div>
+        </motion.div>
         <div className="text-sm text-gray-400 mt-1 font-semibold">
-          {isBreak ? '☕ Break Time' : '🎯 Focus Time'}
+          {isBreak ? (isLongBreak ? '🌅 Long Break' : '☕ Break Time') : '🎯 Focus Time'}
         </div>
       </div>
     </div>
@@ -69,20 +109,35 @@ const Pomodoro = () => {
   const [focusDurationSetting, setFocusDurationSetting] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
+  const [isLongBreak, setIsLongBreak] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [tasks, setTasks] = useState([]);
+  const [newTaskText, setNewTaskText] = useState('');
   
   const focusDurationSecs = focusDurationSetting * 60;
-  const breakDurationSecs = focusDurationSetting === 50 ? 10 * 60 : 5 * 60;
+  const breakDurationSecs = isLongBreak ? 15 * 60 : (focusDurationSetting === 50 ? 10 * 60 : 5 * 60);
   
   const [timeLeft, setTimeLeft] = useState(focusDurationSecs);
   const [sessionCount, setSessionCount] = useState(0);
   const intervalRef = useRef(null);
-  const audioCtxRef = useRef(null);
+  const ambientAudioRef = useRef(null);
 
   useEffect(() => {
     if (!isRunning && !isBreak) {
       setTimeLeft(focusDurationSecs);
     }
   }, [focusDurationSetting, isRunning, isBreak, focusDurationSecs]);
+
+  useEffect(() => {
+    if (ambientAudioRef.current) {
+      if (isRunning && !isBreak && isSoundEnabled) {
+        ambientAudioRef.current.play().catch(() => {});
+      } else {
+        ambientAudioRef.current.pause();
+      }
+    }
+  }, [isRunning, isBreak, isSoundEnabled]);
 
   const totalDuration = isBreak ? breakDurationSecs : focusDurationSecs;
   const progress = 1 - timeLeft / totalDuration;
@@ -115,14 +170,25 @@ const Pomodoro = () => {
               if (selectedSubject) {
                 addPomodoroSession({ subject: selectedSubject, duration: focusDurationSecs });
               }
-              setSessionCount(c => c + 1);
-              addToast(`🍅 Pomodoro complete! Starting break...`, 'success');
+              const newCount = c + 1;
+              setSessionCount(newCount);
+              const isLong = newCount > 0 && newCount % 4 === 0;
+              
+              if (isLong) {
+                setIsLongBreak(true);
+                addToast('🎉 4 Pomodoros complete! Take a long break.', 'success');
+              } else {
+                setIsLongBreak(false);
+                addToast(`🍅 Pomodoro complete! Starting break...`, 'success');
+              }
+              
               setIsBreak(true);
               setIsRunning(true);
-              return breakDurationSecs;
+              return isLong ? 15 * 60 : (focusDurationSetting === 50 ? 10 * 60 : 5 * 60);
             } else {
               addToast('☕ Break over! Ready for next focus session?', 'info');
               setIsBreak(false);
+              setIsLongBreak(false);
               setIsRunning(false);
               return focusDurationSecs;
             }
@@ -149,7 +215,19 @@ const Pomodoro = () => {
   const handleReset = () => {
     setIsRunning(false);
     setIsBreak(false);
+    setIsLongBreak(false);
     setTimeLeft(focusDurationSecs);
+  };
+
+  const handleAddTask = () => {
+    if (newTaskText.trim()) {
+      setTasks([...tasks, { id: Date.now(), text: newTaskText, completed: false }]);
+      setNewTaskText('');
+    }
+  };
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
   // Today's sessions
@@ -161,12 +239,43 @@ const Pomodoro = () => {
 
   return (
     <Layout title="Pomodoro Timer">
-      <div className="max-w-2xl mx-auto">
+      <div className={isFullscreen ? 'fixed inset-0 z-[100] bg-navy-900 flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto' : 'max-w-2xl mx-auto'}>
+        <audio ref={ambientAudioRef} src="https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg" loop />
+        
+        {isFullscreen && (
+          <button 
+            onClick={() => setIsFullscreen(false)} 
+            className="absolute top-6 right-6 p-2 rounded-full bg-navy-800 text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowsPointingInIcon className="w-6 h-6" />
+          </button>
+        )}
+
         {/* Timer Card */}
-        <GlassCard className="p-8 text-center mb-6">
-          <h3 className="font-display font-bold text-white mb-2 text-xl">
-            {isBreak ? '☕ Break Time' : '🍅 Focus Session'}
-          </h3>
+        <GlassCard className={`p-8 text-center mb-6 w-full ${isFullscreen ? 'max-w-xl' : ''}`}>
+          <div className="flex justify-between items-start mb-2">
+            <button 
+              onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+              className="p-1.5 rounded-full bg-navy-700 text-gray-400 hover:text-white transition-colors"
+              title="Toggle Ambient Sound"
+            >
+              {isSoundEnabled ? <SpeakerWaveIcon className="w-5 h-5" /> : <SpeakerXMarkIcon className="w-5 h-5" />}
+            </button>
+            <div className="flex-1">
+              <h3 className="font-display font-bold text-white text-xl">
+                {isBreak ? (isLongBreak ? '🌅 Long Break' : '☕ Break Time') : '🍅 Focus Session'}
+              </h3>
+            </div>
+            {!isFullscreen && (
+              <button 
+                onClick={() => setIsFullscreen(true)}
+                className="p-1.5 rounded-full bg-navy-700 text-gray-400 hover:text-white transition-colors"
+                title="Zen Fullscreen Mode"
+              >
+                <ArrowsPointingOutIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
           <p className="text-gray-400 text-sm mb-2">
             Session #{sessionCount + 1} · {isBreak ? 'Rest & recharge' : 'Deep work mode'}
           </p>
@@ -210,7 +319,7 @@ const Pomodoro = () => {
 
           {/* Circular Timer */}
           <div className="flex justify-center my-6">
-            <CircularTimer progress={progress} isBreak={isBreak} timeLeft={timeLeft} />
+            <CircularTimer progress={progress} isBreak={isBreak} isLongBreak={isLongBreak} timeLeft={timeLeft} />
           </div>
 
           {/* Controls */}
@@ -240,18 +349,52 @@ const Pomodoro = () => {
 
           {/* Session dots */}
           <div className="flex items-center justify-center gap-2 mt-6">
-            {Array.from({ length: Math.max(sessionCount, 4) }, (_, i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  i < sessionCount
-                    ? 'bg-purple-500 shadow-glow-sm-purple'
-                    : 'bg-navy-700 border border-gray-700'
-                }`}
-              />
-            ))}
+            {Array.from({ length: Math.max(sessionCount, 4) }, (_, i) => {
+              const isCurrentCycle = i < (Math.floor(sessionCount / 4) * 4) + 4;
+              const isFilled = i < sessionCount;
+              return (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    isFilled
+                      ? 'bg-purple-500 shadow-glow-sm-purple'
+                      : (isCurrentCycle ? 'bg-navy-700 border border-gray-700' : 'hidden')
+                  }`}
+                />
+              );
+            })}
             <span className="text-xs text-gray-500 ml-2">{sessionCount} completed</span>
           </div>
+
+          {/* Mini Task List */}
+          {!isBreak && (
+            <div className="mt-8 pt-6 border-t border-gray-700/50 text-left">
+              <h4 className="text-sm font-semibold text-white mb-3">🎯 Session Tasks</h4>
+              <div className="flex flex-col gap-2 mb-3 max-h-40 overflow-y-auto pr-2">
+                {tasks.map(task => (
+                  <div key={task.id} className="flex items-center gap-2 group">
+                    <button onClick={() => toggleTask(task.id)}>
+                      {task.completed ? <CheckSolid className="w-5 h-5 text-emerald-400" /> : <CheckOutline className="w-5 h-5 text-gray-500 group-hover:text-gray-300 transition-colors" />}
+                    </button>
+                    <span className={`text-sm transition-all ${task.completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>{task.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="input-field py-1 px-3 text-sm flex-1 bg-navy-800/50"
+                  placeholder="Add a task for this session..."
+                  value={newTaskText}
+                  onChange={e => setNewTaskText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddTask()}
+                />
+                <button onClick={handleAddTask} className="text-purple-400 hover:text-purple-300 transition-colors">
+                  <PlusCircleIcon className="w-7 h-7" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Info */}
           <div className="mt-6 p-3 bg-navy-800/50 rounded-xl text-xs text-gray-500">
