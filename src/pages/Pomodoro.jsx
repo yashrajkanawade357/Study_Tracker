@@ -9,41 +9,29 @@ import { formatDisplay, formatDate } from '../utils/dateUtils';
 
 
 
-const TreeAnimation = ({ progress }) => {
-  const petals = [
-    { id: 1, cx: 120, cy: 70, delayProgress: 0.15 },
-    { id: 2, cx: 90, cy: 90, delayProgress: 0.35 },
-    { id: 3, cx: 150, cy: 90, delayProgress: 0.55 },
-    { id: 4, cx: 100, cy: 110, delayProgress: 0.75 },
-    { id: 5, cx: 140, cy: 110, delayProgress: 0.95 },
-  ];
+const ActiveTaskCard = ({ activeTask }) => {
+  if (!activeTask) return (
+    <div className="flex flex-col items-center justify-center p-6 border border-dashed border-gray-600 rounded-xl w-64 h-32 opacity-50">
+      <p className="text-gray-400 text-sm">No active task</p>
+    </div>
+  );
+
+  const progress = activeTask.timeSpent / activeTask.duration;
+  const minsLeft = Math.ceil((activeTask.duration - activeTask.timeSpent) / 60);
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <svg width="200" height="200" viewBox="0 0 240 240" className="opacity-90">
-        <path d="M115 180 Q120 130 120 100 Q120 130 125 180 Z" fill="#8B4513" />
-        {petals.map(p => {
-          const hasFallen = progress >= p.delayProgress;
-          return (
-            <motion.circle
-              key={p.id}
-              cx={p.cx}
-              cy={p.cy}
-              r={14}
-              fill="#10b981"
-              initial={false}
-              animate={{
-                y: hasFallen ? 120 : 0,
-                opacity: hasFallen ? 0 : 1,
-                scale: hasFallen ? 0.5 : 1,
-                rotate: hasFallen ? 45 : 0
-              }}
-              transition={{ duration: 2, ease: "easeIn" }}
-            />
-          );
-        })}
-      </svg>
-      <span className="text-xs text-emerald-400 font-semibold mt-2 opacity-70">Growth Progress</span>
+    <div className="flex flex-col items-center justify-center p-6 bg-navy-800/80 rounded-2xl w-64 shadow-lg border border-gray-700 relative overflow-hidden">
+      <h4 className="text-emerald-400 font-semibold mb-1 truncate w-full text-center relative z-10">{activeTask.text}</h4>
+      <p className="text-xs text-gray-400 mb-4 relative z-10">{minsLeft > 0 ? `${minsLeft}m remaining` : 'Completing...'}</p>
+      
+      <div className="w-full h-2 bg-navy-900 rounded-full overflow-hidden relative z-10">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400"
+          initial={{ width: 0 }}
+          animate={{ width: `${Math.min(progress * 100, 100)}%` }}
+          transition={{ duration: 1, ease: "linear" }}
+        />
+      </div>
     </div>
   );
 };
@@ -54,9 +42,6 @@ const CircularTimer = ({ progress, isBreak, isLongBreak, timeLeft, size = 240 })
   const strokeDashoffset = circumference * (1 - progress);
   const strokeColor = isBreak ? (isLongBreak ? '#f59e0b' : '#06b6d4') : '#7c3aed';
   const glowColor = isBreak ? (isLongBreak ? 'rgba(245,158,11,0.4)' : 'rgba(6,182,212,0.4)') : 'rgba(124,58,237,0.4)';
-  
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
@@ -116,6 +101,9 @@ const Pomodoro = () => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [tasks, setTasks] = useState([]);
   const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskDuration, setNewTaskDuration] = useState('10');
+  const [customDuration, setCustomDuration] = useState('');
+  const [isCustom, setIsCustom] = useState(false);
   
   const focusDurationSecs = focusDurationSetting * 60;
   const breakDurationSecs = isLongBreak ? 15 * 60 : (focusDurationSetting === 50 ? 10 * 60 : 5 * 60);
@@ -163,6 +151,27 @@ const Pomodoro = () => {
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
+        // Update active task timer
+        if (!isBreak) {
+          setTasks(prevTasks => {
+            const activeIndex = prevTasks.findIndex(t => !t.completed);
+            if (activeIndex === -1) return prevTasks;
+            
+            const newTasks = [...prevTasks];
+            const active = { ...newTasks[activeIndex] };
+            active.timeSpent += 1;
+            
+            if (active.timeSpent >= active.duration) {
+              active.completed = true;
+              // Play a softer tick or rely on visual change for task completion
+            }
+            
+            newTasks[activeIndex] = active;
+            return newTasks;
+          });
+        }
+
+        // Update main pomodoro timer
         setTimeLeft(t => {
           if (t <= 1) {
             clearInterval(intervalRef.current);
@@ -223,7 +232,8 @@ const Pomodoro = () => {
 
   const handleAddTask = () => {
     if (newTaskText.trim()) {
-      setTasks([...tasks, { id: Date.now(), text: newTaskText, completed: false }]);
+      const dur = parseInt(newTaskDuration) || 10;
+      setTasks([...tasks, { id: Date.now(), text: newTaskText, completed: false, duration: dur * 60, timeSpent: 0 }]);
       setNewTaskText('');
     }
   };
@@ -231,6 +241,8 @@ const Pomodoro = () => {
   const toggleTask = (id) => {
     setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
+
+  const activeTask = tasks.find(t => !t.completed);
 
   // Today's sessions
   const today = formatDate(new Date());
@@ -292,19 +304,46 @@ const Pomodoro = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 flex flex-col items-center gap-4"
             >
-              <div className="flex gap-2">
-                {[25, 50].map(duration => (
-                  <button
-                    key={duration}
-                    onClick={() => setFocusDurationSetting(duration)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                      focusDurationSetting === duration ? 'bg-purple-600 text-white shadow-glow-purple' : 'bg-navy-700 text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {duration} min Focus
-                  </button>
-                ))}
+              <div className="flex flex-wrap justify-center gap-2">
+                {[25, 50, 'Custom'].map(duration => {
+                  const isSelected = duration === 'Custom' ? isCustom : (!isCustom && focusDurationSetting === duration);
+                  return (
+                    <button
+                      key={duration}
+                      onClick={() => {
+                        if (duration === 'Custom') setIsCustom(true);
+                        else {
+                          setIsCustom(false);
+                          setFocusDurationSetting(duration);
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        isSelected ? 'bg-purple-600 text-white shadow-glow-purple' : 'bg-navy-700 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {duration === 'Custom' ? 'Custom' : `${duration} min Focus`}
+                    </button>
+                  );
+                })}
               </div>
+              {isCustom && (
+                <div className="flex items-center gap-2 mt-1">
+                  <input 
+                    type="number" 
+                    min="1" 
+                    max="180" 
+                    value={customDuration}
+                    onChange={e => {
+                      setCustomDuration(e.target.value);
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val > 0) setFocusDurationSetting(val);
+                    }}
+                    placeholder="Mins"
+                    className="input-field w-24 text-center py-1"
+                  />
+                  <span className="text-sm text-gray-400">mins</span>
+                </div>
+              )}
               <select
                 className="input-field max-w-xs mx-auto"
                 value={selectedSubject}
@@ -322,9 +361,9 @@ const Pomodoro = () => {
             </p>
           )}
 
-          {/* Circular Timer and Gamification */}
+          {/* Circular Timer and Active Task */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 my-6">
-            <TreeAnimation progress={progress} />
+            {!isBreak && <ActiveTaskCard activeTask={activeTask} />}
             <CircularTimer progress={progress} isBreak={isBreak} isLongBreak={isLongBreak} timeLeft={timeLeft} />
           </div>
 
@@ -393,9 +432,18 @@ const Pomodoro = () => {
                     <input
                       type="text"
                       className="input-field py-1 px-3 text-sm flex-1 bg-navy-800/50"
-                      placeholder="Add a task for this session..."
+                      placeholder="Task name..."
                       value={newTaskText}
                       onChange={e => setNewTaskText(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddTask()}
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      className="input-field py-1 px-2 text-sm w-16 bg-navy-800/50 text-center"
+                      placeholder="Mins"
+                      value={newTaskDuration}
+                      onChange={e => setNewTaskDuration(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleAddTask()}
                     />
                     <button onClick={handleAddTask} className="text-purple-400 hover:text-purple-300 transition-colors">
