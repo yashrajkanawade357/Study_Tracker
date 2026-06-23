@@ -17,6 +17,10 @@ export const getLast30Days = () => {
   return Array.from({ length: 30 }, (_, i) => subDays(new Date(), 29 - i));
 };
 
+export const getLast365Days = () => {
+  return Array.from({ length: 365 }, (_, i) => subDays(new Date(), 364 - i));
+};
+
 export const getLast12Weeks = () => {
   return Array.from({ length: 12 }, (_, i) => subWeeks(new Date(), 11 - i));
 };

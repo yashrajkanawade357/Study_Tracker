@@ -7,57 +7,65 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
-import { getLast7Days, getLast30Days, formatDate, formatDisplay, aggregateHoursByDay, getStudyLogsForWeek } from '../utils/dateUtils';
+import { getLast7Days, getLast30Days, getLast365Days, formatDate, formatDisplay, aggregateHoursByDay, getStudyLogsForWeek } from '../utils/dateUtils';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 const COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const HeatmapCalendar = ({ studyLogs }) => {
-  const days = getLast30Days();
+  const days = getLast365Days();
   const logMap = useMemo(() => {
     const map = {};
     studyLogs.forEach(l => {
-      map[l.date] = (map[l.date] || 0) + l.hours;
+      if (!map[l.date]) {
+        map[l.date] = { hours: 0, details: [] };
+      }
+      map[l.date].hours += l.hours;
+      if (l.subject) {
+        const noteText = l.note ? ` - ${l.note}` : '';
+        map[l.date].details.push(`• ${l.subject}: ${l.hours}h${noteText}`);
+      }
     });
     return map;
   }, [studyLogs]);
 
-  const maxHours = Math.max(...Object.values(logMap), 4);
+  const maxHours = Math.max(...Object.values(logMap).map(d => d.hours), 4);
 
   const getColor = (hours) => {
     if (!hours) return 'rgba(255,255,255,0.04)';
     const intensity = Math.min(hours / maxHours, 1);
-    if (intensity < 0.25) return 'rgba(124,58,237,0.25)';
-    if (intensity < 0.5) return 'rgba(124,58,237,0.5)';
-    if (intensity < 0.75) return 'rgba(124,58,237,0.75)';
-    return 'rgba(124,58,237,1)';
+    // Green color scale
+    if (intensity < 0.25) return 'rgba(16, 185, 129, 0.3)';
+    if (intensity < 0.5) return 'rgba(16, 185, 129, 0.5)';
+    if (intensity < 0.75) return 'rgba(16, 185, 129, 0.75)';
+    return 'rgba(16, 185, 129, 1)';
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(10, 1fr)' }}>
-        {days.map(day => {
-          const ds = formatDate(day);
-          const hours = logMap[ds] || 0;
-          return (
-            <div
-              key={ds}
-              title={`${formatDisplay(day)}: ${hours.toFixed(1)}h`}
-              className="heatmap-cell"
-              style={{
-                backgroundColor: getColor(hours),
-                paddingBottom: '100%',
-                borderRadius: '4px',
-                position: 'relative',
-              }}
-            />
-          );
-        })}
+    <div className="flex flex-col gap-2 overflow-hidden">
+      <div className="overflow-x-auto pb-4 hide-scrollbar">
+        <div className="grid grid-rows-7 gap-1" style={{ gridAutoFlow: 'column', minWidth: 'max-content' }}>
+          {days.map(day => {
+            const ds = formatDate(day);
+            const data = logMap[ds] || { hours: 0, details: [] };
+            const detailsText = data.details.length > 0 ? `\n${data.details.join('\n')}` : '';
+            return (
+              <div
+                key={ds}
+                title={`${formatDisplay(day)}: ${data.hours.toFixed(1)}h${detailsText}`}
+                className="w-3 h-3 rounded-sm cursor-help transition-all duration-200 hover:ring-1 hover:ring-white/50"
+                style={{
+                  backgroundColor: getColor(data.hours),
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
       <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
         <span>Less</span>
-        {[0.04, 0.25, 0.5, 0.75, 1].map(opacity => (
-          <div key={opacity} className="w-3 h-3 rounded-sm" style={{ backgroundColor: `rgba(124,58,237,${opacity})` }} />
+        {[0.04, 0.3, 0.5, 0.75, 1].map((opacity, i) => (
+          <div key={i} className="w-3 h-3 rounded-sm" style={{ backgroundColor: opacity === 0.04 ? 'rgba(255,255,255,0.04)' : `rgba(16, 185, 129, ${opacity})` }} />
         ))}
         <span>More</span>
       </div>
@@ -86,7 +94,7 @@ const Analytics = () => {
   const [sleepHrs, setSleepHrs] = useState('');
   const [breakHrs, setBreakHrs] = useState('');
 
-  const days = view === 'weekly' ? getLast7Days() : getLast30Days();
+  const days = view === 'weekly' ? getLast7Days() : view === 'monthly' ? getLast30Days() : getLast365Days();
   const chartData = useMemo(() => aggregateHoursByDay(studyLogs, days), [studyLogs, days]);
 
   // Line chart data (total per day)
@@ -156,7 +164,7 @@ const Analytics = () => {
     <Layout title="Analytics">
       {/* View Toggle */}
       <div className="flex gap-2 mb-6">
-        {['weekly', 'monthly'].map(v => (
+        {['weekly', 'monthly', 'yearly'].map(v => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -164,7 +172,7 @@ const Analytics = () => {
               view === v ? 'btn-primary' : 'btn-secondary'
             }`}
           >
-            {v === 'weekly' ? '📅 Weekly' : '📆 Monthly'}
+            {v === 'weekly' ? '📅 Weekly' : v === 'monthly' ? '📆 Monthly' : '🌍 Yearly'}
           </button>
         ))}
       </div>
@@ -234,7 +242,7 @@ const Analytics = () => {
 
       {/* Heatmap */}
       <GlassCard className="p-5 mb-6">
-        <h3 className="font-display font-bold text-white mb-4">🔥 Study Heatmap (Last 30 Days)</h3>
+        <h3 className="font-display font-bold text-white mb-4">🔥 Study Heatmap (Last 365 Days)</h3>
         <HeatmapCalendar studyLogs={studyLogs} />
       </GlassCard>
 
