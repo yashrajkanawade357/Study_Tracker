@@ -634,7 +634,7 @@ const HowItWorks = () => {
                          { h: 85, color: '#a855f7', label: 'Sat' },
                          { h: 95, color: '#a855f7', label: 'Sun' },
                        ].map((bar, i) => (
-                         <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
+                         <div key={i} className="flex flex-col items-center justify-end gap-1.5 flex-1 h-full">
                            <motion.div
                              initial={{ height: 0, opacity: 0 }}
                              animate={{ height: `${bar.h}%`, opacity: 1 }}
