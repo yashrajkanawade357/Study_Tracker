@@ -1,0 +1,1 @@
+'{activeStep === 4 && (\r\n                       <span className="text-[10px] font-bold text-violet-400">↑ 23% vs last week</span>\r\n                       <div className="h-px flex-1 bg-gradient-to-l from-transparent to-violet-500/30" />\r\n                     </motion.div>\r\n                   </div>\r\n'

@@ -5,8 +5,8 @@ import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
 import AnimatedCounter from '../components/AnimatedCounter';
 import {
-  BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend
+  PieChart, Pie, Cell,
+  Tooltip, ResponsiveContainer
 } from 'recharts';
 import {
   ClockIcon, FireIcon, BookOpenIcon, TrophyIcon, PlusCircleIcon
@@ -104,6 +104,72 @@ const ExamCountdownItem = ({ exam }) => {
           <p className="text-[10px] uppercase tracking-wider opacity-70">Sec</p>
         </div>
       </div>
+    </div>
+  );
+};
+
+/* ── Bar Chart Item ──────────────────────────────────────── */
+const BarItem = ({ day, i, maxHours, isToday, barColors }) => {
+  const [hovered, setHovered] = useState(false);
+  const pct = maxHours > 0 ? (day.hours / maxHours) * 100 : 0;
+  const [c1, c2] = barColors[i % barColors.length];
+  return (
+    <div
+      className="flex flex-col items-center justify-end flex-1 h-full gap-1 cursor-pointer relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Hover tooltip */}
+      {hovered && day.hours > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 4, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className="absolute -top-8 px-2 py-1 rounded-lg text-[10px] font-bold text-white z-20 whitespace-nowrap pointer-events-none"
+          style={{ background: `linear-gradient(135deg, ${c1}, ${c2})`, boxShadow: `0 4px 12px ${c1}50` }}
+        >
+          {day.hours.toFixed(1)}h
+        </motion.div>
+      )}
+      {/* Value label */}
+      {day.hours > 0 && (
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hovered ? 1 : 0.65 }}
+          transition={{ delay: 0.4 + i * 0.08 }}
+          className="text-[9px] font-bold"
+          style={{ color: c1 }}
+        >
+          {day.hours.toFixed(1)}h
+        </motion.span>
+      )}
+      {/* Bar */}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{
+          height: pct > 0 ? `${Math.max(pct, 4)}%` : '3px',
+          opacity: 1,
+          scaleX: hovered ? 1.1 : 1,
+        }}
+        transition={{ duration: 0.8, delay: i * 0.07, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full rounded-t-xl relative overflow-hidden"
+        style={{
+          background: pct > 0 ? `linear-gradient(to top, ${c1}, ${c2})` : 'rgba(255,255,255,0.06)',
+          boxShadow: pct > 0 ? `0 0 16px ${c1}40, inset 0 1px 0 rgba(255,255,255,0.2)` : 'none',
+          minHeight: 3,
+          transformOrigin: 'bottom',
+          outline: isToday ? `1.5px solid ${c2}` : 'none',
+          outlineOffset: '2px',
+        }}
+      >
+        {pct > 0 && (
+          <motion.div
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 2, delay: 1 + i * 0.1, repeat: Infinity, repeatDelay: 5 }}
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)', width: '40%' }}
+          />
+        )}
+      </motion.div>
     </div>
   );
 };
@@ -270,23 +336,117 @@ const Dashboard = () => {
           transition={{ delay: 0.25 }}
         >
           <GlassCard className="p-5 h-full flex flex-col">
-            <h3 className="font-display font-bold text-white mb-4">📊 Weekly Study Hours</h3>
-            <div className="flex-1 min-h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(124,58,237,0.1)" />
-                  <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="hours" fill="url(#purpleGrad)" radius={[6, 6, 0, 0]} />
-                  <defs>
-                    <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#7c3aed" />
-                      <stop offset="100%" stopColor="#4c1d95" />
-                    </linearGradient>
-                  </defs>
-                </BarChart>
-              </ResponsiveContainer>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="font-display font-bold text-white text-base">Weekly Study Hours</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Last 7 days performance</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+                <span className="text-xs text-gray-400 font-medium">
+                  {barData.reduce((s, d) => s + d.hours, 0).toFixed(1)}h total
+                </span>
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div className="flex-1 flex flex-col min-h-[200px]">
+              {(() => {
+                const maxHours = Math.max(...barData.map(d => d.hours), 1);
+                const todayLabel = new Date().toLocaleDateString('en-US', { weekday: 'short' });
+                const gridLines = [0, 25, 50, 75, 100];
+                const barColors = [
+                  ['#3b82f6', '#6366f1'],
+                  ['#6366f1', '#8b5cf6'],
+                  ['#8b5cf6', '#a855f7'],
+                  ['#a855f7', '#c026d3'],
+                  ['#7c3aed', '#6366f1'],
+                  ['#06b6d4', '#3b82f6'],
+                  ['#10b981', '#06b6d4'],
+                ];
+                return (
+                  <div className="flex-1 flex flex-col gap-2">
+                    {/* Bar area */}
+                    <div className="relative flex-1" style={{ minHeight: 160 }}>
+                      {/* Grid lines */}
+                      {gridLines.map((pct, gi) => (
+                        <div
+                          key={gi}
+                          className="absolute left-8 right-0 flex items-center pointer-events-none"
+                          style={{ bottom: `${pct}%` }}
+                        >
+                          <span className="text-[9px] text-gray-600 w-8 text-right pr-2 -ml-8 shrink-0">
+                            {pct === 0 ? '' : `${(maxHours * pct / 100).toFixed(pct === 100 ? 0 : 1)}h`}
+                          </span>
+                          <div className="flex-1 h-px" style={{ background: pct === 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)' }} />
+                        </div>
+                      ))}
+
+                      {/* Bars */}
+                      <div className="absolute inset-0 pl-8 pb-0.5 flex items-end gap-2">
+                        {barData.map((day, i) => (
+                          <BarItem
+                            key={day.date}
+                            day={day}
+                            i={i}
+                            maxHours={maxHours}
+                            isToday={day.label === todayLabel}
+                            barColors={barColors}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Day labels */}
+                    <div className="flex gap-2 pl-8">
+                      {barData.map((day, i) => {
+                        const isToday = day.label === todayLabel;
+                        return (
+                          <div key={i} className="flex-1 text-center">
+                            <span
+                              className={`text-[10px] font-bold ${
+                                isToday ? 'text-violet-400' : 'text-gray-500'
+                              }`}
+                            >
+                              {day.label}
+                            </span>
+                            {isToday && (
+                              <div className="mx-auto mt-0.5 w-1 h-1 rounded-full bg-violet-400" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Footer stats */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9 }}
+                      className="flex items-center justify-between pt-3 mt-1"
+                      style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      {[
+                        { label: 'Best day', value: `${Math.max(...barData.map(d => d.hours)).toFixed(1)}h`, color: '#a855f7' },
+                        { label: 'Daily avg', value: `${(barData.reduce((s,d)=>s+d.hours,0)/7).toFixed(1)}h`, color: '#6366f1' },
+                        { label: 'Active days', value: `${barData.filter(d=>d.hours>0).length}/7`, color: '#3b82f6' },
+                      ].map((stat, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 1 + i * 0.08, type: 'spring', stiffness: 200 }}
+                          className="flex flex-col items-center gap-0.5"
+                        >
+                          <span className="text-sm font-display font-bold" style={{ color: stat.color }}>{stat.value}</span>
+                          <span className="text-[9px] text-gray-600 uppercase tracking-wider">{stat.label}</span>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </div>
+                );
+              })()}
             </div>
           </GlassCard>
         </motion.div>
