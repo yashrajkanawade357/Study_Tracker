@@ -413,57 +413,318 @@ const HowItWorks = () => {
               </div>
 
               {/* Decorative visual based on step */}
-              <div className="relative h-64 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center bg-black/20">
+              <div className="relative h-64 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.4), rgba(10,10,30,0.6))' }}>
+                 {/* Subtle grid overlay for all steps */}
+                 <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+
                  {activeStep === 0 && (
-                   <div className="flex flex-wrap gap-4 p-8 opacity-40 justify-center">
-                     <div className="w-16 h-16 bg-red-500/20 rounded-xl rotate-12 border border-red-500/30" />
-                     <div className="w-24 h-12 bg-orange-500/20 rounded-xl -rotate-6 border border-orange-500/30" />
-                     <div className="w-20 h-20 bg-yellow-500/20 rounded-xl rotate-45 border border-yellow-500/30" />
-                     <div className="w-12 h-16 bg-pink-500/20 rounded-xl -rotate-12 border border-pink-500/30" />
-                   </div>
-                 )}
-                 {activeStep === 1 && (
-                   <div className="w-3/4 space-y-4">
-                     <div className="h-8 bg-blue-500/20 rounded-lg w-full border border-blue-500/30 relative overflow-hidden">
-                       <div className="absolute top-0 bottom-0 left-0 bg-blue-500/40 w-3/4" />
-                     </div>
-                     <div className="h-8 bg-purple-500/20 rounded-lg w-5/6 border border-purple-500/30 relative overflow-hidden">
-                       <div className="absolute top-0 bottom-0 left-0 bg-purple-500/40 w-1/2" />
-                     </div>
-                     <div className="h-8 bg-emerald-500/20 rounded-lg w-4/6 border border-emerald-500/30 relative overflow-hidden">
-                       <div className="absolute top-0 bottom-0 left-0 bg-emerald-500/40 w-1/4" />
-                     </div>
-                   </div>
-                 )}
-                 {activeStep === 2 && (
-                   <div className="grid grid-cols-5 gap-2 w-full h-full p-6">
-                     {Array.from({length: 25}).map((_, i) => (
-                       <div key={i} className={`rounded border border-white/5 ${Math.random() > 0.6 ? 'bg-blue-500/30 border-blue-500/50' : 'bg-white/5'}`} />
+                   <div className="relative w-full h-full flex items-center justify-center">
+                     {/* Floating chaotic scattered shapes */}
+                     {[
+                       { w: 16, h: 16, color: '#ef4444', x: -60, y: -40, rotate: 12, delay: 0 },
+                       { w: 24, h: 12, color: '#f97316', x: 50, y: -30, rotate: -18, delay: 0.1 },
+                       { w: 14, h: 20, color: '#eab308', x: -30, y: 50, rotate: 45, delay: 0.2 },
+                       { w: 12, h: 16, color: '#ec4899', x: 70, y: 40, rotate: -12, delay: 0.3 },
+                       { w: 18, h: 10, color: '#a855f7', x: -70, y: 10, rotate: 30, delay: 0.15 },
+                       { w: 10, h: 14, color: '#06b6d4', x: 20, y: -55, rotate: -25, delay: 0.25 },
+                     ].map((shape, i) => (
+                       <motion.div
+                         key={i}
+                         initial={{ opacity: 0, scale: 0, rotate: 0 }}
+                         animate={{
+                           opacity: [0, 0.5, 0.3],
+                           scale: [0, 1.1, 1],
+                           rotate: [0, shape.rotate * 2, shape.rotate],
+                           x: [0, shape.x * 0.5, shape.x],
+                           y: [0, shape.y * 0.5, shape.y],
+                         }}
+                         transition={{ duration: 1.2, delay: shape.delay, ease: 'easeOut' }}
+                         className="absolute rounded-xl"
+                         style={{
+                           width: shape.w * 2.5,
+                           height: shape.h * 2.5,
+                           background: `${shape.color}22`,
+                           border: `1px solid ${shape.color}44`,
+                           boxShadow: `0 0 20px ${shape.color}15`,
+                         }}
+                       />
                      ))}
+                     {/* Pulsing question mark in center */}
+                     <motion.div
+                       animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                       className="relative z-10 text-5xl font-display font-bold text-red-400/40"
+                     >
+                       ?
+                     </motion.div>
                    </div>
                  )}
+
+                 {activeStep === 1 && (
+                   <div className="w-4/5 space-y-5 relative z-10">
+                     {[
+                       { label: 'Mathematics', pct: 75, color: '#3b82f6', icon: '📐' },
+                       { label: 'Physics', pct: 50, color: '#a855f7', icon: '⚛️' },
+                       { label: 'Literature', pct: 30, color: '#10b981', icon: '📖' },
+                     ].map((goal, i) => (
+                       <div key={goal.label} className="relative">
+                         <div className="flex items-center justify-between mb-2">
+                           <div className="flex items-center gap-2">
+                             <span className="text-sm">{goal.icon}</span>
+                             <span className="text-xs font-medium text-gray-300">{goal.label}</span>
+                           </div>
+                           <motion.span
+                             initial={{ opacity: 0 }}
+                             animate={{ opacity: 1 }}
+                             transition={{ delay: 0.5 + i * 0.2 }}
+                             className="text-xs font-bold"
+                             style={{ color: goal.color }}
+                           >
+                             {goal.pct}%
+                           </motion.span>
+                         </div>
+                         <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                           <motion.div
+                             initial={{ width: 0 }}
+                             animate={{ width: `${goal.pct}%` }}
+                             transition={{ duration: 1.2, delay: 0.3 + i * 0.2, ease: [0.23, 1, 0.32, 1] }}
+                             className="h-full rounded-full relative"
+                             style={{
+                               background: `linear-gradient(90deg, ${goal.color}88, ${goal.color})`,
+                               boxShadow: `0 0 16px ${goal.color}40`,
+                             }}
+                           >
+                             <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.2), transparent)' }} />
+                           </motion.div>
+                         </div>
+                       </div>
+                     ))}
+                     {/* Floating target icon */}
+                     <motion.div
+                       initial={{ opacity: 0, scale: 0 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       transition={{ delay: 1, type: 'spring', stiffness: 200 }}
+                       className="absolute -top-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center"
+                       style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', boxShadow: '0 4px 20px rgba(59,130,246,0.4)' }}
+                     >
+                       <span className="text-lg">🎯</span>
+                     </motion.div>
+                   </div>
+                 )}
+
+                 {activeStep === 2 && (
+                   <div className="w-full h-full p-5 relative z-10">
+                     {/* Week header */}
+                     <div className="grid grid-cols-7 gap-1.5 mb-2">
+                       {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                         <div key={i} className="text-center text-[9px] font-bold text-gray-500 uppercase tracking-wider">{d}</div>
+                       ))}
+                     </div>
+                     {/* Time blocks grid */}
+                     <div className="grid grid-cols-7 gap-1.5 flex-1">
+                       {Array.from({ length: 28 }).map((_, i) => {
+                         const isStudy = [0, 2, 3, 7, 9, 14, 15, 16, 21, 22, 24, 27].includes(i);
+                         const isBreak = [5, 12, 19, 26].includes(i);
+                         const color = isStudy ? '#3b82f6' : isBreak ? '#10b981' : null;
+                         return (
+                           <motion.div
+                             key={i}
+                             initial={{ opacity: 0, scale: 0.3 }}
+                             animate={{ opacity: 1, scale: 1 }}
+                             transition={{ duration: 0.4, delay: i * 0.03, ease: 'backOut' }}
+                             className="aspect-square rounded-lg"
+                             style={{
+                               background: color ? `${color}30` : 'rgba(255,255,255,0.03)',
+                               border: `1px solid ${color ? `${color}50` : 'rgba(255,255,255,0.06)'}`,
+                               boxShadow: color ? `0 0 12px ${color}20` : 'none',
+                             }}
+                           />
+                         );
+                       })}
+                     </div>
+                     {/* Legend */}
+                     <div className="flex items-center gap-4 mt-3 justify-center">
+                       <div className="flex items-center gap-1.5">
+                         <div className="w-2.5 h-2.5 rounded-sm" style={{ background: '#3b82f680' }} />
+                         <span className="text-[9px] text-gray-500">Study</span>
+                       </div>
+                       <div className="flex items-center gap-1.5">
+                         <div className="w-2.5 h-2.5 rounded-sm" style={{ background: '#10b98180' }} />
+                         <span className="text-[9px] text-gray-500">Break</span>
+                       </div>
+                     </div>
+                   </div>
+                 )}
+
                  {activeStep === 3 && (
-                   <div className="w-40 h-40 rounded-full flex items-center justify-center relative"
-                     style={{ background: 'conic-gradient(rgba(16,185,129,0.8) 0% 75%, rgba(16,185,129,0.1) 75% 100%)' }}>
-                     <div className="w-36 h-36 bg-[#0c0c1f] rounded-full flex flex-col items-center justify-center border border-white/5">
-                        <span className="text-3xl font-display font-bold text-emerald-400">44:56</span>
-                        <span className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Remaining</span>
+                   <div className="relative flex items-center justify-center">
+                     {/* Outer glow ring */}
+                     <motion.div
+                       animate={{ rotate: 360 }}
+                       transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                       className="absolute w-52 h-52 rounded-full"
+                       style={{ border: '2px dashed rgba(16,185,129,0.15)' }}
+                     />
+                     {/* Timer ring */}
+                     <div className="relative w-44 h-44">
+                       <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
+                         {/* Background ring */}
+                         <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+                         {/* Progress ring */}
+                         <motion.circle
+                           cx="80" cy="80" r="70" fill="none"
+                           stroke="url(#pomodoroGradient)"
+                           strokeWidth="8"
+                           strokeLinecap="round"
+                           strokeDasharray={2 * Math.PI * 70}
+                           initial={{ strokeDashoffset: 2 * Math.PI * 70 }}
+                           animate={{ strokeDashoffset: 2 * Math.PI * 70 * 0.25 }}
+                           transition={{ duration: 2, ease: 'easeOut' }}
+                         />
+                         <defs>
+                           <linearGradient id="pomodoroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                             <stop offset="0%" stopColor="#10b981" />
+                             <stop offset="100%" stopColor="#06b6d4" />
+                           </linearGradient>
+                         </defs>
+                       </svg>
+                       {/* Center content */}
+                       <div className="absolute inset-0 flex flex-col items-center justify-center">
+                         <motion.span
+                           animate={{ opacity: [1, 0.6, 1] }}
+                           transition={{ duration: 1.5, repeat: Infinity }}
+                           className="text-3xl font-display font-bold text-emerald-400"
+                         >
+                           18:24
+                         </motion.span>
+                         <span className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Focus Time</span>
+                         <motion.div
+                           animate={{ scale: [1, 1.2, 1] }}
+                           transition={{ duration: 2, repeat: Infinity }}
+                           className="mt-2 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                         >
+                           <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                         </motion.div>
+                       </div>
                      </div>
+                     {/* Session count */}
+                     <motion.div
+                       initial={{ opacity: 0, x: 20 }}
+                       animate={{ opacity: 1, x: 0 }}
+                       transition={{ delay: 1 }}
+                       className="absolute -right-2 top-4 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-[10px] font-bold text-emerald-400"
+                       style={{ background: 'rgba(16,185,129,0.1)' }}
+                     >
+                       Session 3/4
+                     </motion.div>
                    </div>
                  )}
+
                  {activeStep === 4 && (
-                   <div className="flex items-end gap-3 w-3/4 h-32 justify-center">
-                     <div className="w-8 bg-blue-500/40 rounded-t-sm h-1/3 border-t border-x border-blue-500/50" />
-                     <div className="w-8 bg-blue-500/60 rounded-t-sm h-1/2 border-t border-x border-blue-500/70" />
-                     <div className="w-8 bg-blue-500/80 rounded-t-sm h-3/4 border-t border-x border-blue-500/90" />
-                     <div className="w-8 bg-blue-500 rounded-t-sm h-full shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
+                   <div className="w-4/5 relative z-10">
+                     {/* Chart with animated bars */}
+                     <div className="flex items-end gap-2.5 h-36 mb-4 justify-center">
+                       {[
+                         { h: 30, color: '#3b82f6', label: 'Mon' },
+                         { h: 55, color: '#3b82f6', label: 'Tue' },
+                         { h: 45, color: '#3b82f6', label: 'Wed' },
+                         { h: 70, color: '#8b5cf6', label: 'Thu' },
+                         { h: 60, color: '#8b5cf6', label: 'Fri' },
+                         { h: 85, color: '#a855f7', label: 'Sat' },
+                         { h: 95, color: '#a855f7', label: 'Sun' },
+                       ].map((bar, i) => (
+                         <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
+                           <motion.div
+                             initial={{ height: 0, opacity: 0 }}
+                             animate={{ height: `${bar.h}%`, opacity: 1 }}
+                             transition={{ duration: 0.8, delay: i * 0.1, ease: [0.23, 1, 0.32, 1] }}
+                             className="w-full rounded-t-md relative overflow-hidden"
+                             style={{
+                               background: `linear-gradient(to top, ${bar.color}cc, ${bar.color}40)`,
+                               boxShadow: `0 0 16px ${bar.color}30`,
+                               minHeight: 4,
+                             }}
+                           >
+                             <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05))' }} />
+                           </motion.div>
+                           <span className="text-[8px] text-gray-500 font-medium">{bar.label}</span>
+                         </div>
+                       ))}
+                     </div>
+                     {/* Trend line text */}
+                     <motion.div
+                       initial={{ opacity: 0, y: 10 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       transition={{ delay: 1.2 }}
+                       className="flex items-center justify-center gap-2"
+                     >
+                       <div className="h-px flex-1 bg-gradient-to-r from-transparent to-violet-500/30" />
+                       <span className="text-[10px] font-bold text-violet-400">↑ 23% vs last week</span>
+                       <div className="h-px flex-1 bg-gradient-to-l from-transparent to-violet-500/30" />
+                     </motion.div>
                    </div>
                  )}
+
                  {activeStep === 5 && (
-                   <div className="flex flex-col items-center justify-center gap-4">
-                     <div className="w-24 h-24 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(244,114,182,0.4)]">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                     </div>
+                   <div className="relative flex items-center justify-center">
+                     {/* Orbiting particles */}
+                     {[0, 1, 2, 3, 4, 5].map(i => (
+                       <motion.div
+                         key={i}
+                         animate={{ rotate: 360 }}
+                         transition={{ duration: 6 + i * 2, repeat: Infinity, ease: 'linear' }}
+                         className="absolute"
+                         style={{ width: 120 + i * 20, height: 120 + i * 20 }}
+                       >
+                         <motion.div
+                           className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
+                           style={{
+                             width: 4 + i,
+                             height: 4 + i,
+                             background: ['#ec4899', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4'][i],
+                             boxShadow: `0 0 10px ${['#ec4899', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4'][i]}60`,
+                           }}
+                         />
+                       </motion.div>
+                     ))}
+                     {/* Central badge */}
+                     <motion.div
+                       initial={{ scale: 0, rotate: -180 }}
+                       animate={{ scale: 1, rotate: 0 }}
+                       transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.2 }}
+                       className="relative z-10"
+                     >
+                       <motion.div
+                         animate={{ boxShadow: ['0 0 30px rgba(236,72,153,0.3)', '0 0 60px rgba(236,72,153,0.5)', '0 0 30px rgba(236,72,153,0.3)'] }}
+                         transition={{ duration: 2, repeat: Infinity }}
+                         className="w-28 h-28 rounded-3xl flex items-center justify-center"
+                         style={{ background: 'linear-gradient(135deg, #ec4899, #f43f5e)' }}
+                       >
+                         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                           <motion.path
+                             d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                             initial={{ pathLength: 0 }}
+                             animate={{ pathLength: 1 }}
+                             transition={{ duration: 1.5, delay: 0.5 }}
+                           />
+                           <motion.polyline
+                             points="22 4 12 14.01 9 11.01"
+                             initial={{ pathLength: 0 }}
+                             animate={{ pathLength: 1 }}
+                             transition={{ duration: 0.8, delay: 1.5 }}
+                           />
+                         </svg>
+                       </motion.div>
+                       {/* Success text */}
+                       <motion.div
+                         initial={{ opacity: 0, y: 10 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         transition={{ delay: 2 }}
+                         className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold text-pink-400"
+                       >
+                         Goals Achieved ✨
+                       </motion.div>
+                     </motion.div>
                    </div>
                  )}
               </div>
