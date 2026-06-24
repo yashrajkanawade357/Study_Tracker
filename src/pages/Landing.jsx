@@ -432,7 +432,7 @@ const HowItWorks = () => {
                          key={i}
                          initial={{ opacity: 0, scale: 0, rotate: 0 }}
                          animate={{
-                           opacity: [0, 0.5, 0.3],
+                           opacity: [0, 0.85, 0.7],
                            scale: [0, 1.1, 1],
                            rotate: [0, shape.rotate * 2, shape.rotate],
                            x: [0, shape.x * 0.5, shape.x],
@@ -443,17 +443,18 @@ const HowItWorks = () => {
                          style={{
                            width: shape.w * 2.5,
                            height: shape.h * 2.5,
-                           background: `${shape.color}22`,
-                           border: `1px solid ${shape.color}44`,
-                           boxShadow: `0 0 20px ${shape.color}15`,
+                           background: `${shape.color}55`,
+                           border: `1.5px solid ${shape.color}88`,
+                           boxShadow: `0 0 24px ${shape.color}35`,
                          }}
                        />
                      ))}
                      {/* Pulsing question mark in center */}
                      <motion.div
-                       animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                       animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                       className="relative z-10 text-5xl font-display font-bold text-red-400/40"
+                       className="relative z-10 text-8xl font-display font-bold text-red-400/70"
+                       style={{ textShadow: '0 0 30px rgba(248,113,113,0.4)' }}
                      >
                        ?
                      </motion.div>
