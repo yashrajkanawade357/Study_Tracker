@@ -33,9 +33,39 @@ const Particles = ({ color, count = 12 }) => {
 
 // ── Mode config ──────────────────────────────────────────────────────────────
 const MODES = {
-  focus:     { label: 'Focus',      emoji: '🎯', color: '#7c3aed', glow: '#7c3aed55', accent: '#a78bfa', bg: 'from-violet-950/80 to-indigo-950/80',  ring: '#7c3aed', textColor: 'text-violet-400' },
-  shortBreak:{ label: 'Short Break','emoji': '☕', color: '#0891b2', glow: '#0891b255', accent: '#38bdf8', bg: 'from-cyan-950/80 to-blue-950/80',     ring: '#0891b2', textColor: 'text-cyan-400'   },
-  longBreak: { label: 'Long Break', emoji: '🌅', color: '#d97706', glow: '#d9770655', accent: '#fbbf24', bg: 'from-amber-950/80 to-orange-950/80',   ring: '#d97706', textColor: 'text-amber-400'  },
+  focus:     {
+    label: 'Focus',       emoji: '🎯',
+    color: '#6d28d9',     accent: '#a78bfa',
+    glow:  '#6d28d966',
+    cardBg: 'linear-gradient(145deg, #2e1065 0%, #1e1b4b 50%, #0f0a2e 100%)',
+    headerBg: 'linear-gradient(90deg, #6d28d9, #4f46e5)',
+    tabBg: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+    tabShadow: '0 4px 20px #7c3aed60',
+    textColor: 'text-violet-300',
+    ringTrack: '#3b0764',
+  },
+  shortBreak: {
+    label: 'Short Break', emoji: '☕',
+    color: '#0e7490',     accent: '#22d3ee',
+    glow:  '#0e749066',
+    cardBg: 'linear-gradient(145deg, #083344 0%, #0c1a2e 50%, #020d18 100%)',
+    headerBg: 'linear-gradient(90deg, #0891b2, #0e7490)',
+    tabBg: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+    tabShadow: '0 4px 20px #0891b260',
+    textColor: 'text-cyan-300',
+    ringTrack: '#042f3e',
+  },
+  longBreak: {
+    label: 'Long Break',  emoji: '🌅',
+    color: '#b45309',     accent: '#fbbf24',
+    glow:  '#b4530966',
+    cardBg: 'linear-gradient(145deg, #3d1a00 0%, #1c0f00 50%, #0d0800 100%)',
+    headerBg: 'linear-gradient(90deg, #d97706, #b45309)',
+    tabBg: 'linear-gradient(135deg, #f59e0b, #d97706)',
+    tabShadow: '0 4px 20px #d9770660',
+    textColor: 'text-amber-300',
+    ringTrack: '#3d1a00',
+  },
 };
 
 // ── Circular SVG timer ───────────────────────────────────────────────────────
@@ -384,20 +414,22 @@ const Pomodoro = () => {
         <motion.div
           layout
           className={`relative overflow-hidden rounded-3xl ${isFullscreen ? 'w-full max-w-lg' : 'w-full'}`}
-          animate={{ borderColor: `${cfg.color}40` }}
+          animate={{ borderColor: `${cfg.color}60` }}
           style={{
-            background: 'rgba(10,10,20,0.85)',
-            backdropFilter: 'blur(24px)',
-            border: `1px solid ${cfg.color}30`,
-            boxShadow: `0 0 60px ${cfg.color}20, 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)`,
+            background: cfg.cardBg,
+            border: `1px solid ${cfg.color}50`,
+            boxShadow: `0 0 80px ${cfg.color}30, 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)`,
           }}
         >
-          {/* Animated gradient background */}
+          {/* Solid top color band */}
           <motion.div
-            className="absolute inset-0 pointer-events-none"
-            animate={{ background: `radial-gradient(ellipse at 50% 0%, ${cfg.color}18 0%, transparent 70%)` }}
-            transition={{ duration: 0.8 }}
+            className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
+            animate={{ background: cfg.headerBg }}
+            transition={{ duration: 0.6 }}
           />
+          {/* Corner glow blobs */}
+          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle, ${cfg.color}35 0%, transparent 70%)` }} />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle, ${cfg.accent}20 0%, transparent 70%)` }} />
           <Particles color={cfg.accent} count={10} />
 
           <div className="relative z-10 p-6 pb-8">
@@ -434,22 +466,27 @@ const Pomodoro = () => {
             </div>
 
             {/* Mode tabs */}
-            <div className="flex gap-1 p-1 rounded-2xl bg-white/5 mb-6">
-              {modeTabCfg.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => { if (!isRunning) { setMode(tab.key); setTimeLeft(DURATIONS[tab.key]); }}}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
-                    mode === tab.key ? 'text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'
-                  }`}
-                  style={mode === tab.key ? {
-                    background: `linear-gradient(135deg, ${tab.color}cc, ${tab.color}88)`,
-                    boxShadow: `0 4px 16px ${tab.color}40`,
-                  } : {}}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="flex gap-1.5 p-1.5 rounded-2xl mb-6" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {modeTabCfg.map(tab => {
+                const tabCfg = MODES[tab.key];
+                const active = mode === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => { if (!isRunning) { setMode(tab.key); setTimeLeft(DURATIONS[tab.key]); }}}
+                    className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-300"
+                    style={active ? {
+                      background: tabCfg.tabBg,
+                      color: '#fff',
+                      boxShadow: tabCfg.tabShadow,
+                    } : {
+                      color: 'rgba(255,255,255,0.35)',
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Duration + Subject selector (focus mode, not running) */}
@@ -541,26 +578,31 @@ const Pomodoro = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
                 onClick={handleReset}
-                className="w-11 h-11 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-all"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all font-bold text-sm"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: `1px solid ${cfg.color}40`,
+                  color: cfg.accent,
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.1)`,
+                }}
               >
                 <ArrowPathIcon className="w-5 h-5" />
               </motion.button>
 
-              {/* Play / Pause — big */}
+              {/* Play / Pause — big solid */}
               <motion.button
-                whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}
                 onClick={isRunning ? handlePause : handleStart}
-                className="w-16 h-16 rounded-full flex items-center justify-center relative"
+                className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
                 style={{
-                  background: `linear-gradient(135deg, ${cfg.color}, ${cfg.accent}99)`,
-                  boxShadow: `0 0 32px ${cfg.color}60, 0 8px 24px rgba(0,0,0,0.4)`,
+                  background: cfg.tabBg,
+                  boxShadow: `${cfg.tabShadow}, 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)`,
                 }}
               >
-                {/* Pulse ring on running */}
                 {isRunning && (
                   <motion.div
-                    className="absolute inset-0 rounded-full"
-                    animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+                    className="absolute inset-0 rounded-2xl"
+                    animate={{ scale: [1, 1.4], opacity: [0.4, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                     style={{ background: cfg.color }}
                   />
@@ -574,8 +616,8 @@ const Pomodoro = () => {
                     transition={{ duration: 0.2 }}
                   >
                     {isRunning
-                      ? <PauseIcon className="w-7 h-7 text-white" />
-                      : <PlayIcon className="w-7 h-7 text-white ml-0.5" />
+                      ? <PauseIcon className="w-8 h-8 text-white" />
+                      : <PlayIcon className="w-8 h-8 text-white ml-1" />
                     }
                   </motion.div>
                 </AnimatePresence>
@@ -585,7 +627,13 @@ const Pomodoro = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
                 onClick={handleSkip}
-                className="w-11 h-11 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-all"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: `1px solid ${cfg.color}40`,
+                  color: cfg.accent,
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.1)`,
+                }}
               >
                 <ForwardIcon className="w-5 h-5" />
               </motion.button>
@@ -599,8 +647,15 @@ const Pomodoro = () => {
             {/* Info pill */}
             {mode === 'focus' && (
               <div className="mt-4 flex justify-center">
-                <div className="text-[10px] text-gray-600 px-3 py-1 rounded-full bg-white/5 border border-white/5">
-                  Each session logs <span className="text-violet-400 font-bold">+{(focusMins / 60).toFixed(2)}h</span> to {selectedSubject || 'your subject'}
+                <div
+                  className="text-[10px] font-semibold px-4 py-1.5 rounded-full"
+                  style={{
+                    background: `linear-gradient(90deg, ${cfg.color}30, ${cfg.accent}20)`,
+                    border: `1px solid ${cfg.color}50`,
+                    color: cfg.accent,
+                  }}
+                >
+                  Each session logs <strong>+{(focusMins / 60).toFixed(2)}h</strong> to {selectedSubject || 'your subject'}
                 </div>
               </div>
             )}
@@ -618,10 +673,9 @@ const Pomodoro = () => {
                 transition={{ delay: 0.1 }}
                 className="rounded-3xl overflow-hidden"
                 style={{
-                  background: 'rgba(10,10,20,0.7)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                  background: 'linear-gradient(160deg, #1a0a3e 0%, #0f0a28 60%, #08061a 100%)',
+                  border: '1px solid #6d28d940',
+                  boxShadow: '0 8px 40px rgba(109,40,217,0.15), 0 4px 16px rgba(0,0,0,0.5)',
                 }}
               >
                 <div className="p-5">
@@ -701,10 +755,9 @@ const Pomodoro = () => {
               transition={{ delay: 0.15 }}
               className="rounded-3xl overflow-hidden"
               style={{
-                background: 'rgba(10,10,20,0.7)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                background: 'linear-gradient(160deg, #12101f 0%, #0d0b1e 60%, #080614 100%)',
+                border: '1px solid rgba(139,92,246,0.2)',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
               }}
             >
               <div className="p-5">
@@ -742,22 +795,30 @@ const Pomodoro = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.04 }}
-                            className="flex items-center gap-3 p-3 rounded-2xl group hover:bg-white/[0.04] transition-all border border-white/5"
+                            className="flex items-center gap-3 p-3 rounded-2xl transition-all"
+                            style={{
+                              background: `linear-gradient(90deg, ${color}18 0%, transparent 100%)`,
+                              border: `1px solid ${color}30`,
+                            }}
                           >
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm flex-shrink-0"
-                              style={{ background: `${color}20`, border: `1px solid ${color}40` }}>
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0 font-bold"
+                              style={{ background: `linear-gradient(135deg, ${color}60, ${color}30)`, border: `1px solid ${color}60`, boxShadow: `0 4px 12px ${color}40` }}
+                            >
                               🍅
                             </div>
-                            <div className="w-1 h-7 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                            <div className="w-[3px] h-8 rounded-full flex-shrink-0" style={{ background: `linear-gradient(to bottom, ${color}, ${color}50)` }} />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-white truncate">{s.subject}</p>
-                              <p className="text-[10px] text-gray-600">
+                              <p className="text-sm font-bold text-white truncate">{s.subject}</p>
+                              <p className="text-[10px] text-gray-500">
                                 {new Date(s.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {Math.round(s.duration / 60)} min
                               </p>
                             </div>
-                            <div className="flex-shrink-0 text-right">
-                              <p className="text-sm font-bold" style={{ color }}>+{(s.duration / 3600).toFixed(2)}h</p>
-                              <p className="text-[10px] text-gray-700">logged</p>
+                            <div
+                              className="flex-shrink-0 px-3 py-1.5 rounded-xl text-right"
+                              style={{ background: `${color}25`, border: `1px solid ${color}40` }}
+                            >
+                              <p className="text-sm font-black" style={{ color }}>+{(s.duration / 3600).toFixed(2)}h</p>
                             </div>
                           </motion.div>
                         );
