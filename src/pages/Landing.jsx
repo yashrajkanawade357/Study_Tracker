@@ -641,6 +641,60 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── Terms Section ── */}
+      <section id="terms" className="relative z-10 py-32 border-t border-white/[0.05]">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
+            >
+              Terms of <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Service</span>
+            </motion.h2>
+          </div>
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-12 text-gray-400 text-sm leading-relaxed max-h-96 overflow-y-auto"
+            style={{ backdropFilter: 'blur(10px)' }}>
+            <h3 className="text-white font-semibold text-lg mb-4">1. Acceptance of Terms</h3>
+            <p className="mb-6">By accessing and using Vyora, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">2. User Accounts</h3>
+            <p className="mb-6">To use certain features of the app, you must register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">3. Service Description</h3>
+            <p className="mb-6">Vyora is an AI-powered study platform designed to help students track study sessions and optimize their time. The app is provided "as is" and without warranty of any kind.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">4. Modifications to Service</h3>
+            <p className="mb-6">We reserve the right at any time and from time to time to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Privacy Section ── */}
+      <section id="privacy" className="relative z-10 py-32 border-t border-white/[0.05]">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
+            >
+              Privacy <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Policy</span>
+            </motion.h2>
+          </div>
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-12 text-gray-400 text-sm leading-relaxed max-h-96 overflow-y-auto"
+            style={{ backdropFilter: 'blur(10px)' }}>
+            <h3 className="text-white font-semibold text-lg mb-4">1. Information We Collect</h3>
+            <p className="mb-6">We collect information you provide directly to us. For example, we collect information when you create an account, fill out your profile, or log study sessions. We only collect data necessary to provide our services.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">2. How We Use Information</h3>
+            <p className="mb-6">We use the information we collect to provide, maintain, and improve our services. Specifically, your study data is used by our AI Study Coach to provide personalized insights and recommendations.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">3. Data Security</h3>
+            <p className="mb-6">Your data is stored securely using Supabase. We implement security measures designed to protect your information from unauthorized access and use.</p>
+            <h3 className="text-white font-semibold text-lg mb-4">4. Your Control</h3>
+            <p className="mb-6">You have complete control over your data. You can request to delete your account and all associated study data at any time by contacting our support.</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── Footer ── */}
       <footer id="contact" className="relative z-10 border-t border-white/[0.05] py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -656,8 +710,8 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-            <span className="hover:text-white cursor-pointer transition-colors">Privacy</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
+            <a href="#privacy" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#terms" className="hover:text-white transition-colors">Terms</a>
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
