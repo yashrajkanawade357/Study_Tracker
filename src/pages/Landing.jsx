@@ -9,7 +9,11 @@ import {
   ArrowRightIcon,
   FireIcon,
   BoltIcon,
-  StarIcon
+  StarIcon,
+  ChartBarIcon,
+  CalendarIcon,
+  CheckCircleIcon,
+  ChartPieIcon
 } from '@heroicons/react/24/outline';
 
 /* ── Animated particle canvas ─────────────────────────────── */
@@ -58,6 +62,10 @@ const features = [
   { icon: ClockIcon, title: 'Pomodoro Timer', description: 'Stay laser-focused with our built-in Pomodoro timer and break system.', color: 'from-cyan-400 to-blue-500', glow: 'rgba(34,211,238,0.3)' },
   { icon: CalendarDaysIcon, title: 'Smart Timetable', description: 'Visualize your entire study schedule and find the perfect balance.', color: 'from-pink-500 to-rose-600', glow: 'rgba(236,72,153,0.3)' },
   { icon: TrophyIcon, title: 'Achievements', description: 'Earn badges, build streaks, and level up your academic profile.', color: 'from-amber-400 to-orange-500', glow: 'rgba(251,191,36,0.3)' },
+  { icon: ChartBarIcon, title: 'Deep Analytics', description: 'Track your progress with detailed charts, subject breakdowns, and productivity trends.', color: 'from-emerald-400 to-teal-500', glow: 'rgba(16,185,129,0.3)' },
+  { icon: CalendarIcon, title: 'Calendar', description: 'Plan ahead with our Calendar view, seamlessly integrating your study sessions.', color: 'from-blue-500 to-indigo-600', glow: 'rgba(59,130,246,0.3)' },
+  { icon: CheckCircleIcon, title: 'Task Management', description: 'Break down large subjects into manageable tasks and check them off as you go.', color: 'from-fuchsia-500 to-pink-600', glow: 'rgba(217,70,239,0.3)' },
+  { icon: ChartPieIcon, title: 'Goal Tracking', description: 'Set daily, weekly, and subject-specific goals to maintain your momentum and focus.', color: 'from-orange-400 to-red-500', glow: 'rgba(249,115,22,0.3)' },
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, color, glow, delay }) => (
