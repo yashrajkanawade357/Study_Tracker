@@ -306,6 +306,175 @@ const privacyContent = (
   </>
 );
 
+/* ── How It Works Section ─────────────────────────────────── */
+const howItWorksSteps = [
+  { id: 'problem', short: 'THE PROBLEM', title: 'Scattered study habits', desc: 'Notes are everywhere, hours are untracked, and exams are looming. You need a system.' },
+  { id: 'step1', short: 'STEP 1', title: 'Set your goals', desc: 'Define your subjects and set realistic weekly targets. Vyora helps you break down the mountain.' },
+  { id: 'step2', short: 'STEP 2', title: 'Plan your week', desc: 'Use the smart timetable to allocate time blocks. Visualize your week before it starts.' },
+  { id: 'step3', short: 'STEP 3', title: 'Track honestly', desc: 'One-tap Pomodoro timer. Automatic hour logging. Build a real picture of where your time goes.' },
+  { id: 'step4', short: 'STEP 4', title: 'Review analytics', desc: 'Look at your weekly breakdowns. The AI coach highlights exactly where you need more focus.' },
+  { id: 'outcome', short: 'THE OUTCOME', title: 'Academic clarity', desc: 'Hit your goals, maintain streaks, and enter exam season with complete confidence.' }
+];
+
+const HowItWorks = () => {
+  const [activeStep, setActiveStep] = React.useState(0);
+
+  return (
+    <section className="relative z-10 py-32 border-t border-white/[0.05]">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="text-center mb-24">
+          <motion.span
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="inline-block text-sm font-semibold text-blue-400 uppercase tracking-widest mb-4"
+          >
+            HOW IT WORKS
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-display font-bold text-white mb-4 leading-tight"
+          >
+            From chaos to clarity <br/>
+            <span className="text-blue-500">in four steps</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-gray-400 text-lg max-w-xl mx-auto"
+          >
+            See how Vyora transforms scattered study habits into a focused, trackable routine.
+          </motion.p>
+        </div>
+
+        {/* Timeline */}
+        <div className="relative mb-16 px-4 md:px-12">
+          {/* Connecting line */}
+          <div className="absolute top-[60%] left-12 right-12 h-[2px] bg-white/10 -translate-y-1/2 z-0 hidden md:block" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row justify-between gap-6 md:gap-0">
+            {howItWorksSteps.map((step, idx) => {
+              const isActive = idx === activeStep;
+              const isPast = idx < activeStep;
+              return (
+                <div 
+                  key={step.id}
+                  onClick={() => setActiveStep(idx)}
+                  className="flex md:flex-col items-center gap-4 md:gap-4 cursor-pointer group w-full md:w-auto"
+                >
+                  <span className={`text-[10px] font-bold tracking-wider transition-colors duration-300 md:-translate-y-2 uppercase ${isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                    {step.short}
+                  </span>
+                  
+                  {/* Dot */}
+                  <div className={`relative flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+                    isActive ? 'border-blue-500 bg-blue-500 scale-125' : 
+                    isPast ? 'border-blue-500/50 bg-blue-500/20' : 
+                    'border-white/20 bg-[#0a0a1e] group-hover:border-white/40'
+                  }`}>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="activeDotGlow"
+                        className="absolute inset-0 rounded-full bg-blue-500 blur-md opacity-60"
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content Card */}
+        <div className="relative rounded-3xl border border-white/10 overflow-hidden min-h-[380px] flex items-center"
+          style={{ background: 'rgba(15,15,30,0.6)', backdropFilter: 'blur(20px)' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeStep}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full"
+            >
+              <div>
+                <div className="inline-block px-3 py-1 rounded-lg bg-white/5 text-blue-400 text-[10px] font-bold tracking-wider mb-6 uppercase">
+                  {howItWorksSteps[activeStep].short}
+                </div>
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">
+                  {howItWorksSteps[activeStep].title}
+                </h3>
+                <p className="text-gray-400 text-lg leading-relaxed">
+                  {howItWorksSteps[activeStep].desc}
+                </p>
+              </div>
+
+              {/* Decorative visual based on step */}
+              <div className="relative h-64 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center bg-black/20">
+                 {activeStep === 0 && (
+                   <div className="flex flex-wrap gap-4 p-8 opacity-40 justify-center">
+                     <div className="w-16 h-16 bg-red-500/20 rounded-xl rotate-12 border border-red-500/30" />
+                     <div className="w-24 h-12 bg-orange-500/20 rounded-xl -rotate-6 border border-orange-500/30" />
+                     <div className="w-20 h-20 bg-yellow-500/20 rounded-xl rotate-45 border border-yellow-500/30" />
+                     <div className="w-12 h-16 bg-pink-500/20 rounded-xl -rotate-12 border border-pink-500/30" />
+                   </div>
+                 )}
+                 {activeStep === 1 && (
+                   <div className="w-3/4 space-y-4">
+                     <div className="h-8 bg-blue-500/20 rounded-lg w-full border border-blue-500/30 relative overflow-hidden">
+                       <div className="absolute top-0 bottom-0 left-0 bg-blue-500/40 w-3/4" />
+                     </div>
+                     <div className="h-8 bg-purple-500/20 rounded-lg w-5/6 border border-purple-500/30 relative overflow-hidden">
+                       <div className="absolute top-0 bottom-0 left-0 bg-purple-500/40 w-1/2" />
+                     </div>
+                     <div className="h-8 bg-emerald-500/20 rounded-lg w-4/6 border border-emerald-500/30 relative overflow-hidden">
+                       <div className="absolute top-0 bottom-0 left-0 bg-emerald-500/40 w-1/4" />
+                     </div>
+                   </div>
+                 )}
+                 {activeStep === 2 && (
+                   <div className="grid grid-cols-5 gap-2 w-full h-full p-6">
+                     {Array.from({length: 25}).map((_, i) => (
+                       <div key={i} className={`rounded border border-white/5 ${Math.random() > 0.6 ? 'bg-blue-500/30 border-blue-500/50' : 'bg-white/5'}`} />
+                     ))}
+                   </div>
+                 )}
+                 {activeStep === 3 && (
+                   <div className="w-40 h-40 rounded-full flex items-center justify-center relative"
+                     style={{ background: 'conic-gradient(rgba(16,185,129,0.8) 0% 75%, rgba(16,185,129,0.1) 75% 100%)' }}>
+                     <div className="w-36 h-36 bg-[#0c0c1f] rounded-full flex flex-col items-center justify-center border border-white/5">
+                        <span className="text-3xl font-display font-bold text-emerald-400">44:56</span>
+                        <span className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Remaining</span>
+                     </div>
+                   </div>
+                 )}
+                 {activeStep === 4 && (
+                   <div className="flex items-end gap-3 w-3/4 h-32 justify-center">
+                     <div className="w-8 bg-blue-500/40 rounded-t-sm h-1/3 border-t border-x border-blue-500/50" />
+                     <div className="w-8 bg-blue-500/60 rounded-t-sm h-1/2 border-t border-x border-blue-500/70" />
+                     <div className="w-8 bg-blue-500/80 rounded-t-sm h-3/4 border-t border-x border-blue-500/90" />
+                     <div className="w-8 bg-blue-500 rounded-t-sm h-full shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
+                   </div>
+                 )}
+                 {activeStep === 5 && (
+                   <div className="flex flex-col items-center justify-center gap-4">
+                     <div className="w-24 h-24 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(244,114,182,0.4)]">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                     </div>
+                   </div>
+                 )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ── Main Component ───────────────────────────────────────── */
 const Landing = () => {
   const [showTerms, setShowTerms] = React.useState(false);
@@ -447,6 +616,9 @@ const Landing = () => {
           <StudyCard />
         </div>
       </section>
+
+      {/* ── How It Works ── */}
+      <HowItWorks />
 
       {/* ── Features Section ── */}
       <section id="features" className="relative z-10 py-32 border-t border-white/[0.05]">
