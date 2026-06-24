@@ -47,18 +47,24 @@ export const getStudyLogsForDate = (logs, date) => {
 export const getStudyLogsForWeek = (logs, weekDate = new Date()) => {
   const start = startOfWeek(weekDate, { weekStartsOn: 1 });
   const end = endOfWeek(weekDate, { weekStartsOn: 1 });
+  // Compare as date strings (YYYY-MM-DD) to avoid UTC vs local timezone issues
+  // where new Date("YYYY-MM-DD") parses at UTC midnight but start/end are local
+  const startStr = format(start, 'yyyy-MM-dd');
+  const endStr = format(end, 'yyyy-MM-dd');
   return logs.filter(log => {
-    const logDate = new Date(log.date);
-    return logDate >= start && logDate <= end;
+    const d = log.date; // already "YYYY-MM-DD"
+    return d >= startStr && d <= endStr;
   });
 };
 
 export const getStudyLogsForMonth = (logs, monthDate = new Date()) => {
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
+  const startStr = format(start, 'yyyy-MM-dd');
+  const endStr = format(end, 'yyyy-MM-dd');
   return logs.filter(log => {
-    const logDate = new Date(log.date);
-    return logDate >= start && logDate <= end;
+    const d = log.date;
+    return d >= startStr && d <= endStr;
   });
 };
 
