@@ -274,7 +274,7 @@ const Landing = () => {
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            {['Features', 'About', 'FAQ', 'Contact'].map(item => (
+            {['Features', 'About', 'FAQ', 'Terms', 'Privacy', 'Contact'].map(item => (
               <a key={item} href={`#${item.toLowerCase()}`}
                 className="hover:text-white transition-colors duration-200 relative group">
                 {item}
