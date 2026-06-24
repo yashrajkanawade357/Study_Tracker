@@ -337,7 +337,7 @@ const HowItWorks = () => {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-display font-bold text-white mb-4 leading-tight"
           >
-            From chaos to clarity <br/>
+            From overwhelmed to organized <br/>
             <span className="text-blue-500">in four steps</span>
           </motion.h2>
           <motion.p
