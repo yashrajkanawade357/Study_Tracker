@@ -622,46 +622,115 @@ const HowItWorks = () => {
                  )}
 
                  {activeStep === 4 && (
-                   <div className="w-4/5 relative z-10">
-                     {/* Chart with animated bars */}
-                     <div className="flex items-end gap-2.5 h-36 mb-4 justify-center">
-                       {[
-                         { h: 30, color: '#3b82f6', label: 'Mon' },
-                         { h: 55, color: '#3b82f6', label: 'Tue' },
-                         { h: 45, color: '#3b82f6', label: 'Wed' },
-                         { h: 70, color: '#8b5cf6', label: 'Thu' },
-                         { h: 60, color: '#8b5cf6', label: 'Fri' },
-                         { h: 85, color: '#a855f7', label: 'Sat' },
-                         { h: 95, color: '#a855f7', label: 'Sun' },
-                       ].map((bar, i) => (
-                         <div key={i} className="flex flex-col items-center justify-end gap-1.5 flex-1 h-full">
-                           <motion.div
-                             initial={{ height: 0, opacity: 0 }}
-                             animate={{ height: `${bar.h}%`, opacity: 1 }}
-                             transition={{ duration: 0.8, delay: i * 0.1, ease: [0.23, 1, 0.32, 1] }}
-                             className="w-full rounded-t-md relative overflow-hidden"
-                             style={{
-                               background: `linear-gradient(to top, ${bar.color}cc, ${bar.color}40)`,
-                               boxShadow: `0 0 16px ${bar.color}30`,
-                               minHeight: 4,
-                             }}
-                           >
-                             <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05))' }} />
-                           </motion.div>
-                           <span className="text-[8px] text-gray-500 font-medium">{bar.label}</span>
-                         </div>
-                       ))}
-                     </div>
-                     {/* Trend line text */}
+                   <div className="w-full relative z-10 px-1">
+                     {/* Header */}
                      <motion.div
-                       initial={{ opacity: 0, y: 10 }}
+                       initial={{ opacity: 0, y: -8 }}
                        animate={{ opacity: 1, y: 0 }}
-                       transition={{ delay: 1.2 }}
-                       className="flex items-center justify-center gap-2"
+                       transition={{ duration: 0.5 }}
+                       className="flex items-center justify-between mb-2 px-1"
                      >
-                       <div className="h-px flex-1 bg-gradient-to-r from-transparent to-violet-500/30" />
-                       <span className="text-[10px] font-bold text-violet-400">↑ 23% vs last week</span>
-                       <div className="h-px flex-1 bg-gradient-to-l from-transparent to-violet-500/30" />
+                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Weekly Study Hours</span>
+                       <motion.span
+                         initial={{ opacity: 0 }}
+                         animate={{ opacity: 1 }}
+                         transition={{ delay: 1.4 }}
+                         className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                         style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)' }}
+                       >
+                         ↑ 23% this week
+                       </motion.span>
+                     </motion.div>
+                     {/* Chart area */}
+                     <div className="relative" style={{ height: 110 }}>
+                       {/* Horizontal grid lines */}
+                       {[0, 33, 66, 100].map((pct, gi) => (
+                         <motion.div
+                           key={gi}
+                           initial={{ opacity: 0 }}
+                           animate={{ opacity: 1 }}
+                           transition={{ duration: 0.5, delay: gi * 0.07 }}
+                           className="absolute left-5 right-0 flex items-center"
+                           style={{ bottom: `${pct}%` }}
+                         >
+                           <span className="text-[7px] text-gray-600 w-4 text-right shrink-0 -ml-5 mr-1">
+                             {gi === 0 ? '0' : gi === 1 ? '4h' : gi === 2 ? '8h' : '12h'}
+                           </span>
+                           <div className="flex-1 h-px" style={{ background: pct === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)' }} />
+                         </motion.div>
+                       ))}
+                       {/* Bars */}
+                       <div className="absolute inset-0 flex items-end gap-1 pl-5 pb-px">
+                         {[
+                           { h: 32, hrs: '3.8h', color: '#3b82f6', label: 'Mon' },
+                           { h: 55, hrs: '6.6h', color: '#6366f1', label: 'Tue' },
+                           { h: 48, hrs: '5.8h', color: '#6366f1', label: 'Wed' },
+                           { h: 70, hrs: '8.4h', color: '#8b5cf6', label: 'Thu' },
+                           { h: 62, hrs: '7.4h', color: '#8b5cf6', label: 'Fri' },
+                           { h: 86, hrs: '10.3h', color: '#a855f7', label: 'Sat' },
+                           { h: 95, hrs: '11.4h', color: '#a855f7', label: 'Sun' },
+                         ].map((bar, i) => (
+                           <div key={i} className="flex flex-col items-center justify-end flex-1 h-full gap-0.5">
+                             {/* Value label */}
+                             <motion.span
+                               initial={{ opacity: 0, y: 4 }}
+                               animate={{ opacity: 1, y: 0 }}
+                               transition={{ delay: 0.8 + i * 0.1 }}
+                               className="text-[6px] font-bold leading-none"
+                               style={{ color: bar.color }}
+                             >
+                               {bar.hrs}
+                             </motion.span>
+                             {/* Bar */}
+                             <motion.div
+                               initial={{ height: 0, opacity: 0 }}
+                               animate={{ height: `${bar.h}%`, opacity: 1 }}
+                               transition={{ duration: 0.9, delay: i * 0.1, ease: [0.23, 1, 0.32, 1] }}
+                               className="w-full rounded-t-lg relative overflow-hidden"
+                               style={{
+                                 background: `linear-gradient(to top, ${bar.color}, ${bar.color}55)`,
+                                 boxShadow: `0 0 10px ${bar.color}40, inset 0 1px 0 rgba(255,255,255,0.18)`,
+                                 minHeight: 4,
+                               }}
+                             >
+                               {/* Shimmer sweep */}
+                               <motion.div
+                                 animate={{ x: ['-100%', '200%'] }}
+                                 transition={{ duration: 2.5, delay: 1.2 + i * 0.12, repeat: Infinity, repeatDelay: 4 }}
+                                 className="absolute inset-0"
+                                 style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)', width: '50%' }}
+                               />
+                             </motion.div>
+                             {/* Day label */}
+                             <span className="text-[6px] text-gray-500 font-semibold leading-none">{bar.label}</span>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                     {/* Stats row */}
+                     <motion.div
+                       initial={{ opacity: 0, y: 8 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       transition={{ delay: 1.6 }}
+                       className="flex items-center justify-around mt-2 pt-2 pl-5"
+                       style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+                     >
+                       {[
+                         { val: '53.7h', label: 'Total', color: '#a855f7' },
+                         { val: '7.7h', label: 'Avg/day', color: '#8b5cf6' },
+                         { val: '11.4h', label: 'Best', color: '#3b82f6' },
+                       ].map((stat, i) => (
+                         <motion.div
+                           key={i}
+                           initial={{ opacity: 0, scale: 0.8 }}
+                           animate={{ opacity: 1, scale: 1 }}
+                           transition={{ delay: 1.8 + i * 0.1, type: 'spring', stiffness: 200 }}
+                           className="flex flex-col items-center gap-0.5"
+                         >
+                           <span className="text-[11px] font-bold" style={{ color: stat.color }}>{stat.val}</span>
+                           <span className="text-[7px] text-gray-600 uppercase tracking-wider">{stat.label}</span>
+                         </motion.div>
+                       ))}
                      </motion.div>
                    </div>
                  )}
