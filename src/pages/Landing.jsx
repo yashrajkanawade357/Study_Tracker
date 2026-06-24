@@ -350,9 +350,9 @@ const Landing = () => {
 
           {/* Stats row */}
           <div className="flex flex-wrap gap-3">
-            <StatBadge value="10k+" label="Students" icon={StarIcon} delay={0.6} />
-            <StatBadge value="4.9★" label="Rating" icon={SparklesIcon} delay={0.7} />
-            <StatBadge value="500h+" label="Tracked/day" icon={ClockIcon} delay={0.8} />
+            <StatBadge value="100%" label="Free" icon={SparklesIcon} delay={0.6} />
+            <StatBadge value="AI" label="Powered" icon={BoltIcon} delay={0.7} />
+            <StatBadge value="24/7" label="Focus" icon={ClockIcon} delay={0.8} />
           </div>
         </div>
 
@@ -545,10 +545,10 @@ const Landing = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { num: '10,000+', label: 'Active Students' },
-                  { num: '500h+', label: 'Hours Tracked Daily' },
-                  { num: '4.9★', label: 'Average Rating' },
                   { num: '100%', label: 'Free Forever' },
+                  { num: 'AI', label: 'Study Coach' },
+                  { num: 'Ad-Free', label: 'Experience' },
+                  { num: '24/7', label: 'Focus Mode' },
                 ].map(stat => (
                   <div key={stat.label} className="p-4 rounded-2xl border border-white/[0.06]"
                     style={{ background: 'rgba(255,255,255,0.02)' }}>
