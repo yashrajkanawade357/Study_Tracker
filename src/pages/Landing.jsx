@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   SparklesIcon, 
@@ -234,8 +234,82 @@ const FaqItem = ({ question, answer, delay }) => {
   );
 };
 
+/* ── Modal Component ──────────────────────────────────────── */
+const LegalModal = ({ isOpen, onClose, title, content }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="relative w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 overflow-hidden"
+          style={{ background: 'rgba(15,15,30,0.95)', backdropFilter: 'blur(40px)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)' }}
+        >
+          <div className="flex items-center justify-between p-6 border-b border-white/5">
+            <h2 className="text-2xl font-display font-bold text-white">{title}</h2>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div className="p-6 md:p-8 overflow-y-auto text-gray-300 text-sm md:text-base leading-relaxed space-y-6">
+            {content}
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </AnimatePresence>
+);
+
+const termsContent = (
+  <>
+    <h3 className="text-white font-semibold text-lg">1. Introduction and Acceptance of Terms</h3>
+    <p>Welcome to Vyora. By accessing or using our website, application, or any of our services (collectively, the "Service"), you agree to be bound by these Terms of Service. If you do not agree to all the terms and conditions, then you may not access the Service.</p>
+    
+    <h3 className="text-white font-semibold text-lg">2. User Accounts and Security</h3>
+    <p>To use certain features of the Service, you must register for an account. You agree to provide accurate, current, and complete information during the registration process. You are entirely responsible for maintaining the confidentiality of your account password and for all activities that occur under your account.</p>
+
+    <h3 className="text-white font-semibold text-lg">3. Service Description and AI Usage</h3>
+    <p>Vyora provides tools to track study sessions, optimize schedules, and utilize an AI Study Coach for personalized insights. The AI-generated advice is for informational purposes only and should not replace professional academic counseling. We do not guarantee any specific academic outcomes from using the Service.</p>
+
+    <h3 className="text-white font-semibold text-lg">4. User Content and Conduct</h3>
+    <p>You retain all rights to any data, text, or information you submit to the Service ("User Content"). By submitting User Content, you grant us a license to use, store, and process it solely for the purpose of providing and improving the Service. You agree not to use the Service for any unlawful purpose or in any way that interrupts, damages, or impairs the Service.</p>
+
+    <h3 className="text-white font-semibold text-lg">5. Modification and Termination</h3>
+    <p>We reserve the right to modify or discontinue the Service at any time, with or without notice to you. We may also terminate or suspend your access to the Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+  </>
+);
+
+const privacyContent = (
+  <>
+    <h3 className="text-white font-semibold text-lg">1. Information We Collect</h3>
+    <p>We collect information you provide directly to us when you create an account, log study sessions, update your profile, or communicate with us. This may include your name, email address, educational goals, study schedules, and performance analytics.</p>
+    
+    <h3 className="text-white font-semibold text-lg">2. How We Use Your Information</h3>
+    <p>The information we collect is used to: provide, maintain, and improve our Service; personalize your experience with the AI Study Coach; send you technical notices and support messages; and monitor and analyze trends, usage, and activities in connection with our Service.</p>
+
+    <h3 className="text-white font-semibold text-lg">3. Data Sharing and Disclosure</h3>
+    <p>We do not sell your personal information. We may share anonymized, aggregated data that cannot reasonably be used to identify you. We may also disclose your information if required to do so by law or in the good faith belief that such action is necessary to comply with a legal obligation.</p>
+
+    <h3 className="text-white font-semibold text-lg">4. Data Security and Storage</h3>
+    <p>Your data is stored securely using Supabase infrastructure. We implement appropriate technical and organizational security measures to protect your information from unauthorized access, loss, or misuse. However, no internet-based service can be 100% secure.</p>
+
+    <h3 className="text-white font-semibold text-lg">5. Your Privacy Rights</h3>
+    <p>You have the right to access, update, or delete your personal information at any time. You can manage your account settings within the app or contact us to request full deletion of your data from our systems.</p>
+  </>
+);
+
 /* ── Main Component ───────────────────────────────────────── */
 const Landing = () => {
+  const [showTerms, setShowTerms] = React.useState(false);
+  const [showPrivacy, setShowPrivacy] = React.useState(false);
 
   return (
     <div className="min-h-screen text-white font-body relative overflow-x-hidden"
@@ -275,7 +349,11 @@ const Landing = () => {
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
             {['Features', 'About', 'FAQ', 'Terms', 'Privacy', 'Contact'].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`}
+              <a key={item} href={item === 'Terms' || item === 'Privacy' ? '#' : `#${item.toLowerCase()}`}
+                onClick={(e) => {
+                  if (item === 'Terms') { e.preventDefault(); setShowTerms(true); }
+                  if (item === 'Privacy') { e.preventDefault(); setShowPrivacy(true); }
+                }}
                 className="hover:text-white transition-colors duration-200 relative group">
                 {item}
                 <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-violet-400 group-hover:w-full transition-all duration-300" />
@@ -641,60 +719,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── Terms Section ── */}
-      <section id="terms" className="relative z-10 py-32 border-t border-white/[0.05]">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
-            >
-              Terms of <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Service</span>
-            </motion.h2>
-          </div>
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-12 text-gray-400 text-sm leading-relaxed max-h-96 overflow-y-auto"
-            style={{ backdropFilter: 'blur(10px)' }}>
-            <h3 className="text-white font-semibold text-lg mb-4">1. Acceptance of Terms</h3>
-            <p className="mb-6">By accessing and using Vyora, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">2. User Accounts</h3>
-            <p className="mb-6">To use certain features of the app, you must register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">3. Service Description</h3>
-            <p className="mb-6">Vyora is an AI-powered study platform designed to help students track study sessions and optimize their time. The app is provided "as is" and without warranty of any kind.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">4. Modifications to Service</h3>
-            <p className="mb-6">We reserve the right at any time and from time to time to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Privacy Section ── */}
-      <section id="privacy" className="relative z-10 py-32 border-t border-white/[0.05]">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
-            >
-              Privacy <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Policy</span>
-            </motion.h2>
-          </div>
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-12 text-gray-400 text-sm leading-relaxed max-h-96 overflow-y-auto"
-            style={{ backdropFilter: 'blur(10px)' }}>
-            <h3 className="text-white font-semibold text-lg mb-4">1. Information We Collect</h3>
-            <p className="mb-6">We collect information you provide directly to us. For example, we collect information when you create an account, fill out your profile, or log study sessions. We only collect data necessary to provide our services.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">2. How We Use Information</h3>
-            <p className="mb-6">We use the information we collect to provide, maintain, and improve our services. Specifically, your study data is used by our AI Study Coach to provide personalized insights and recommendations.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">3. Data Security</h3>
-            <p className="mb-6">Your data is stored securely using Supabase. We implement security measures designed to protect your information from unauthorized access and use.</p>
-            <h3 className="text-white font-semibold text-lg mb-4">4. Your Control</h3>
-            <p className="mb-6">You have complete control over your data. You can request to delete your account and all associated study data at any time by contacting our support.</p>
-          </div>
-        </div>
-      </section>
-
       {/* ── Footer ── */}
       <footer id="contact" className="relative z-10 border-t border-white/[0.05] py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -710,12 +734,16 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-            <a href="#privacy" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#terms" className="hover:text-white transition-colors">Terms</a>
+            <button onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy</button>
+            <button onClick={() => setShowTerms(true)} className="hover:text-white transition-colors">Terms</button>
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <LegalModal isOpen={showTerms} onClose={() => setShowTerms(false)} title="Terms of Service" content={termsContent} />
+      <LegalModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} title="Privacy Policy" content={privacyContent} />
     </div>
   );
 };
