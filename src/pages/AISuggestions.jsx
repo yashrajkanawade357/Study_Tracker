@@ -138,9 +138,9 @@ Please analyze this and provide suggestions in the JSON format specified.`;
           <ExclamationCircleIcon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-400">API Key Required</p>
-            <p className="text-xs text-amber-300/70 mt-1">
-              Go to <strong>Settings → API Keys</strong> and paste your OpenAI or Anthropic API key to enable AI features.
-            </p>
+              <p className="text-sm text-amber-200 mt-2">
+                Go to <strong>Settings → API Keys</strong> and paste your OpenAI, Anthropic, or Gemini API key to enable AI features.
+              </p>
           </div>
         </motion.div>
       )}
@@ -155,8 +155,8 @@ Please analyze this and provide suggestions in the JSON format specified.`;
                   <SparklesIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white">AI Study Analysis</h3>
-                  <p className="text-xs text-gray-400">Powered by {provider === 'openai' ? 'GPT-4o Mini' : 'Claude Sonnet'}</p>
+                  <h3 className="font-display font-bold text-white text-xl">AI Study Coach</h3>
+                  <p className="text-xs text-gray-400">Powered by {provider === 'openai' ? 'GPT-4o Mini' : provider === 'anthropic' ? 'Claude Sonnet' : 'Gemini 1.5 Flash'}</p>
                 </div>
               </div>
               <button
