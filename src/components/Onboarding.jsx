@@ -29,6 +29,7 @@ const STEPS = [
 const API_STORAGE_KEYS = {
   gemini: 'geminiApiKey',
   anthropic: 'anthropicApiKey',
+  openai: 'openaiApiKey',
 };
 
 const Onboarding = () => {
@@ -44,6 +45,7 @@ const Onboarding = () => {
   const [apiKeys, setApiKeys] = useState({
     gemini: storage.get('geminiApiKey') || '',
     anthropic: storage.get('anthropicApiKey') || '',
+    openai: storage.get('openaiApiKey') || '',
   });
   const initRef = useRef(false);
 
@@ -286,6 +288,12 @@ const Onboarding = () => {
                   <input type="password" className="input-field font-mono text-sm" placeholder="sk-ant-api03-..." value={apiKeys.anthropic}
                     onChange={e => setApiKeys(k => ({ ...k, anthropic: e.target.value }))} />
                   <p className="text-xs text-gray-600 mt-1">Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">console.anthropic.com</a></p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide flex items-center gap-2">✨ OpenAI (GPT) Key</label>
+                  <input type="password" className="input-field font-mono text-sm" placeholder="sk-..." value={apiKeys.openai}
+                    onChange={e => setApiKeys(k => ({ ...k, openai: e.target.value }))} />
+                  <p className="text-xs text-gray-600 mt-1">Get one at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">platform.openai.com</a></p>
                 </div>
               </motion.div>
             )}
