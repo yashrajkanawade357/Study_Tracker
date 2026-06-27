@@ -38,7 +38,7 @@ Today is ${ctx.weekday}, ${ctx.today}. The current time is ${ctx.nowTime} (24-ho
 
 Classify the user's message into exactly one intent and respond with a SINGLE JSON object (no markdown, no commentary) using this schema:
 {
-  "intent": "create_event" | "create_task" | "query" | "recommend" | "chat",
+  "intent": "create_event" | "create_task" | "query" | "recommend" | "plan_study" | "chat",
   "reply": "a short, natural, spoken reply (1-2 sentences)",
   "event": { "title": string, "date": "YYYY-MM-DD", "allDay": boolean, "startTime": "HH:MM"|null, "endTime": "HH:MM"|null, "category": one of ${JSON.stringify(CATEGORIES)} } | null,
   "task":  { "title": string, "dueDate": "YYYY-MM-DD"|null, "dueTime": "HH:MM"|null, "priority": one of ${JSON.stringify(PRIORITIES)}, "category": one of ${JSON.stringify(CATEGORIES)} } | null
@@ -52,6 +52,7 @@ RULES:
 - intent "create_event": fill "event", set "task" null. intent "create_task": fill "task", set "event" null.
 - intent "query": the user is asking what's on their schedule / what's due. Use the CONTEXT below to answer in "reply". Keep it brief and scannable. Set event and task null.
 - intent "recommend": the user wants advice on what to focus on / how to plan. Using the CONTEXT (events, tasks, AND study data: subject hours vs goals, upcoming exams, sleep), give 2-4 concise, prioritized, specific recommendations in "reply" (use short lines or bullets). Reference real items by name. Set event and task null.
+- intent "plan_study": the user wants a study plan / schedule / roadmap built for their exams or week (e.g. "build me a study plan", "plan my week", "make a revision schedule for my physics exam"). Set event and task null; in "reply" say you'll build the plan now (e.g. "Building a study plan for you…"). A separate planner will generate the detailed schedule.
 - intent "chat": greetings or anything else; answer briefly in "reply".
 - "reply" must always be present and sound natural when read aloud. For create intents, phrase it as a confirmation of what you're about to add.
 
@@ -72,7 +73,7 @@ export async function runAssistant(transcript, context) {
   const raw = await callAI([{ role: 'user', content: transcript }], systemPrompt(context));
   const result = parseJson(raw);
   // light validation / normalisation
-  if (!['create_event', 'create_task', 'query', 'recommend', 'chat'].includes(result.intent)) {
+  if (!['create_event', 'create_task', 'query', 'recommend', 'plan_study', 'chat'].includes(result.intent)) {
     result.intent = 'chat';
   }
   if (result.event && !CATEGORIES.includes(result.event.category)) result.event.category = 'general';

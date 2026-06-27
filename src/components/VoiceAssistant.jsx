@@ -9,15 +9,17 @@ import { useApp } from '../context/AppContext';
 import { useCalendar } from '../context/CalendarContext';
 import { useTasks } from '../context/TaskContext';
 import { buildAssistantContext, runAssistant } from '../utils/assistant';
+import { generateStudyPlan } from '../utils/studyPlan';
 import { getAvailableProvider } from '../utils/claude';
 import { categoryColor } from './CalendarLayout';
+import StudyPlanPreview from './StudyPlanPreview';
 
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 const PRIORITY_COLOR = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
 const YES_RE = /\b(yes|yeah|yep|yup|confirm|sure|ok|okay|add it|do it|go ahead|correct|please do|sounds good)\b/i;
 const NO_RE = /\b(no|nope|nah|cancel|don'?t|do not|stop|never\s?mind|forget it)\b/i;
 
-const QUICK = ["What's on today?", "What's due this week?", "Suggest what to focus on"];
+const QUICK = ["Build me a study plan", "What's on today?", "Suggest what to focus on"];
 
 const VoiceAssistant = () => {
   const { studyLogs, subjects, sleepLogs, exams, addToast } = useApp();
@@ -32,6 +34,9 @@ const VoiceAssistant = () => {
     { role: 'assistant', text: "Hi! I'm your Vyora assistant. Tap the mic and say something like “Add task finish chapter 5 by Friday”, or “What should I focus on?”" },
   ]);
   const [pending, setPending] = useState(null);
+  const [plan, setPlan] = useState(null);
+  const [planning, setPlanning] = useState(false);
+  const [addingPlan, setAddingPlan] = useState(false);
   const [loading, setLoading] = useState(false);
   const [speak, setSpeak] = useState(true);
 
@@ -44,10 +49,12 @@ const VoiceAssistant = () => {
   const voiceModeRef = useRef(false);   // true while in hands-free voice loop
   const openRef = useRef(open);
   const pendingRef = useRef(pending);
+  const planRef = useRef(plan);
   const speakRef = useRef(speak);
   const submitRef = useRef(null);
   const startListenRef = useRef(null);
 
+  useEffect(() => { planRef.current = plan; }, [plan]);
   useEffect(() => { pendingRef.current = pending; }, [pending]);
   useEffect(() => { speakRef.current = speak; }, [speak]);
   useEffect(() => {
@@ -161,6 +168,39 @@ const VoiceAssistant = () => {
     sayOut('Okay, cancelled.', true);
   }
 
+  async function addPlan(p) {
+    setAddingPlan(true);
+    try {
+      for (const e of p.events || []) {
+        await addEvent({
+          title: e.title, date: e.date, allDay: false,
+          startTime: e.startTime || '', endTime: e.endTime || '',
+          category: 'study', color: categoryColor('study'),
+          notes: '', reminderEmail: false, reminderAt: null,
+        });
+      }
+      for (const t of p.tasks || []) {
+        await addTask({
+          title: t.title, notes: '', priority: t.priority || 'medium', category: 'study',
+          dueDate: t.dueDate || '', dueTime: '', reminderEmail: false, reminderAt: null,
+        });
+      }
+      const n = (p.events?.length || 0) + (p.tasks?.length || 0);
+      addToast(`🗓️ Added ${n} items to your calendar`, 'success', 5000);
+      setMessages((m) => [...m, { role: 'assistant', text: `Done — added ${n} items to your calendar and tasks. ✅` }]);
+      sayOut('Your study plan is on your calendar.', true);
+    } finally {
+      setAddingPlan(false);
+      setPlan(null);
+    }
+  }
+
+  function dismissPlan() {
+    setPlan(null);
+    setMessages((m) => [...m, { role: 'assistant', text: 'Okay, I dismissed that plan.' }]);
+    sayOut('Okay, dismissed.', true);
+  }
+
   async function submit(text, viaVoice = false) {
     const q = (text ?? '').trim();
     if (!q || loading) return;
@@ -173,6 +213,11 @@ const VoiceAssistant = () => {
       if (YES_RE.test(q) && !NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); doConfirm(); return; }
       if (NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); doCancel(); return; }
       // otherwise fall through and treat as a brand-new command
+    }
+    // If a study plan is on screen, "yes/no" adds or dismisses it.
+    if (planRef.current) {
+      if (YES_RE.test(q) && !NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); addPlan(planRef.current); return; }
+      if (NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); dismissPlan(); return; }
     }
 
     setMessages((m) => [...m, { role: 'user', text: q }]);
@@ -191,6 +236,22 @@ const VoiceAssistant = () => {
       } else if (res.intent === 'create_task' && res.task?.title) {
         setPending({ kind: 'task', data: res.task });
         sayOut(loop ? `${reply} Say yes to add it, or no to cancel.` : reply, loop);
+      } else if (res.intent === 'plan_study') {
+        sayOut(reply, false);
+        setPlanning(true);
+        try {
+          const generated = await generateStudyPlan({ subjects, exams, studyLogs, events }, q);
+          setPlan(generated);
+          const done = "I've drafted your study plan below. Say yes to add it all, or no to dismiss.";
+          setMessages((m) => [...m, { role: 'assistant', text: done }]);
+          sayOut(loop ? done : "I've drafted your study plan below.", loop);
+        } catch (perr) {
+          const pm = /api key/i.test(perr.message) ? perr.message : "I couldn't build the plan just now. Try again.";
+          setMessages((m) => [...m, { role: 'assistant', text: pm }]);
+          sayOut(pm, loop);
+        } finally {
+          setPlanning(false);
+        }
       } else {
         sayOut(reply, loop);
       }
@@ -298,12 +359,22 @@ const VoiceAssistant = () => {
                 )}
               </AnimatePresence>
 
-              {loading && (
+              {/* Study plan preview */}
+              <AnimatePresence>
+                {plan && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <StudyPlanPreview plan={plan} onAddAll={addPlan} onCancel={dismissPlan} adding={addingPlan} compact />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {(loading || planning) && (
                 <div className="flex justify-start">
-                  <div className="bg-navy-800 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
+                  <div className="bg-navy-800 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-2">
                     {[0, 1, 2].map((i) => (
                       <motion.span key={i} className="w-1.5 h-1.5 rounded-full bg-cyan-400" animate={{ y: [0, -5, 0] }} transition={{ duration: 0.6, delay: i * 0.15, repeat: Infinity }} />
                     ))}
+                    {planning && <span className="text-xs text-gray-400">Building your plan…</span>}
                   </div>
                 </div>
               )}
