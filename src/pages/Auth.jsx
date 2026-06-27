@@ -35,6 +35,7 @@ const Auth = () => {
   const [error, setError] = useState('');
   const { login, register, checkEmailExists, addToast, loginWithGithub, sendMagicLink } = useApp();
   const navigate = useNavigate();
+  const postAuthTarget = searchParams.get('app') === 'calendar' ? '/calendar' : '/dashboard';
 
   const handleMagicLink = async () => {
     setError('');
@@ -85,7 +86,7 @@ const Auth = () => {
         await register(name, email, password);
         addToast('🎉 Account verified! Welcome to Vyora.', 'success');
         setShowOtpModal(false);
-        navigate('/dashboard');
+        navigate(postAuthTarget);
       } catch (err) { setError(err.message || 'Registration failed'); }
       finally { setLoading(false); }
     } else { setError('Invalid OTP. Please try again.'); }
@@ -100,7 +101,7 @@ const Auth = () => {
     try {
       await login(email.trim(), password);
       addToast('👋 Welcome back!', 'success');
-      navigate('/dashboard');
+      navigate(postAuthTarget);
     } catch (err) { setError(err.message || 'Login failed'); }
     finally { setLoading(false); }
   };

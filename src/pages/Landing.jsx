@@ -1286,6 +1286,102 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── Choose Your Experience ── */}
+      <section className="relative z-10 py-24 border-t border-white/[0.05]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <motion.span
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-violet-500/20"
+              style={{ background: 'rgba(124,58,237,0.1)' }}
+            >
+              One account, two apps
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+            >
+              Choose your{' '}
+              <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                experience
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="text-gray-400 text-lg max-w-xl mx-auto"
+            >
+              Sign up once, then jump between the two — or switch anytime from inside the app.
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                to: '/auth?mode=signup',
+                badge: 'Study Tracker',
+                title: 'Track & gamify your studying',
+                desc: 'Log sessions, set goals, build streaks, earn achievements, and get AI-powered study coaching.',
+                points: ['Pomodoro + auto-logging', 'Deep analytics & streaks', 'AI Study Coach'],
+                color: '#7c3aed', glow: 'rgba(124,58,237,0.35)',
+                icon: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                ),
+                cta: 'Open Study Tracker',
+              },
+              {
+                to: '/auth?mode=signup&app=calendar',
+                badge: 'Smart Calendar',
+                title: 'Plan events with smart reminders',
+                desc: 'Add events and tasks, see your week at a glance, and get email reminders so nothing slips.',
+                points: ['Month · Week · Day views', 'Events, tasks & reminders', 'AI voice assistant (soon)'],
+                color: '#06b6d4', glow: 'rgba(6,182,212,0.35)',
+                icon: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                ),
+                cta: 'Open Smart Calendar',
+              },
+            ].map((c, i) => (
+              <motion.div
+                key={c.badge}
+                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="relative rounded-3xl p-px overflow-hidden group"
+                style={{ background: `linear-gradient(135deg, ${c.glow}, rgba(255,255,255,0.04))` }}
+              >
+                <div className="relative rounded-3xl p-8 md:p-10 h-full flex flex-col"
+                  style={{ background: 'rgba(10,10,28,0.9)', backdropFilter: 'blur(20px)' }}>
+                  <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity"
+                    style={{ background: `radial-gradient(circle, ${c.color}, transparent 70%)`, filter: 'blur(50px)' }} />
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${c.color}, ${c.color}aa)`, boxShadow: `0 8px 24px ${c.glow}` }}>
+                    {c.icon}
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: c.color }}>{c.badge}</span>
+                  <h3 className="text-2xl font-display font-bold text-white mb-3 leading-tight">{c.title}</h3>
+                  <p className="text-gray-400 leading-relaxed mb-6">{c.desc}</p>
+                  <ul className="space-y-2.5 mb-8">
+                    {c.points.map(p => (
+                      <li key={p} className="flex items-center gap-2.5 text-sm text-gray-300">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${c.color}22` }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={c.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to={c.to}
+                    className="mt-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-base font-bold text-white transition-all duration-200 hover:scale-[1.03] w-full"
+                    style={{ background: `linear-gradient(135deg, ${c.color}, ${c.color}cc)`, boxShadow: `0 8px 24px ${c.glow}` }}>
+                    {c.cta} <ArrowRightIcon className="w-5 h-5" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Blog Teaser ── */}
       <section className="relative z-10 py-28 border-t border-white/[0.05]">
         <div className="max-w-6xl mx-auto px-6">

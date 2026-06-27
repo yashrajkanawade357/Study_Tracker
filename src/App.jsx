@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import { CalendarProvider } from './context/CalendarContext';
 import Toast from './components/Toast';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
@@ -12,11 +13,22 @@ import Pomodoro from './pages/Pomodoro';
 import Settings from './pages/Settings';
 import Landing from './pages/Landing';
 import UserManual from './pages/UserManual';
+import Calendar from './pages/Calendar';
 import Onboarding from './components/Onboarding';
 
 const ProtectedRoute = ({ children, requireManual = true }) => {
-  const { isAuthenticated, userProfile } = useApp();
+  const { isAuthenticated, authInitialized, userProfile } = useApp();
   const location = useLocation();
+
+  // Wait for auth to resolve before deciding, so a hard refresh / direct link
+  // to a protected route (e.g. /calendar) doesn't bounce to the wrong place.
+  if (!authInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy-950">
+        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return <Navigate to="/auth" replace />;
   
@@ -28,7 +40,15 @@ const ProtectedRoute = ({ children, requireManual = true }) => {
 };
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useApp();
+  const { isAuthenticated, authInitialized } = useApp();
+
+  if (!authInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy-950">
+        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -44,6 +64,7 @@ const AppRoutes = () => {
       <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/manual" element={<ProtectedRoute requireManual={false}><UserManual /></ProtectedRoute>} />
+      <Route path="/calendar" element={<ProtectedRoute requireManual={false}><Calendar /></ProtectedRoute>} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -54,9 +75,11 @@ const App = () => {
   return (
     <BrowserRouter>
       <AppProvider>
-        <AppRoutes />
-        <Onboarding />
-        <Toast />
+        <CalendarProvider>
+          <AppRoutes />
+          <Onboarding />
+          <Toast />
+        </CalendarProvider>
       </AppProvider>
     </BrowserRouter>
   );

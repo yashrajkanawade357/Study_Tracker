@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import AppSwitcher from './AppSwitcher';
 import {
   HomeIcon, ChartBarIcon, SparklesIcon, CalendarDaysIcon,
   TrophyIcon, ClockIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon, BookOpenIcon
@@ -46,6 +47,11 @@ const Sidebar = () => {
             <p className="text-xs text-cyan-400">Pro Edition</p>
           </div>
         </div>
+      </div>
+
+      {/* App Switcher */}
+      <div className="px-4 pt-4">
+        <AppSwitcher current="tracker" />
       </div>
 
       {/* Nav */}

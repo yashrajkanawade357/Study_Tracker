@@ -21,6 +21,7 @@ export const AppProvider = ({ children }) => {
   const [pomodoroSessions, setPomodoroSessions] = useState([]);
   const [toasts, setToasts] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   const loadUserDataFromSupabase = useCallback(async (userId) => {
     try {
@@ -113,6 +114,7 @@ export const AppProvider = ({ children }) => {
         } else {
           loadAll();
         }
+        setAuthInitialized(true);
       });
 
       // 2. Listen to auth state changes
@@ -133,6 +135,7 @@ export const AppProvider = ({ children }) => {
       loadAll();
       const user = storage.get(STORAGE_KEYS.USER_PROFILE);
       if (user?.email) setIsAuthenticated(true);
+      setAuthInitialized(true);
     }
   }, [loadUserDataFromSupabase]);
 
@@ -761,7 +764,7 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
-    toasts, isAuthenticated, currentStreak, currentXp,
+    toasts, isAuthenticated, authInitialized, currentStreak, currentXp,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,
