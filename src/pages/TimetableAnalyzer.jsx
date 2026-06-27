@@ -1,14 +1,34 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { startOfWeek, addDays, format } from 'date-fns';
 import { useApp } from '../context/AppContext';
+import { useCalendar } from '../context/CalendarContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
+import { categoryColor } from '../components/CalendarLayout';
 import { callAI, getAvailableProvider } from '../utils/claude';
-import { CloudArrowUpIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { extractTimetableFromImage } from '../utils/vision';
+import { CloudArrowUpIcon, ArrowDownTrayIcon, CalendarDaysIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { storage } from '../utils/storage';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const TIME_SLOTS = Array.from({ length: 14 }, (_, i) => `${i + 7}:00`); // 7am - 8pm
+const DAY_IDX = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4, saturday: 5, sunday: 6 };
+const fmtTime = (s) => { const [h, m] = String(s).split(':'); return `${String(parseInt(h) || 0).padStart(2, '0')}:${(m || '00').slice(0, 2).padStart(2, '0')}`; };
+const capDay = (d) => { const s = String(d || '').trim(); return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); };
+
+// Convert AI vision entries [{day,subject,start,end}] into the grid/calendar shape.
+const normalizeVisionEntries = (raw) => raw.map((e) => {
+  const sH = parseInt(String(e.start).split(':')[0]);
+  let eH = parseInt(String(e.end).split(':')[0]);
+  if (isNaN(sH)) return null;
+  if (isNaN(eH) || eH <= sH) eH = sH + 1;
+  return {
+    day: capDay(e.day), subject: String(e.subject || '').trim(),
+    start: sH, end: eH, hours: eH - sH,
+    startTime: fmtTime(e.start), endTime: e.end ? fmtTime(e.end) : `${String(eH).padStart(2, '0')}:00`,
+  };
+}).filter((e) => e && e.subject);
 
 const parseTimetable = (text) => {
   const entries = [];
@@ -35,6 +55,8 @@ const parseTimetable = (text) => {
             start: startH,
             end: endH,
             hours: endH - startH,
+            startTime: fmtTime(start),
+            endTime: fmtTime(end),
           });
         }
         break;
@@ -103,10 +125,14 @@ const ScheduleGrid = ({ entries }) => {
 
 const TimetableAnalyzer = () => {
   const { studyLogs, subjects, addToast } = useApp();
+  const { addEvent } = useCalendar();
   const [dragOver, setDragOver] = useState(false);
   const [parsedEntries, setParsedEntries] = useState([]);
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
+  const [addingToCal, setAddingToCal] = useState(false);
+  const [weeks, setWeeks] = useState(4);
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [suggestedEntries, setSuggestedEntries] = useState([]);
   const [rawText, setRawText] = useState('');
@@ -115,6 +141,30 @@ const TimetableAnalyzer = () => {
   const processFile = useCallback(async (file) => {
     if (!file) return;
     setFileName(file.name);
+
+    // Photo → read it with AI vision.
+    if (file.type.startsWith('image/')) {
+      if (!getAvailableProvider()) {
+        addToast('Add an AI key in Settings to scan a photo.', 'warning');
+        return;
+      }
+      setImgLoading(true);
+      try {
+        const raw = await extractTimetableFromImage(file);
+        const entries = normalizeVisionEntries(raw);
+        setRawText('');
+        setParsedEntries(entries);
+        if (entries.length === 0) addToast('Could not read a timetable from that photo.', 'warning');
+        else addToast(`✅ Read ${entries.length} sessions from the photo`, 'success');
+      } catch (err) {
+        addToast(`Vision error: ${err.message}`, 'error');
+      } finally {
+        setImgLoading(false);
+      }
+      return;
+    }
+
+    // Otherwise parse as text.
     const text = await file.text();
     setRawText(text);
     const entries = parseTimetable(text);
@@ -125,6 +175,35 @@ const TimetableAnalyzer = () => {
       addToast(`✅ Parsed ${entries.length} sessions from timetable`, 'success');
     }
   }, [addToast]);
+
+  const addToCalendar = async () => {
+    if (parsedEntries.length === 0) return;
+    setAddingToCal(true);
+    try {
+      const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+      const today = format(new Date(), 'yyyy-MM-dd');
+      let count = 0;
+      for (let w = 0; w < weeks; w++) {
+        for (const e of parsedEntries) {
+          const idx = DAY_IDX[(e.day || '').toLowerCase()];
+          if (idx === undefined) continue;
+          const date = format(addDays(monday, idx + w * 7), 'yyyy-MM-dd');
+          if (date < today) continue; // skip days already past this week
+          await addEvent({
+            title: e.subject, date, allDay: false,
+            startTime: e.startTime || `${String(e.start).padStart(2, '0')}:00`,
+            endTime: e.endTime || `${String(e.end).padStart(2, '0')}:00`,
+            category: 'study', color: categoryColor('study'),
+            notes: 'From timetable', reminderEmail: false, reminderAt: null,
+          });
+          count++;
+        }
+      }
+      addToast(`📅 Added ${count} sessions to Smart Calendar (${weeks} week${weeks > 1 ? 's' : ''})`, 'success', 5000);
+    } finally {
+      setAddingToCal(false);
+    }
+  };
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -221,15 +300,25 @@ Make the timetable cover Monday-Friday primarily, with optional Saturday session
               : 'border-gray-700/50 hover:border-purple-700/50 hover:bg-navy-700/20'
           }`}
         >
-          <CloudArrowUpIcon className={`w-12 h-12 mx-auto mb-3 ${dragOver ? 'text-purple-400' : 'text-gray-500'}`} />
-          <p className="text-gray-300 font-semibold mb-1">
-            {fileName ? `📄 ${fileName}` : 'Drop your timetable file here'}
-          </p>
-          <p className="text-gray-500 text-sm mb-4">Supports .txt, .csv files</p>
-          <label className="btn-secondary cursor-pointer inline-block">
-            📁 Browse File
-            <input type="file" className="hidden" accept=".txt,.csv" onChange={handleFileInput} />
-          </label>
+          {imgLoading ? (
+            <>
+              <div className="w-12 h-12 mx-auto mb-3 border-4 border-purple-700/30 border-t-purple-500 rounded-full animate-spin" />
+              <p className="text-gray-300 font-semibold mb-1">Reading your timetable photo…</p>
+              <p className="text-gray-500 text-sm mb-4">AI is extracting your schedule</p>
+            </>
+          ) : (
+            <>
+              <PhotoIcon className={`w-12 h-12 mx-auto mb-3 ${dragOver ? 'text-purple-400' : 'text-gray-500'}`} />
+              <p className="text-gray-300 font-semibold mb-1">
+                {fileName ? `📄 ${fileName}` : 'Drop a timetable photo or file here'}
+              </p>
+              <p className="text-gray-500 text-sm mb-4">📸 Snap a photo (PNG/JPG) and AI reads it — or use .txt / .csv</p>
+              <label className="btn-secondary cursor-pointer inline-block">
+                📁 Browse File / Photo
+                <input type="file" className="hidden" accept=".txt,.csv,image/*" onChange={handleFileInput} />
+              </label>
+            </>
+          )}
         </div>
         <div className="mt-4">
           <p className="text-xs text-gray-500 mb-2">Or paste timetable text directly:</p>
@@ -249,10 +338,26 @@ Make the timetable cover Monday-Friday primarily, with optional Saturday session
       {/* Parsed Schedule Grid */}
       {parsedEntries.length > 0 && (
         <GlassCard className="p-6 mb-6">
-          <h3 className="font-display font-bold text-white mb-4">
-            📅 Parsed Schedule ({parsedEntries.length} sessions)
-          </h3>
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h3 className="font-display font-bold text-white">
+              📅 Parsed Schedule ({parsedEntries.length} sessions)
+            </h3>
+            <div className="flex items-center gap-2">
+              <select value={weeks} onChange={(e) => setWeeks(parseInt(e.target.value))}
+                className="bg-navy-800 border border-navy-600 rounded-lg text-sm text-white px-2 py-2 focus:outline-none">
+                {[1, 2, 4].map((w) => <option key={w} value={w}>{w} week{w > 1 ? 's' : ''}</option>)}
+              </select>
+              <button onClick={addToCalendar} disabled={addingToCal}
+                className="btn-primary text-sm flex items-center gap-1.5 disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg, #06b6d4, #7c3aed)' }}>
+                {addingToCal
+                  ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Adding…</>
+                  : <><CalendarDaysIcon className="w-4 h-4" /> Add to Smart Calendar</>}
+              </button>
+            </div>
+          </div>
           <ScheduleGrid entries={parsedEntries} />
+          <p className="text-xs text-gray-500 mt-3">Adds these sessions to your Smart Calendar for the next {weeks} week{weeks > 1 ? 's' : ''} as study events.</p>
         </GlassCard>
       )}
 

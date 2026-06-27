@@ -81,22 +81,22 @@ export const TaskProvider = ({ children }) => {
 
   const addTask = useCallback(async (task) => {
     const newTask = {
-      id: Date.now().toString() + Math.floor(Math.random() * 1000),
+      id: `${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       completed: false,
       completedAt: null,
       reminderSent: false,
       sortOrder: Date.now(),
       ...task,
     };
-    const next = [...tasks, newTask];
-    setTasks(next);
-    persistLocal(next);
+    // Functional update so rapid sequential adds (AI plans / timetable import)
+    // don't clobber each other off a stale array.
+    setTasks((prev) => { const next = [...prev, newTask]; persistLocal(next); return next; });
     if (isSupabaseConfigured() && userProfile?.id) {
       const { error } = await supabase.from('tasks').insert([toDb(newTask, userProfile.id)]);
       if (error) console.error('Task add error:', error);
     }
     return newTask;
-  }, [tasks, userProfile?.id]);
+  }, [userProfile?.id]);
 
   const updateTask = useCallback(async (id, updates) => {
     const next = tasks.map(t => (t.id === id ? { ...t, ...updates } : t));

@@ -84,20 +84,20 @@ export const CalendarProvider = ({ children }) => {
 
   const addEvent = useCallback(async (event) => {
     const newEvent = {
-      id: Date.now().toString() + Math.floor(Math.random() * 1000),
+      id: `${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       reminderSent: false,
       ...event,
     };
-    const next = [...events, newEvent];
-    setEvents(next);
-    persistLocal(next);
+    // Functional update so rapid sequential adds (e.g. importing a timetable
+    // or an AI study plan) don't clobber each other off a stale array.
+    setEvents((prev) => { const next = [...prev, newEvent]; persistLocal(next); return next; });
 
     if (isSupabaseConfigured() && userProfile?.id) {
       const { error } = await supabase.from('calendar_events').insert([toDb(newEvent, userProfile.id)]);
       if (error) console.error('Calendar add error:', error);
     }
     return newEvent;
-  }, [events, userProfile?.id]);
+  }, [userProfile?.id]);
 
   const updateEvent = useCallback(async (id, updates) => {
     const next = events.map(e => (e.id === id ? { ...e, ...updates } : e));
