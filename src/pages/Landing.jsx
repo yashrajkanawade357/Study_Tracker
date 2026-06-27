@@ -37,6 +37,18 @@ const ParticleCanvas = () => {
       opacity: Math.random() * 0.5 + 0.1,
     }));
 
+    // Respect reduced-motion: paint a single static frame and bail out of the loop.
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(167,139,250,${p.opacity})`;
+        ctx.fill();
+      });
+      return () => { window.removeEventListener('resize', resize); };
+    }
+
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => {
@@ -432,7 +444,7 @@ const HowItWorks = () => {
             className="text-4xl md:text-5xl font-display font-bold text-white mb-4 leading-tight"
           >
             From overwhelmed to organized <br/>
-            <span className="text-blue-500">in four steps</span>
+            <span className="text-blue-500">step by step</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -952,6 +964,17 @@ const Landing = () => {
   const [showTerms, setShowTerms] = React.useState(false);
   const [showPrivacy, setShowPrivacy] = React.useState(false);
   const [showBlog, setShowBlog] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const navItems = ['Features', 'About', 'FAQ', 'Blog', 'Terms', 'Privacy', 'Contact'];
+  const isModalItem = (item) => item === 'Terms' || item === 'Privacy' || item === 'Blog';
+  const navHref = (item) => (isModalItem(item) ? '#' : `#${item.toLowerCase()}`);
+  const handleNavClick = (e, item) => {
+    if (item === 'Terms') { e.preventDefault(); setShowTerms(true); }
+    if (item === 'Privacy') { e.preventDefault(); setShowPrivacy(true); }
+    if (item === 'Blog') { e.preventDefault(); setShowBlog(true); }
+    setMobileOpen(false);
+  };
 
   return (
     <div className="min-h-screen text-white font-body relative overflow-x-hidden"
@@ -975,45 +998,81 @@ const Landing = () => {
 
       {/* ── Navigation ── */}
       <header className="sticky top-0 z-50 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between rounded-2xl px-6 py-3 border border-white/[0.07]"
+        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 border border-white/[0.07]"
           style={{ background: 'rgba(6,6,18,0.8)', backdropFilter: 'blur(24px)', boxShadow: '0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
-          
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 16px rgba(124,58,237,0.5)' }}>
-              <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-                <path d="M6 16L20 6V26L6 16Z" fill="white"/>
-                <circle cx="22" cy="16" r="6" stroke="white" strokeWidth="3"/>
-              </svg>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 16px rgba(124,58,237,0.5)' }}>
+                <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+                  <path d="M6 16L20 6V26L6 16Z" fill="white"/>
+                  <circle cx="22" cy="16" r="6" stroke="white" strokeWidth="3"/>
+                </svg>
+              </div>
+              <span className="text-xl font-display font-bold tracking-tight">Vyora</span>
             </div>
-            <span className="text-xl font-display font-bold tracking-tight">Vyora</span>
+
+            <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+              {navItems.map(item => (
+                <a key={item} href={navHref(item)} onClick={(e) => handleNavClick(e, item)}
+                  className="hover:text-white transition-colors duration-200 relative group">
+                  {item}
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-violet-400 group-hover:w-full transition-all duration-300" />
+                </a>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <Link to="/auth" className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block px-2">
+                Log in
+              </Link>
+              <Link to="/auth"
+                className="text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all duration-200 hover:scale-105"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
+                Get Started
+              </Link>
+              {/* Hamburger (mobile only) */}
+              <button
+                onClick={() => setMobileOpen(o => !o)}
+                aria-label="Toggle menu"
+                aria-expanded={mobileOpen}
+                className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-colors"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  {mobileOpen
+                    ? <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>
+                    : <><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>}
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            {['Features', 'About', 'FAQ', 'Blog', 'Terms', 'Privacy', 'Contact'].map(item => (
-              <a key={item} href={item === 'Terms' || item === 'Privacy' || item === 'Blog' ? '#' : `#${item.toLowerCase()}`}
-                onClick={(e) => {
-                  if (item === 'Terms') { e.preventDefault(); setShowTerms(true); }
-                  if (item === 'Privacy') { e.preventDefault(); setShowPrivacy(true); }
-                  if (item === 'Blog') { e.preventDefault(); setShowBlog(true); }
-                }}
-                className="hover:text-white transition-colors duration-200 relative group">
-                {item}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-violet-400 group-hover:w-full transition-all duration-300" />
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link to="/auth" className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block px-2">
-              Log in
-            </Link>
-            <Link to="/auth"
-              className="text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all duration-200 hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
-              Get Started
-            </Link>
-          </div>
+          {/* Mobile dropdown menu */}
+          <AnimatePresence>
+            {mobileOpen && (
+              <motion.nav
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="md:hidden overflow-hidden"
+              >
+                <div className="flex flex-col gap-1 pt-4 mt-4 border-t border-white/[0.07]">
+                  {navItems.map(item => (
+                    <a key={item} href={navHref(item)} onClick={(e) => handleNavClick(e, item)}
+                      className="px-3 py-2.5 rounded-xl text-base font-medium text-gray-300 hover:text-white hover:bg-white/[0.04] transition-colors">
+                      {item}
+                    </a>
+                  ))}
+                  <Link to="/auth" onClick={() => setMobileOpen(false)}
+                    className="px-3 py-2.5 rounded-xl text-base font-medium text-gray-300 hover:text-white hover:bg-white/[0.04] transition-colors sm:hidden">
+                    Log in
+                  </Link>
+                </div>
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
@@ -1277,7 +1336,7 @@ const Landing = () => {
       </section>
 
       {/* ── About Vyora Section ── */}
-      <section className="relative z-10 py-32 border-t border-white/[0.05]">
+      <section id="about" className="relative z-10 py-32 border-t border-white/[0.05] scroll-mt-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
@@ -1307,10 +1366,10 @@ const Landing = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 {[
+                  { num: '8+', label: 'Study Tools' },
                   { num: '100%', label: 'Free Forever' },
+                  { num: '0', label: 'Ads, Ever' },
                   { num: 'AI', label: 'Study Coach' },
-                  { num: 'Ad-Free', label: 'Experience' },
-                  { num: '24/7', label: 'Focus Mode' },
                 ].map(stat => (
                   <div key={stat.label} className="p-4 rounded-2xl border border-white/[0.06]"
                     style={{ background: 'rgba(255,255,255,0.02)' }}>
@@ -1324,7 +1383,7 @@ const Landing = () => {
               </div>
             </motion.div>
 
-            {/* Right: feature list */}
+            {/* Right: testimonials */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -1332,27 +1391,40 @@ const Landing = () => {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="space-y-4"
             >
+              <span className="inline-block text-xs font-bold text-violet-400 uppercase tracking-widest mb-2 px-3 py-1 rounded-full border border-violet-500/20"
+                style={{ background: 'rgba(124,58,237,0.1)' }}>
+                Loved by early users
+              </span>
               {[
-                { icon: '📊', title: 'Detailed Analytics', desc: 'See exactly how you spend your study time with beautiful charts and subject breakdowns.' },
-                { icon: '🎯', title: 'Goal Setting', desc: 'Set daily, weekly, and subject-specific study goals. Vyora tracks your progress automatically.' },
-                { icon: '🔥', title: 'Study Streaks', desc: 'Build momentum with daily streaks. Missing a day breaks your streak — the perfect motivation.' },
-                { icon: '🤖', title: 'AI-Powered Insights', desc: 'Get smart suggestions based on your performance to continuously improve your study strategy.' },
-                { icon: '📅', title: 'Timetable Management', desc: 'Plan your week visually and let Vyora help you find the optimal balance between subjects.' },
-                { icon: '🏆', title: 'Badges & Rewards', desc: 'Unlock achievements as you study. From "Early Bird" to "Study Legend" — there\'s always a goal to chase.' },
-              ].map((item, i) => (
+                { quote: "I finally know where my study hours actually go. The streaks keep me coming back every single day.", name: 'Aarav', role: 'Engineering Student', avatar: '🧑‍🎓', color: '#8b5cf6' },
+                { quote: "The Pomodoro timer and AI coach combo is unreal. I stopped cramming and started studying with a plan.", name: 'Sneha', role: 'Med Aspirant', avatar: '👩‍⚕️', color: '#22d3ee' },
+                { quote: "Clean, fast, and genuinely motivating. It's the only productivity app I haven't deleted after a week.", name: 'Rohan', role: 'Working Professional', avatar: '💼', color: '#f472b6' },
+              ].map((t, i) => (
                 <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 10 }}
+                  key={t.name}
+                  initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.07 }}
-                  className="flex items-start gap-4 p-4 rounded-2xl border border-white/[0.05] hover:border-violet-500/20 transition-colors"
+                  transition={{ delay: i * 0.1 }}
+                  className="p-5 rounded-2xl border border-white/[0.06] hover:border-violet-500/20 transition-colors"
                   style={{ background: 'rgba(255,255,255,0.02)' }}
                 >
-                  <span className="text-2xl mt-0.5">{item.icon}</span>
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">{item.title}</h4>
-                    <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+                  {/* Stars */}
+                  <div className="flex gap-0.5 mb-3">
+                    {[0, 1, 2, 3, 4].map(s => (
+                      <StarIcon key={s} className="w-3.5 h-3.5 text-amber-400" style={{ fill: '#fbbf24' }} />
+                    ))}
+                  </div>
+                  <p className="text-gray-300 leading-relaxed mb-4">"{t.quote}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+                      style={{ background: `${t.color}22`, border: `1px solid ${t.color}44` }}>
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white leading-tight">{t.name}</p>
+                      <p className="text-xs text-gray-500">{t.role}</p>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -1396,7 +1468,7 @@ const Landing = () => {
       </section>
 
       {/* ── Author Section ── */}
-      <section id="about" className="relative z-10 py-32 border-t border-white/[0.05]">
+      <section id="creator" className="relative z-10 py-32 border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
