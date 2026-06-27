@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import { isSupabaseConfigured } from '../utils/supabaseClient';
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -214,42 +215,46 @@ const Auth = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Social Buttons */}
-          <div className="flex flex-col gap-3 mb-6">
-            <button
-              onClick={async () => {
-                try {
-                  setLoading(true);
-                  await loginWithGithub();
-                } catch (err) {
-                  setError(err.message || 'GitHub Sign-In failed');
-                  setLoading(false);
-                }
-              }}
-              disabled={loading}
-              type="button"
-              className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all duration-200"
-            >
-              <GithubIcon />
-              Continue with GitHub
-            </button>
-            <button
-              onClick={handleMagicLink}
-              disabled={loading}
-              type="button"
-              className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all duration-200"
-            >
-              <EnvelopeIcon className="w-5 h-5 text-gray-400" />
-              Send Magic Link
-            </button>
-          </div>
+          {/* Social Buttons — only when Supabase auth is configured */}
+          {isSupabaseConfigured() && (
+            <>
+              <div className="flex flex-col gap-3 mb-6">
+                <button
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      await loginWithGithub();
+                    } catch (err) {
+                      setError(err.message || 'GitHub Sign-In failed');
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
+                  type="button"
+                  className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all duration-200"
+                >
+                  <GithubIcon />
+                  Continue with GitHub
+                </button>
+                <button
+                  onClick={handleMagicLink}
+                  disabled={loading}
+                  type="button"
+                  className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all duration-200"
+                >
+                  <EnvelopeIcon className="w-5 h-5 text-gray-400" />
+                  Send Magic Link
+                </button>
+              </div>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Or with email</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
+              {/* Divider */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Or with email</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+            </>
+          )}
 
           {/* Form */}
           <AnimatePresence mode="wait">

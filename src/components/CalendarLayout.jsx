@@ -98,9 +98,20 @@ const CalendarLayout = ({ children }) => {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden w-full relative">
-        {/* Mobile top bar with switcher */}
-        <div className="md:hidden p-3 border-b border-cyan-700/20 bg-navy-950">
+        {/* Mobile top bar: switcher + Calendar/Tasks nav */}
+        <div className="md:hidden p-3 border-b border-cyan-700/20 bg-navy-950 space-y-2">
           <AppSwitcher current="calendar" />
+          <nav className="flex gap-2">
+            {CAL_NAV.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to}
+                className={({ isActive }) =>
+                  `flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+                    isActive ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30' : 'text-gray-400 bg-navy-800/60 border border-navy-600'
+                  }`}>
+                <Icon className="w-4 h-4" /> {label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
         <main className="flex-1 overflow-y-auto">
           {children}

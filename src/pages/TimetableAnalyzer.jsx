@@ -217,12 +217,19 @@ const TimetableAnalyzer = () => {
     if (file) processFile(file);
   };
 
-  // Projected vs actual
+  // Projected (timetable plan, per week) vs Actual (hours logged THIS week),
+  // so both numbers cover the same one-week window.
+  const weekStartStr = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
   const comparison = subjects.map(s => {
     const projected = parsedEntries
       .filter(e => e.subject.toLowerCase().includes(s.name.toLowerCase()) || s.name.toLowerCase().includes(e.subject.toLowerCase()))
       .reduce((sum, e) => sum + e.hours, 0);
-    const actual = studyLogs.filter(l => l.subject === s.name).reduce((sum, l) => sum + l.hours, 0);
+    const actual = studyLogs
+      .filter(l => {
+        const d = l.date || (l.timestamp ? String(l.timestamp).slice(0, 10) : '');
+        return l.subject === s.name && d >= weekStartStr;
+      })
+      .reduce((sum, l) => sum + l.hours, 0);
     return { ...s, projected, actual };
   }).filter(s => s.projected > 0 || s.actual > 0);
 
@@ -364,14 +371,15 @@ Make the timetable cover Monday-Friday primarily, with optional Saturday session
       {/* Comparison Table */}
       {comparison.length > 0 && (
         <GlassCard className="p-6 mb-6">
-          <h3 className="font-display font-bold text-white mb-4">📊 Projected vs Actual Hours</h3>
+          <h3 className="font-display font-bold text-white mb-1">📊 Projected vs Actual Hours</h3>
+          <p className="text-xs text-gray-500 mb-4">Your timetable's weekly plan vs the hours you've logged so far <span className="text-gray-400">this week</span>.</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-700/30">
                   <th className="text-left py-2 text-gray-400 font-semibold">Subject</th>
-                  <th className="text-right py-2 text-gray-400 font-semibold">Projected</th>
-                  <th className="text-right py-2 text-gray-400 font-semibold">Actual</th>
+                  <th className="text-right py-2 text-gray-400 font-semibold">Planned/wk</th>
+                  <th className="text-right py-2 text-gray-400 font-semibold">This week</th>
                   <th className="text-right py-2 text-gray-400 font-semibold">Gap</th>
                 </tr>
               </thead>
