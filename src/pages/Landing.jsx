@@ -1162,7 +1162,7 @@ const Landing = () => {
               <Link to="/auth" className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block px-2">
                 Log in
               </Link>
-              <Link to="/auth"
+              <Link to="/auth?mode=signup"
                 className="text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all duration-200 hover:scale-105"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
                 Get Started
@@ -1260,7 +1260,7 @@ const Landing = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 mb-14"
           >
-            <Link to="/auth"
+            <Link to="/auth?mode=signup"
               className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white transition-all duration-200 hover:scale-105 hover:shadow-2xl"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 8px 32px rgba(124,58,237,0.5)' }}>
               Start for Free <ArrowRightIcon className="w-5 h-5" />
@@ -1628,7 +1628,7 @@ const Landing = () => {
               <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
                 Join students who are already studying smarter with Vyora. Free forever.
               </p>
-              <Link to="/auth"
+              <Link to="/auth?mode=signup"
                 className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-lg font-bold text-white transition-all duration-200 hover:scale-105"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 8px 40px rgba(124,58,237,0.6)' }}>
                 Create Free Account <ArrowRightIcon className="w-5 h-5" />
