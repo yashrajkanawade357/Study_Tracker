@@ -1091,6 +1091,83 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── Blog Teaser ── */}
+      <section className="relative z-10 py-24 border-t border-white/[0.05]">
+        <div className="max-w-5xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl border border-white/[0.07] overflow-hidden grid grid-cols-1 md:grid-cols-2"
+            style={{ background: 'rgba(10,10,28,0.7)', backdropFilter: 'blur(30px)' }}
+          >
+            {/* Background glow */}
+            <div className="absolute -top-20 -left-20 w-72 h-72 opacity-15 pointer-events-none"
+              style={{ background: 'radial-gradient(circle, #7c3aed, transparent)', filter: 'blur(70px)' }} />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+
+            {/* Left: article preview */}
+            <div className="relative z-10 p-8 md:p-12 flex flex-col">
+              <span className="inline-flex items-center gap-2 text-xs font-bold text-violet-400 uppercase tracking-widest mb-5 px-3 py-1 rounded-full border border-violet-500/20 w-max"
+                style={{ background: 'rgba(124,58,237,0.1)' }}>
+                <SparklesIcon className="w-3.5 h-3.5" /> From the Blog
+              </span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-tight">
+                Built for Busy Minds
+              </h2>
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-violet-500/40 flex-shrink-0">
+                  <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
+                </div>
+                <p className="text-xs text-gray-500">Yashraj Kanawade · 8 min read</p>
+              </div>
+              <p className="text-gray-400 leading-relaxed mb-8">
+                Students drown in syllabi; professionals drown in inboxes. The pain is the same — hours lost to scattered tasks, untracked effort, and constant context-switching. Here's the problem we're solving, and the roadmap that takes Vyora from study tracker to your complete focus companion.
+              </p>
+              <button
+                onClick={() => setShowBlog(true)}
+                className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 w-max"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 8px 24px rgba(124,58,237,0.4)' }}
+              >
+                Read the full story <ArrowRightIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Right: coming soon pills */}
+            <div className="relative z-10 p-8 md:p-12 border-t md:border-t-0 md:border-l border-white/[0.06] flex flex-col justify-center"
+              style={{ background: 'rgba(255,255,255,0.015)' }}>
+              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-5">On the Roadmap</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { icon: '📅', label: 'Smart Calendar' },
+                  { icon: '🎙️', label: 'Voice Assistant' },
+                  { icon: '✅', label: 'Task Manager' },
+                  { icon: '⏰', label: 'Smart Reminders' },
+                  { icon: '📧', label: 'Gmail Summariser' },
+                ].map((f, i) => (
+                  <motion.div
+                    key={f.label}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.08 }}
+                    className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-white/[0.07]"
+                    style={{ background: 'rgba(255,255,255,0.03)' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">{f.icon}</span>
+                      <span className="text-sm font-medium text-gray-200">{f.label}</span>
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-violet-300 px-2 py-0.5 rounded-full border border-violet-500/25"
+                      style={{ background: 'rgba(124,58,237,0.12)' }}>Soon</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ── How It Works ── */}
       <HowItWorks />
 
