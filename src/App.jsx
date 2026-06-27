@@ -18,6 +18,17 @@ import Calendar from './pages/Calendar';
 import Tasks from './pages/Tasks';
 import Onboarding from './components/Onboarding';
 
+// Reset scroll to the top whenever the route changes, so a new page never
+// opens scrolled down to wherever you clicked on the previous page.
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+    document.querySelector('main')?.scrollTo?.(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const ProtectedRoute = ({ children, requireManual = true }) => {
   const { isAuthenticated, authInitialized, userProfile } = useApp();
   const location = useLocation();
@@ -77,6 +88,7 @@ const AppRoutes = () => {
 const App = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AppProvider>
         <CalendarProvider>
           <TaskProvider>
