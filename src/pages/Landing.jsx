@@ -17,7 +17,8 @@ import {
   MicrophoneIcon,
   BellIcon,
   AcademicCapIcon,
-  ClipboardDocumentCheckIcon
+  ClipboardDocumentCheckIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 /* ── Animated particle canvas ─────────────────────────────── */
@@ -85,7 +86,7 @@ const features = [
   { icon: TrophyIcon, title: 'Achievements', description: 'Earn XP, build streaks, unlock badges, and download a master certificate.', color: 'from-amber-400 to-orange-500', glow: 'rgba(251,191,36,0.3)' },
   { icon: ChartPieIcon, title: 'Goal Tracking', description: 'Set weekly, subject-specific goals and watch Vyora keep you honest about your progress.', color: 'from-orange-400 to-red-500', glow: 'rgba(249,115,22,0.3)' },
   { icon: CalendarIcon, title: 'Timetable Analyzer', description: 'Upload your timetable to compare projected vs actual hours and get an AI-optimized schedule.', color: 'from-pink-500 to-rose-600', glow: 'rgba(236,72,153,0.3)' },
-  { icon: ClipboardDocumentCheckIcon, title: 'Weekly Check-in', description: 'Snapshot your week and see your progress vs last week, with an optional AI reflection.', color: 'from-purple-500 to-fuchsia-600', glow: 'rgba(168,85,247,0.3)' },
+  { icon: DocumentTextIcon, title: 'Doc & Email Summariser', description: 'Upload a PDF or Word doc — or paste an email — and AI returns a detailed summary you can read or hear aloud.', color: 'from-purple-500 to-fuchsia-600', glow: 'rgba(168,85,247,0.3)' },
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, color, glow, delay }) => (
