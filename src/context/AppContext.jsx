@@ -103,6 +103,7 @@ export const AppProvider = ({ children }) => {
                   linkedin: profile.linkedin || '',
                   instagram: profile.instagram || '',
                   hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
+                  hasCompletedSetup: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup,
                 };
                 storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
                 setUserProfile(profileData);
@@ -496,6 +497,7 @@ export const AppProvider = ({ children }) => {
         linkedin: profile.linkedin,
         instagram: profile.instagram,
         hasSeenManual: false,
+        hasCompletedSetup: false,
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -522,6 +524,7 @@ export const AppProvider = ({ children }) => {
         linkedin: '',
         instagram: '',
         hasSeenManual: false,
+        hasCompletedSetup: false,
       };
       
       users.push(newUser);
@@ -539,6 +542,7 @@ export const AppProvider = ({ children }) => {
         linkedin: newUser.linkedin,
         instagram: newUser.instagram,
         hasSeenManual: false,
+        hasCompletedSetup: false,
       };
       storage.set(STORAGE_KEYS.USER_PROFILE, profile);
       setUserProfile(profile);
@@ -580,6 +584,7 @@ export const AppProvider = ({ children }) => {
         linkedin: profile?.linkedin || '',
         instagram: profile?.instagram || '',
         hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
+        hasCompletedSetup: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup,
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
@@ -741,6 +746,13 @@ export const AppProvider = ({ children }) => {
     }
   }, [userProfile, updateUserProfileStateAndStorage]);
 
+  const completeSetup = useCallback(() => {
+    if (userProfile) {
+      const updated = { ...userProfile, hasCompletedSetup: true };
+      updateUserProfileStateAndStorage(updated);
+    }
+  }, [userProfile, updateUserProfileStateAndStorage]);
+
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
     toasts, isAuthenticated, currentStreak, currentXp,
@@ -752,6 +764,7 @@ export const AppProvider = ({ children }) => {
     addToast, removeToast,
     reload: loadAll,
     completeManual,
+    completeSetup,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

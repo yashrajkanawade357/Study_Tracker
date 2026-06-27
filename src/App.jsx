@@ -12,6 +12,7 @@ import Pomodoro from './pages/Pomodoro';
 import Settings from './pages/Settings';
 import Landing from './pages/Landing';
 import UserManual from './pages/UserManual';
+import Onboarding from './components/Onboarding';
 
 const ProtectedRoute = ({ children, requireManual = true }) => {
   const { isAuthenticated, userProfile } = useApp();
@@ -54,6 +55,7 @@ const App = () => {
     <BrowserRouter>
       <AppProvider>
         <AppRoutes />
+        <Onboarding />
         <Toast />
       </AppProvider>
     </BrowserRouter>
