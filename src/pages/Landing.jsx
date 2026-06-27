@@ -13,7 +13,11 @@ import {
   ChartBarIcon,
   CalendarIcon,
   CheckCircleIcon,
-  ChartPieIcon
+  ChartPieIcon,
+  MicrophoneIcon,
+  BellIcon,
+  AcademicCapIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline';
 
 /* ── Animated particle canvas ─────────────────────────────── */
@@ -70,14 +74,18 @@ const ParticleCanvas = () => {
 
 /* ── Feature Card ─────────────────────────────────────────── */
 const features = [
-  { icon: SparklesIcon, title: 'AI Study Coach', description: 'Personalized tips, tailored schedules, and smart advice powered by AI.', color: 'from-violet-500 to-purple-600', glow: 'rgba(139,92,246,0.3)' },
-  { icon: ClockIcon, title: 'Pomodoro Timer', description: 'Stay laser-focused with our built-in Pomodoro timer and break system.', color: 'from-cyan-400 to-blue-500', glow: 'rgba(34,211,238,0.3)' },
-  { icon: CalendarDaysIcon, title: 'Smart Timetable', description: 'Visualize your entire study schedule and find the perfect balance.', color: 'from-pink-500 to-rose-600', glow: 'rgba(236,72,153,0.3)' },
-  { icon: TrophyIcon, title: 'Achievements', description: 'Earn badges, build streaks, and level up your academic profile.', color: 'from-amber-400 to-orange-500', glow: 'rgba(251,191,36,0.3)' },
-  { icon: ChartBarIcon, title: 'Deep Analytics', description: 'Track your progress with detailed charts, subject breakdowns, and productivity trends.', color: 'from-emerald-400 to-teal-500', glow: 'rgba(16,185,129,0.3)' },
-  { icon: CalendarIcon, title: 'Calendar', description: 'Plan ahead with our Calendar view, seamlessly integrating your study sessions.', color: 'from-blue-500 to-indigo-600', glow: 'rgba(59,130,246,0.3)' },
-  { icon: CheckCircleIcon, title: 'Task Management', description: 'Break down large subjects into manageable tasks and check them off as you go.', color: 'from-fuchsia-500 to-pink-600', glow: 'rgba(217,70,239,0.3)' },
-  { icon: ChartPieIcon, title: 'Goal Tracking', description: 'Set daily, weekly, and subject-specific goals to maintain your momentum and focus.', color: 'from-orange-400 to-red-500', glow: 'rgba(249,115,22,0.3)' },
+  { icon: SparklesIcon, title: 'AI Study Coach', description: 'Personalized advice from your data, plus AI-built study plans dropped straight into your calendar.', color: 'from-violet-500 to-purple-600', glow: 'rgba(139,92,246,0.3)' },
+  { icon: MicrophoneIcon, title: 'AI Voice Assistant', description: 'Speak or type to add tasks, schedule events, or ask “what’s on today?” — hands-free, with spoken replies.', color: 'from-cyan-400 to-blue-500', glow: 'rgba(34,211,238,0.3)' },
+  { icon: CalendarDaysIcon, title: 'Smart Calendar', description: 'A second app in one account — Month, Week, Day & Agenda views with tasks layered right in.', color: 'from-blue-500 to-indigo-600', glow: 'rgba(59,130,246,0.3)' },
+  { icon: CheckCircleIcon, title: 'Task Manager', description: 'To-dos with priority, category and due dates, filtered by Today / Upcoming / Completed.', color: 'from-fuchsia-500 to-pink-600', glow: 'rgba(217,70,239,0.3)' },
+  { icon: BellIcon, title: 'Email Reminders', description: 'Toggle a reminder on any event or task and get an email before it’s due — automatically.', color: 'from-amber-400 to-orange-500', glow: 'rgba(251,191,36,0.3)' },
+  { icon: AcademicCapIcon, title: 'Exam Readiness', description: 'A readiness score per exam from your logged hours and pace — then build a prep plan in one tap.', color: 'from-rose-500 to-red-600', glow: 'rgba(244,63,94,0.3)' },
+  { icon: ClockIcon, title: 'Pomodoro Timer', description: 'Laser-focused work bursts that automatically log your study hours when a session ends.', color: 'from-cyan-400 to-teal-500', glow: 'rgba(34,211,238,0.3)' },
+  { icon: ChartBarIcon, title: 'Deep Analytics', description: 'Charts, a 365-day heatmap, subject breakdowns, sleep tracking, and weekly check-ins.', color: 'from-emerald-400 to-teal-500', glow: 'rgba(16,185,129,0.3)' },
+  { icon: TrophyIcon, title: 'Achievements', description: 'Earn XP, build streaks, unlock badges, and download a master certificate.', color: 'from-amber-400 to-orange-500', glow: 'rgba(251,191,36,0.3)' },
+  { icon: ChartPieIcon, title: 'Goal Tracking', description: 'Set weekly, subject-specific goals and watch Vyora keep you honest about your progress.', color: 'from-orange-400 to-red-500', glow: 'rgba(249,115,22,0.3)' },
+  { icon: CalendarIcon, title: 'Timetable Analyzer', description: 'Upload your timetable to compare projected vs actual hours and get an AI-optimized schedule.', color: 'from-pink-500 to-rose-600', glow: 'rgba(236,72,153,0.3)' },
+  { icon: ClipboardDocumentCheckIcon, title: 'Weekly Check-in', description: 'Snapshot your week and see your progress vs last week, with an optional AI reflection.', color: 'from-purple-500 to-fuchsia-600', glow: 'rgba(168,85,247,0.3)' },
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, color, glow, delay }) => (
@@ -374,26 +382,31 @@ const blogContent = (
       <li><span className="text-white font-medium">Streaks &amp; achievements</span> that make consistency genuinely satisfying.</li>
     </ul>
 
-    {/* What's coming next */}
-    <h3 className="text-white font-display font-bold text-2xl pt-2">What's Coming Next</h3>
+    {/* What we just shipped */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">What We Just Shipped 🚀</h3>
     <p>
-      This is where it gets exciting. We are expanding Vyora from a study tracker into a complete focus-and-productivity companion — for students <span className="italic">and</span> professionals. Here is what we are building next, and the exact problem each one kills:
+      This is the exciting part — we have grown Vyora from a study tracker into a complete focus-and-productivity companion, and most of the roadmap is <span className="text-white font-medium">already live</span>:
     </p>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
       {[
-        { icon: '📅', title: 'Smart Calendar', tag: 'Coming soon', desc: 'Plan study blocks, meetings, and deadlines in one visual week. Vyora suggests the optimal slots so you stop guessing and start scheduling intentionally.' },
-        { icon: '🎙️', title: 'Voice Assistant', tag: 'Coming soon', desc: 'Log a session, add a task, or check your schedule hands-free. Just speak — no typing, no friction, perfect for when you are mid-flow.' },
-        { icon: '✅', title: 'Task Manager', tag: 'Coming soon', desc: 'One place for every to-do, broken down by subject or project, with priorities and progress that sync straight into your analytics.' },
-        { icon: '⏰', title: 'Smart Reminders', tag: 'Coming soon', desc: 'Reminders that actually fire at the right moment — nudging you toward your goals, breaks, and deadlines before they become emergencies.' },
-        { icon: '📧', title: 'Gmail Summariser', tag: 'Coming soon', desc: 'Turn a chaotic inbox into a 30-second briefing. AI reads your emails and hands you the decisions and action items that matter.' },
+        { icon: '📅', title: 'Smart Calendar', live: true, desc: 'A second app in the same account — plan events with Month, Week, Day and Agenda views, and switch between Study Tracker and Calendar in a tap.' },
+        { icon: '✅', title: 'Task Manager', live: true, desc: 'Every to-do with priority, category and due dates, filtered by Today / Upcoming / Completed — and surfaced right on your calendar.' },
+        { icon: '🎙️', title: 'AI Voice Assistant', live: true, desc: 'Speak or type: add tasks, schedule events, ask “what’s on today?”, or “build me a study plan.” It replies out loud and goes hands-free.' },
+        { icon: '⏰', title: 'Email Reminders', live: true, desc: 'Toggle a reminder on any event or task and Vyora emails you before it is due — automatically, for everyone, free.' },
+        { icon: '🧠', title: 'AI Study Plans & Readiness', live: true, desc: 'Get an exam-readiness score, then have the AI build a week of study blocks and revision tasks straight into your calendar.' },
+        { icon: '📧', title: 'Inbox & Document Summariser', live: false, desc: 'Next up: turn a chaotic inbox or a long document into a 30-second briefing — the decisions and action items that matter.' },
       ].map(f => (
         <div key={f.title} className="rounded-2xl p-5 border border-white/[0.08]"
           style={{ background: 'rgba(255,255,255,0.03)' }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-2xl">{f.icon}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-300 px-2 py-1 rounded-full border border-violet-500/25"
-              style={{ background: 'rgba(124,58,237,0.12)' }}>{f.tag}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border"
+              style={f.live
+                ? { color: '#6ee7b7', borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.12)' }
+                : { color: '#c4b5fd', borderColor: 'rgba(124,58,237,0.25)', background: 'rgba(124,58,237,0.12)' }}>
+              {f.live ? '✓ Now live' : 'Coming soon'}
+            </span>
           </div>
           <h4 className="text-white font-semibold text-base mb-1.5">{f.title}</h4>
           <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
@@ -404,10 +417,10 @@ const blogContent = (
     {/* Closing */}
     <h3 className="text-white font-display font-bold text-2xl pt-2">The Bigger Picture</h3>
     <p>
-      Whether you are revising for finals or shipping a product, the underlying need is identical: <span className="text-white font-medium">spend your hours on what matters, and feel good about the progress you make.</span> A calendar plans your time, a voice assistant removes friction, a task manager keeps you honest, reminders keep you on track, and an inbox summariser hands back the hours email steals.
+      Whether you are revising for finals or shipping a product, the underlying need is identical: <span className="text-white font-medium">spend your hours on what matters, and feel good about the progress you make.</span> A calendar plans your time, a voice assistant removes friction, tasks and reminders keep you honest, and an AI coach turns intention into a real schedule.
     </p>
     <p>
-      That is the Vyora we are building — one focused, beautiful place that works for the student and the professional alike. We are just getting started, and we would love for you to grow with us.
+      That is the Vyora we are building — one focused, beautiful place that works for the student and the professional alike. Most of it is here today, and we are just getting started. We would love for you to grow with us.
     </p>
   </>
 );
@@ -1456,14 +1469,14 @@ const Landing = () => {
             {/* Right: roadmap — spans 2/5 */}
             <div className="relative z-10 p-9 md:p-14 border-t lg:border-t-0 lg:border-l border-white/[0.06] flex flex-col lg:col-span-2"
               style={{ background: 'rgba(255,255,255,0.015)' }}>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">On the Roadmap</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Now in the app</p>
               <div className="flex flex-col gap-3 flex-1 justify-between">
                 {[
-                  { icon: '📅', label: 'Smart Calendar', desc: 'Plan study blocks, meetings & deadlines in one view.' },
-                  { icon: '🎙️', label: 'Voice Assistant', desc: 'Log sessions and tasks hands-free, just by talking.' },
-                  { icon: '✅', label: 'Task Manager', desc: 'Every to-do in one place, synced to your analytics.' },
-                  { icon: '⏰', label: 'Smart Reminders', desc: 'Nudges that fire at the right moment, every time.' },
-                  { icon: '📧', label: 'Gmail Summariser', desc: 'Turn a chaotic inbox into a 30-second briefing.' },
+                  { icon: '📅', label: 'Smart Calendar', desc: 'Month, week, day & agenda — a second app in one account.', live: true },
+                  { icon: '✅', label: 'Task Manager', desc: 'Priorities & due dates, surfaced on your calendar.', live: true },
+                  { icon: '🎙️', label: 'AI Voice Assistant', desc: 'Add tasks, plan, and ask — hands-free, out loud.', live: true },
+                  { icon: '⏰', label: 'Email Reminders', desc: 'Automatic emails before anything is due.', live: true },
+                  { icon: '📧', label: 'Inbox Summariser', desc: 'Turn a chaotic inbox into a 30-second briefing.', live: false },
                 ].map((f, i) => (
                   <motion.div
                     key={f.label}
@@ -1478,8 +1491,12 @@ const Landing = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-semibold text-gray-100">{f.label}</span>
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-violet-300 px-2 py-0.5 rounded-full border border-violet-500/25 flex-shrink-0"
-                          style={{ background: 'rgba(124,58,237,0.12)' }}>Soon</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border flex-shrink-0"
+                          style={f.live
+                            ? { color: '#6ee7b7', borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.12)' }
+                            : { color: '#c4b5fd', borderColor: 'rgba(124,58,237,0.25)', background: 'rgba(124,58,237,0.12)' }}>
+                          {f.live ? '✓ Live' : 'Soon'}
+                        </span>
                       </div>
                       <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{f.desc}</p>
                     </div>
