@@ -2,20 +2,22 @@
 //
 // Invoked on a schedule (pg_cron, every few minutes). It finds calendar
 // events and tasks whose email reminder is due and not yet sent, emails
-// the owner via Resend, and marks them sent.
+// the owner via Gmail SMTP, and marks them sent.
 //
 // Required function secrets (Supabase > Edge Functions > Secrets):
-//   RESEND_API_KEY   - your Resend API key
-//   CRON_SECRET      - any random string; the cron caller must send it
-//   REMINDER_FROM    - (optional) e.g. "Vyora <reminders@yourdomain.com>"
-//                      defaults to Resend's sandbox sender
+//   GMAIL_USER          - the Vyora Gmail address (e.g. vyora.app@gmail.com)
+//   GMAIL_APP_PASSWORD  - 16-char Google App Password (no spaces)
+//   CRON_SECRET         - any random string; the cron caller must send it
+//   REMINDER_FROM_NAME  - (optional) display name, defaults to "Vyora"
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected automatically.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
+const GMAIL_USER = Deno.env.get("GMAIL_USER") ?? "";
+const GMAIL_APP_PASSWORD = Deno.env.get("GMAIL_APP_PASSWORD") ?? "";
+const FROM_NAME = Deno.env.get("REMINDER_FROM_NAME") ?? "Vyora";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
-const FROM = Deno.env.get("REMINDER_FROM") ?? "Vyora <onboarding@resend.dev>";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -46,16 +48,6 @@ function emailHtml(name: string, kind: "event" | "task", title: string, when: st
     </table></body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, to, subject, html }),
-  });
-  if (!res.ok) console.error("Resend error:", res.status, await res.text());
-  return res.ok;
-}
-
 Deno.serve(async (req) => {
   // Auth: only the cron caller (with the shared secret) may trigger this.
   if (CRON_SECRET && req.headers.get("x-cron-secret") !== CRON_SECRET) {
@@ -81,27 +73,49 @@ Deno.serve(async (req) => {
     (profiles ?? []).forEach((p) => { userById[p.id] = { email: p.email, name: p.name }; });
   }
 
-  let sent = 0;
-  const checked = (events?.length ?? 0) + (tasks?.length ?? 0);
-
+  // Build the outbound queue.
+  const queue: { table: string; id: string; to: string; subject: string; html: string }[] = [];
   for (const e of events ?? []) {
     const u = userById[e.user_id];
     if (!u?.email) continue;
     const when = e.all_day ? `${e.date} · All day` : `${e.date}${e.start_time ? " · " + e.start_time : ""}`;
-    if (await sendEmail(u.email, `⏰ Reminder: ${e.title}`, emailHtml(u.name, "event", e.title, when))) {
-      await supabase.from("calendar_events").update({ reminder_sent: true }).eq("id", e.id);
-      sent++;
-    }
+    queue.push({ table: "calendar_events", id: e.id, to: u.email, subject: `⏰ Reminder: ${e.title}`, html: emailHtml(u.name, "event", e.title, when) });
   }
-
   for (const t of tasks ?? []) {
     const u = userById[t.user_id];
     if (!u?.email) continue;
     const when = `Due ${t.due_date}${t.due_time ? " · " + t.due_time : ""}`;
-    if (await sendEmail(u.email, `✅ Task due: ${t.title}`, emailHtml(u.name, "task", t.title, when))) {
-      await supabase.from("tasks").update({ reminder_sent: true }).eq("id", t.id);
-      sent++;
+    queue.push({ table: "tasks", id: t.id, to: u.email, subject: `✅ Task due: ${t.title}`, html: emailHtml(u.name, "task", t.title, when) });
+  }
+
+  const checked = queue.length;
+  let sent = 0;
+
+  if (queue.length > 0) {
+    const client = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 465,
+        tls: true,
+        auth: { username: GMAIL_USER, password: GMAIL_APP_PASSWORD },
+      },
+    });
+    for (const m of queue) {
+      try {
+        await client.send({
+          from: `${FROM_NAME} <${GMAIL_USER}>`,
+          to: m.to,
+          subject: m.subject,
+          content: "This is a Vyora reminder. View it in an HTML-capable email client.",
+          html: m.html,
+        });
+        await supabase.from(m.table).update({ reminder_sent: true }).eq("id", m.id);
+        sent++;
+      } catch (err) {
+        console.error("SMTP send error:", err);
+      }
     }
+    try { await client.close(); } catch (_) { /* ignore */ }
   }
 
   return new Response(JSON.stringify({ ok: true, checked, sent, at: nowIso }), {
