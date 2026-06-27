@@ -427,16 +427,26 @@ const blogContent = (
 
 /* ── How It Works Section ─────────────────────────────────── */
 const howItWorksSteps = [
-  { id: 'problem', short: 'THE PROBLEM', title: 'Scattered study habits', desc: 'Notes are everywhere, hours are untracked, and exams are looming. You need a system.' },
-  { id: 'step1', short: 'STEP 1', title: 'Set your goals', desc: 'Define your subjects and set realistic weekly targets. Vyora helps you break down the mountain.' },
-  { id: 'step2', short: 'STEP 2', title: 'Plan your week', desc: 'Use the smart timetable to allocate time blocks. Visualize your week before it starts.' },
-  { id: 'step3', short: 'STEP 3', title: 'Track honestly', desc: 'One-tap Pomodoro timer. Automatic hour logging. Build a real picture of where your time goes.' },
-  { id: 'step4', short: 'STEP 4', title: 'Review analytics', desc: 'Look at your weekly breakdowns. The AI coach highlights exactly where you need more focus.' },
-  { id: 'outcome', short: 'THE OUTCOME', title: 'Academic clarity', desc: 'Hit your goals, maintain streaks, and enter exam season with complete confidence.' }
+  { id: 'problem', short: 'THE PROBLEM', title: 'Scattered study habits', desc: 'Notes are everywhere, hours go untracked, and exams creep up. You need one system, not ten apps.' },
+  { id: 'step1', short: 'STEP 1', title: 'Set your goals', desc: 'Add your subjects and realistic weekly targets. Vyora breaks the mountain into a daily 1%.' },
+  { id: 'step2', short: 'STEP 2', title: 'Let AI plan your week', desc: 'Add events and tasks yourself — or just say “build me a study plan” and the AI schedules study blocks and revision straight into your calendar.' },
+  { id: 'step3', short: 'STEP 3', title: 'Track without friction', desc: 'A one-tap Pomodoro auto-logs your hours, or log by voice. Email reminders make sure nothing slips.' },
+  { id: 'step4', short: 'STEP 4', title: 'Review & stay ready', desc: 'Weekly check-ins, deep analytics, and an exam-readiness score show exactly what to focus on next.' },
+  { id: 'outcome', short: 'THE OUTCOME', title: 'Academic clarity', desc: 'Hit your goals, keep your streak, and walk into exam season with complete confidence.' }
 ];
 
 const HowItWorks = () => {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [autoPlay, setAutoPlay] = React.useState(true);
+
+  // Auto-advance through the journey so visitors see every step; any click stops it.
+  React.useEffect(() => {
+    if (!autoPlay) return;
+    const id = setInterval(() => setActiveStep((s) => (s + 1) % howItWorksSteps.length), 4500);
+    return () => clearInterval(id);
+  }, [autoPlay]);
+
+  const selectStep = (idx) => { setAutoPlay(false); setActiveStep(idx); };
 
   return (
     <section className="relative z-10 py-32 border-t border-white/[0.05]">
@@ -481,7 +491,7 @@ const HowItWorks = () => {
               return (
                 <div 
                   key={step.id}
-                  onClick={() => setActiveStep(idx)}
+                  onClick={() => selectStep(idx)}
                   className="flex md:flex-col items-center gap-4 md:gap-4 cursor-pointer group w-full md:w-auto"
                 >
                   <span className={`text-[10px] font-bold tracking-wider transition-colors duration-300 md:-translate-y-2 uppercase ${isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
