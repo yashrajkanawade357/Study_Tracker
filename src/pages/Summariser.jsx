@@ -93,7 +93,7 @@ const Summariser = () => {
     <CalendarLayout>
       <div className="sticky top-0 z-30 bg-navy-950/85 backdrop-blur-md border-b border-cyan-700/15 px-4 md:px-6 py-3">
         <h2 className="text-lg md:text-xl font-display font-bold text-white flex items-center gap-2">
-          <DocumentTextIcon className="w-6 h-6 text-cyan-400" /> Document Summariser
+          <DocumentTextIcon className="w-6 h-6 text-cyan-400" /> Document &amp; Email Summariser
         </h2>
       </div>
 
@@ -131,10 +131,10 @@ const Summariser = () => {
           </div>
 
           <div className="mt-4">
-            <p className="text-xs text-gray-500 mb-2">Or paste text directly:</p>
+            <p className="text-xs text-gray-500 mb-2">Or paste an email or any text directly:</p>
             <textarea
               className="input-field text-sm min-h-[90px] resize-y"
-              placeholder="Paste an article, notes, or any text to summarise…"
+              placeholder="Paste an email, article, notes, or any text to summarise…"
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
             />

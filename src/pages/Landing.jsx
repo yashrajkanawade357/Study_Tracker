@@ -385,7 +385,7 @@ const blogContent = (
     {/* What we just shipped */}
     <h3 className="text-white font-display font-bold text-2xl pt-2">What We Just Shipped 🚀</h3>
     <p>
-      This is the exciting part — we have grown Vyora from a study tracker into a complete focus-and-productivity companion, and most of the roadmap is <span className="text-white font-medium">already live</span>:
+      This is the exciting part — we have grown Vyora from a study tracker into a complete focus-and-productivity companion, and the <span className="text-white font-medium">entire roadmap is now live</span>:
     </p>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
@@ -395,7 +395,7 @@ const blogContent = (
         { icon: '🎙️', title: 'AI Voice Assistant', live: true, desc: 'Speak or type: add tasks, schedule events, ask “what’s on today?”, or “build me a study plan.” It replies out loud and goes hands-free.' },
         { icon: '⏰', title: 'Email Reminders', live: true, desc: 'Toggle a reminder on any event or task and Vyora emails you before it is due — automatically, for everyone, free.' },
         { icon: '🧠', title: 'AI Study Plans & Readiness', live: true, desc: 'Get an exam-readiness score, then have the AI build a week of study blocks and revision tasks straight into your calendar.' },
-        { icon: '📧', title: 'Inbox & Document Summariser', live: false, desc: 'Next up: turn a chaotic inbox or a long document into a 30-second briefing — the decisions and action items that matter.' },
+        { icon: '📄', title: 'Document & Email Summariser', live: true, desc: 'Upload a PDF, Word doc, or paste an email, and AI gives you a detailed summary with key points and takeaways — and reads it aloud.' },
       ].map(f => (
         <div key={f.title} className="rounded-2xl p-5 border border-white/[0.08]"
           style={{ background: 'rgba(255,255,255,0.03)' }}>
@@ -417,10 +417,10 @@ const blogContent = (
     {/* Closing */}
     <h3 className="text-white font-display font-bold text-2xl pt-2">The Bigger Picture</h3>
     <p>
-      Whether you are revising for finals or shipping a product, the underlying need is identical: <span className="text-white font-medium">spend your hours on what matters, and feel good about the progress you make.</span> A calendar plans your time, a voice assistant removes friction, tasks and reminders keep you honest, and an AI coach turns intention into a real schedule.
+      Whether you are revising for finals or shipping a product, the underlying need is identical: <span className="text-white font-medium">spend your hours on what matters, and feel good about the progress you make.</span> A calendar plans your time, a voice assistant removes friction, tasks and reminders keep you honest, an AI coach turns intention into a real schedule, and a summariser turns long documents and emails into a 30-second briefing.
     </p>
     <p>
-      That is the Vyora we are building — one focused, beautiful place that works for the student and the professional alike. Most of it is here today, and we are just getting started. We would love for you to grow with us.
+      That is the Vyora we have built — one focused, beautiful place that works for the student and the professional alike. It is all here today, and we are just getting started. We would love for you to grow with us.
     </p>
   </>
 );
@@ -1476,7 +1476,7 @@ const Landing = () => {
                   { icon: '✅', label: 'Task Manager', desc: 'Priorities & due dates, surfaced on your calendar.', live: true },
                   { icon: '🎙️', label: 'AI Voice Assistant', desc: 'Add tasks, plan, and ask — hands-free, out loud.', live: true },
                   { icon: '⏰', label: 'Email Reminders', desc: 'Automatic emails before anything is due.', live: true },
-                  { icon: '📧', label: 'Inbox Summariser', desc: 'Turn a chaotic inbox into a 30-second briefing.', live: false },
+                  { icon: '📄', label: 'Doc & Email Summary', desc: 'Long docs or emails → a detailed, spoken briefing.', live: true },
                 ].map((f, i) => (
                   <motion.div
                     key={f.label}
