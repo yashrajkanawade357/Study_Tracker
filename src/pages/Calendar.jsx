@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval,
@@ -6,10 +7,28 @@ import {
 } from 'date-fns';
 import {
   ChevronLeftIcon, ChevronRightIcon, PlusIcon, TrashIcon, XMarkIcon,
-  ClockIcon, BellIcon, CalendarDaysIcon,
+  ClockIcon, BellIcon, CalendarDaysIcon, CheckIcon,
 } from '@heroicons/react/24/outline';
 import { useCalendar } from '../context/CalendarContext';
+import { useTasks } from '../context/TaskContext';
 import CalendarLayout, { EVENT_CATEGORIES, categoryColor } from '../components/CalendarLayout';
+
+const PRIORITY_COLOR = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+const priorityColor = (p) => PRIORITY_COLOR[p] || PRIORITY_COLOR.medium;
+
+// A compact task chip shown inside calendar cells; opens the Tasks page.
+const TaskChip = ({ task, onOpen, showTime }) => (
+  <button onClick={(e) => { e.stopPropagation(); onOpen(); }}
+    className="flex items-center gap-1 text-left px-1.5 py-0.5 rounded-md text-[10px] font-medium truncate hover:opacity-90 transition-opacity w-full"
+    style={{ background: 'rgba(255,255,255,0.06)', borderLeft: `2px solid ${priorityColor(task.priority)}` }}>
+    <span className={`w-2.5 h-2.5 rounded-[3px] border flex items-center justify-center flex-shrink-0 ${task.completed ? 'bg-cyan-500 border-cyan-500' : 'border-gray-500'}`}>
+      {task.completed && <CheckIcon className="w-2 h-2 text-white" strokeWidth={4} />}
+    </span>
+    <span className={`truncate ${task.completed ? 'line-through text-gray-500' : 'text-gray-200'}`}>
+      {showTime && task.dueTime ? <span className="opacity-70">{task.dueTime} </span> : null}{task.title}
+    </span>
+  </button>
+);
 
 const VIEWS = ['month', 'week', 'day', 'agenda'];
 const REMINDER_LEADS = [
@@ -57,6 +76,8 @@ const computeReminderAt = (form) => {
 
 const Calendar = () => {
   const { events, addEvent, updateEvent, deleteEvent } = useCalendar();
+  const { tasks } = useTasks();
+  const navigate = useNavigate();
   const [view, setView] = useState('month');
   const [cursor, setCursor] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
@@ -70,6 +91,17 @@ const Calendar = () => {
     Object.values(map).forEach(list => list.sort(sortByTime));
     return map;
   }, [events]);
+
+  const tasksByDate = useMemo(() => {
+    const map = {};
+    for (const t of tasks) {
+      if (!t.dueDate) continue;
+      (map[t.dueDate] = map[t.dueDate] || []).push(t);
+    }
+    return map;
+  }, [tasks]);
+
+  const openTasks = () => navigate('/tasks');
 
   const openNew = (dateStr) => { setDraft(emptyDraft(dateStr)); setModalOpen(true); };
   const openEdit = (e) => {
@@ -168,9 +200,9 @@ const Calendar = () => {
       </div>
 
       <div className="p-4 md:p-6">
-        {view === 'month' && <MonthView cursor={cursor} eventsByDate={eventsByDate} onAdd={openNew} onEdit={openEdit} />}
-        {view === 'week' && <WeekView cursor={cursor} eventsByDate={eventsByDate} onAdd={openNew} onEdit={openEdit} />}
-        {view === 'day' && <DayView cursor={cursor} eventsByDate={eventsByDate} onAdd={openNew} onEdit={openEdit} />}
+        {view === 'month' && <MonthView cursor={cursor} eventsByDate={eventsByDate} tasksByDate={tasksByDate} onAdd={openNew} onEdit={openEdit} onOpenTask={openTasks} />}
+        {view === 'week' && <WeekView cursor={cursor} eventsByDate={eventsByDate} tasksByDate={tasksByDate} onAdd={openNew} onEdit={openEdit} onOpenTask={openTasks} />}
+        {view === 'day' && <DayView cursor={cursor} eventsByDate={eventsByDate} tasksByDate={tasksByDate} onAdd={openNew} onEdit={openEdit} onOpenTask={openTasks} />}
         {view === 'agenda' && <AgendaView events={events} onEdit={openEdit} onAdd={() => openNew(fmtDate(new Date()))} />}
       </div>
 
@@ -180,7 +212,7 @@ const Calendar = () => {
 };
 
 /* ── Month View ── */
-const MonthView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
+const MonthView = ({ cursor, eventsByDate, tasksByDate, onAdd, onEdit, onOpenTask }) => {
   const days = useMemo(() => eachDayOfInterval({
     start: startOfWeek(startOfMonth(cursor)),
     end: endOfWeek(endOfMonth(cursor)),
@@ -197,6 +229,12 @@ const MonthView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
         {days.map(day => {
           const ds = fmtDate(day);
           const dayEvents = eventsByDate[ds] || [];
+          const dayTasks = tasksByDate[ds] || [];
+          const total = dayEvents.length + dayTasks.length;
+          const shownEvents = dayEvents.slice(0, 3);
+          const taskBudget = Math.max(0, 3 - shownEvents.length);
+          const shownTasks = dayTasks.slice(0, taskBudget);
+          const overflow = total - shownEvents.length - shownTasks.length;
           const inMonth = isSameMonth(day, cursor);
           const today = isToday(day);
           return (
@@ -209,15 +247,16 @@ const MonthView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
                 </span>
               </div>
               <div className="flex flex-col gap-1">
-                {dayEvents.slice(0, 3).map(e => (
+                {shownEvents.map(e => (
                   <button key={e.id} onClick={(ev) => { ev.stopPropagation(); onEdit(e); }}
                     className="text-left px-1.5 py-0.5 rounded-md text-[10px] font-medium text-white truncate hover:opacity-90 transition-opacity"
                     style={{ background: `${e.color}cc`, borderLeft: `2px solid ${e.color}` }}>
                     {!e.allDay && e.startTime ? <span className="opacity-80">{e.startTime} </span> : null}{e.title}
                   </button>
                 ))}
-                {dayEvents.length > 3 && (
-                  <span className="text-[10px] text-gray-500 px-1.5">+{dayEvents.length - 3} more</span>
+                {shownTasks.map(t => <TaskChip key={t.id} task={t} onOpen={onOpenTask} />)}
+                {overflow > 0 && (
+                  <span className="text-[10px] text-gray-500 px-1.5">+{overflow} more</span>
                 )}
               </div>
             </div>
@@ -229,13 +268,14 @@ const MonthView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
 };
 
 /* ── Week View ── */
-const WeekView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
+const WeekView = ({ cursor, eventsByDate, tasksByDate, onAdd, onEdit, onOpenTask }) => {
   const days = useMemo(() => eachDayOfInterval({ start: startOfWeek(cursor), end: endOfWeek(cursor) }), [cursor]);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-7 gap-2">
       {days.map(day => {
         const ds = fmtDate(day);
         const dayEvents = eventsByDate[ds] || [];
+        const dayTasks = tasksByDate[ds] || [];
         const today = isToday(day);
         return (
           <div key={ds} className={`rounded-2xl border bg-navy-900/40 min-h-[180px] flex flex-col ${today ? 'border-cyan-500/50' : 'border-navy-600'}`}>
@@ -252,7 +292,8 @@ const WeekView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
                   <p className="text-[10px] text-gray-400">{timeLabel(e)}</p>
                 </button>
               ))}
-              {dayEvents.length === 0 && <button onClick={() => onAdd(ds)} className="text-[11px] text-gray-600 hover:text-gray-400 py-2">+ Add</button>}
+              {dayTasks.map(t => <TaskChip key={t.id} task={t} onOpen={onOpenTask} showTime />)}
+              {dayEvents.length === 0 && dayTasks.length === 0 && <button onClick={() => onAdd(ds)} className="text-[11px] text-gray-600 hover:text-gray-400 py-2">+ Add</button>}
             </div>
           </div>
         );
@@ -262,19 +303,36 @@ const WeekView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
 };
 
 /* ── Day View ── */
-const DayView = ({ cursor, eventsByDate, onAdd, onEdit }) => {
+const DayView = ({ cursor, eventsByDate, tasksByDate, onAdd, onEdit, onOpenTask }) => {
   const ds = fmtDate(cursor);
   const dayEvents = eventsByDate[ds] || [];
+  const dayTasks = tasksByDate[ds] || [];
   return (
     <div className="max-w-2xl mx-auto">
-      {dayEvents.length === 0 ? (
+      {dayEvents.length === 0 && dayTasks.length === 0 ? (
         <div className="text-center py-20">
           <CalendarDaysIcon className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">No events on this day.</p>
+          <p className="text-gray-500 mb-4">Nothing scheduled on this day.</p>
           <button onClick={() => onAdd(ds)} className="btn-primary inline-flex items-center gap-2"><PlusIcon className="w-4 h-4" /> Add Event</button>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {dayTasks.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-1">Tasks due</p>
+              {dayTasks.map(t => (
+                <button key={t.id} onClick={onOpenTask}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-navy-900/50 border border-navy-600 hover:border-cyan-700/40 transition-colors text-left">
+                  <span className={`w-4 h-4 rounded-md border-2 flex items-center justify-center flex-shrink-0 ${t.completed ? 'bg-cyan-500 border-cyan-500' : 'border-gray-600'}`}>
+                    {t.completed && <CheckIcon className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                  </span>
+                  <span className="w-1 h-6 rounded-full flex-shrink-0" style={{ background: priorityColor(t.priority) }} />
+                  <span className={`flex-1 text-sm font-medium truncate ${t.completed ? 'text-gray-500 line-through' : 'text-white'}`}>{t.title}</span>
+                  {t.dueTime && <span className="text-xs text-gray-500">{t.dueTime}</span>}
+                </button>
+              ))}
+            </div>
+          )}
           {dayEvents.map(e => (
             <button key={e.id} onClick={() => onEdit(e)}
               className="flex items-stretch gap-4 p-4 rounded-2xl bg-navy-900/50 border border-navy-600 hover:border-cyan-700/40 transition-colors text-left">

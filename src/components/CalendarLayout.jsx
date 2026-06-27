@@ -1,8 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import AppSwitcher from './AppSwitcher';
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, CalendarDaysIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+
+const CAL_NAV = [
+  { to: '/calendar', label: 'Calendar', icon: CalendarDaysIcon },
+  { to: '/tasks', label: 'Tasks', icon: CheckCircleIcon },
+];
 
 export const EVENT_CATEGORIES = [
   { id: 'general', label: 'General', color: '#7c3aed' },
@@ -46,9 +51,23 @@ const CalendarLayout = ({ children }) => {
           <AppSwitcher current="calendar" />
         </div>
 
+        {/* Nav */}
+        <nav className="px-4 pt-4 flex flex-col gap-1">
+          {CAL_NAV.map(({ to, label, icon: Icon }) => (
+            <NavLink key={to} to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isActive ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30' : 'text-gray-400 hover:text-white hover:bg-navy-700/40'
+                }`}>
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
         {/* Category legend */}
         <div className="flex-1 p-4 overflow-y-auto no-scrollbar">
-          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Categories</p>
+          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 px-1 mt-2">Categories</p>
           <div className="flex flex-col gap-1.5">
             {EVENT_CATEGORIES.map(c => (
               <div key={c.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg">

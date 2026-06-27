@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { CalendarProvider } from './context/CalendarContext';
+import { TaskProvider } from './context/TaskContext';
 import Toast from './components/Toast';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
@@ -14,6 +15,7 @@ import Settings from './pages/Settings';
 import Landing from './pages/Landing';
 import UserManual from './pages/UserManual';
 import Calendar from './pages/Calendar';
+import Tasks from './pages/Tasks';
 import Onboarding from './components/Onboarding';
 
 const ProtectedRoute = ({ children, requireManual = true }) => {
@@ -65,6 +67,7 @@ const AppRoutes = () => {
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/manual" element={<ProtectedRoute requireManual={false}><UserManual /></ProtectedRoute>} />
       <Route path="/calendar" element={<ProtectedRoute requireManual={false}><Calendar /></ProtectedRoute>} />
+      <Route path="/tasks" element={<ProtectedRoute requireManual={false}><Tasks /></ProtectedRoute>} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -76,9 +79,11 @@ const App = () => {
     <BrowserRouter>
       <AppProvider>
         <CalendarProvider>
-          <AppRoutes />
-          <Onboarding />
-          <Toast />
+          <TaskProvider>
+            <AppRoutes />
+            <Onboarding />
+            <Toast />
+          </TaskProvider>
         </CalendarProvider>
       </AppProvider>
     </BrowserRouter>

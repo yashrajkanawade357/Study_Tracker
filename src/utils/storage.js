@@ -35,6 +35,7 @@ export const STORAGE_KEYS = {
   ANTHROPIC_API_KEY: 'anthropicApiKey',
   USERS: 'users',
   CALENDAR_EVENTS: 'calendarEvents',
+  TASKS: 'tasks',
 };
 
 export const DEFAULT_SUBJECTS = [
