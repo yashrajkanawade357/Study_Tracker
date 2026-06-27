@@ -1586,31 +1586,43 @@ const Landing = () => {
             {[
               {
                 q: 'What is Vyora?',
-                a: 'Vyora is a free, AI-powered study tracking platform built for students. It helps you log study sessions, set goals, manage your timetable, and stay motivated through gamified achievements and streaks.',
+                a: 'Vyora is two apps in one free account: a Study Tracker (log sessions, set goals, build streaks, view analytics, earn badges, and get AI coaching) and a Smart Calendar (plan events and tasks, get email reminders, and use an AI voice assistant). Switch between them anytime from the top-left switcher.',
               },
               {
                 q: 'Is Vyora completely free?',
-                a: 'Yes! Vyora is 100% free for all students. There are no hidden fees, no credit card required, and no premium paywalls. Just sign up and start tracking.',
+                a: 'Yes! Vyora is 100% free — no hidden fees, no credit card, no premium paywall. The only optional extra is the AI features, which use your own AI key (and Gemini has a free tier).',
+              },
+              {
+                q: 'What is the difference between Study Tracker and Smart Calendar?',
+                a: 'Study Tracker is about your studying — logging hours, goals, analytics, achievements and AI coaching. Smart Calendar is about planning — events, tasks, reminders, and a voice assistant. They share one login, and the AI can build study plans from one and drop them into the other.',
               },
               {
                 q: 'How does the AI Study Coach work?',
-                a: 'The AI coach analyses your study patterns, subject distribution, and goals to give you personalised recommendations — like which subjects need more focus, optimal study times, and motivational nudges.',
+                a: 'It analyses your study patterns, subject goals and upcoming exams to give personalised advice. It also shows an exam-readiness score for each exam, runs weekly check-ins to track your progress, and can build a full study plan — scheduling study blocks and revision tasks straight into your calendar.',
+              },
+              {
+                q: 'Can I really use Vyora by voice?',
+                a: 'Yes. Tap the assistant button in Smart Calendar and just talk — "add task finish chapter 5 by Friday", "what\'s on today?", or "build me a study plan". It confirms before saving, replies out loud, and goes hands-free. (Voice works best in Chrome/Edge; you can also type.)',
+              },
+              {
+                q: 'How do email reminders work?',
+                a: 'Toggle "Email reminder" on any event or task and choose how early. Vyora then emails you automatically before it is due — no setup required on your end. It works for every user, completely free.',
+              },
+              {
+                q: 'Do I need an API key for the AI features?',
+                a: 'Only for the AI parts (Study Coach, study plans, the voice assistant\'s understanding, and the timetable optimizer). Add an OpenAI, Gemini, or Anthropic key in Settings — Gemini offers a free tier. Everything else works with no key at all.',
               },
               {
                 q: 'What is the Pomodoro timer?',
-                a: 'The Pomodoro technique is a proven productivity method: study for 25 minutes, take a 5-minute break, and repeat. Vyora\'s built-in timer guides you through this cycle automatically, helping you stay focused without burning out.',
-              },
-              {
-                q: 'Can I track multiple subjects?',
-                a: 'Absolutely. You can add unlimited subjects, set individual goals for each, and Vyora will track your time per subject, show you breakdowns, and help you maintain a healthy balance across all of them.',
+                a: 'A proven focus method: study for 25 minutes, take a 5-minute break, repeat. Vyora\'s built-in timer guides the cycle and automatically logs your study time when a session finishes.',
               },
               {
                 q: 'How do streaks and achievements work?',
-                a: 'Every day you log a study session, your streak grows. You also unlock badges for hitting milestones like "First 10 hours", "7-day streak", "Night Owl", and many more. It\'s designed to make studying feel rewarding.',
+                a: 'Every day you log a study session, your streak grows. You also earn XP, level up, and unlock 18 badges like "7-day streak", "Night Owl" and "Marathoner" — and can download a master certificate.',
               },
               {
                 q: 'Is my data safe?',
-                a: 'Yes. Vyora uses Supabase, a secure and open-source backend, to store your data. Your information is encrypted and never sold to third parties.',
+                a: 'Yes. Vyora uses Supabase, a secure open-source backend, to store your data, and it is never sold to third parties. Any AI key you add is stored only in your own browser.',
               },
             ].map((faq, i) => (
               <FaqItem key={i} question={faq.q} answer={faq.a} delay={i * 0.05} />
