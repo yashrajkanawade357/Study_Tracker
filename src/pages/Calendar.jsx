@@ -493,7 +493,7 @@ const EventModal = ({ open, draft, setDraft, onClose, onSave, onDelete }) => {
                     {REMINDER_LEADS.filter(l => l.id !== 'none').map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
                   </select>
                 )}
-                <p className="text-[11px] text-gray-600 mt-2">Reminder emails activate once email delivery is enabled.</p>
+                <p className="text-[11px] text-gray-600 mt-2">We'll email you at the chosen time before the event.</p>
               </div>
             </div>
 

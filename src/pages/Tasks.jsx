@@ -270,7 +270,7 @@ const TaskModal = ({ open, draft, setDraft, onClose, onSave, onDelete }) => {
                     {REMINDER_LEADS.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
                   </select>
                 )}
-                <p className="text-[11px] text-gray-600 mt-2">{draft.dueDate ? 'Reminder emails activate once email delivery is enabled.' : 'Add a due date to enable reminders.'}</p>
+                <p className="text-[11px] text-gray-600 mt-2">{draft.dueDate ? "We'll email you at the chosen time before it's due." : 'Add a due date to enable reminders.'}</p>
               </div>
             </div>
 
