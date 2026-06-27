@@ -959,6 +959,142 @@ const HowItWorks = () => {
   );
 };
 
+/* ── See It In Action Section ─────────────────────────────── */
+const appScreens = [
+  { key: 'dashboard', label: 'Dashboard', src: '/screenshots/dashboard.png', path: 'app.vyora.io/dashboard', desc: 'Your command center — weekly hours, streaks, goals, and a quick-log all in one glance.' },
+  { key: 'analytics', label: 'Analytics', src: '/screenshots/analytics.png', path: 'app.vyora.io/analytics', desc: 'Study-hour trends, a 365-day heatmap, sleep tracking, and per-subject goal progress.' },
+  { key: 'achievements', label: 'Achievements', src: '/screenshots/achievements.png', path: 'app.vyora.io/achievements', desc: 'Level up with XP, unlock badges, and download your master certificate.' },
+  { key: 'timetable', label: 'Timetable', src: '/screenshots/timetable.png', path: 'app.vyora.io/timetable', desc: 'Upload your timetable and let AI compare projected vs. actual hours, then optimize it.' },
+  { key: 'ai-coach', label: 'AI Coach', src: '/screenshots/ai-coach.png', path: 'app.vyora.io/ai', desc: 'Ask anything and get personalized, data-driven study advice powered by AI.' },
+];
+
+const AppScreenshot = ({ src, alt }) => {
+  const [err, setErr] = React.useState(false);
+  if (err) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center text-center gap-2 px-6"
+        style={{ aspectRatio: '1898 / 959', background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(10,10,30,0.6))' }}>
+        <SparklesIcon className="w-8 h-8 text-violet-400/60" />
+        <p className="text-gray-500 text-sm font-medium">Screenshot coming soon</p>
+        <p className="text-gray-600 text-xs">Add <code className="text-violet-400">{src}</code></p>
+      </div>
+    );
+  }
+  return <img src={src} alt={alt} loading="lazy" onError={() => setErr(true)} className="w-full h-auto block" />;
+};
+
+const SeeItInAction = () => {
+  const [active, setActive] = React.useState(0);
+  const screen = appScreens[active];
+
+  return (
+    <section id="screenshots" className="relative z-10 py-32 border-t border-white/[0.05] scroll-mt-24">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-14">
+          <motion.span
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="inline-block text-sm font-semibold text-cyan-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-cyan-500/20"
+            style={{ background: 'rgba(34,211,238,0.08)' }}
+          >
+            See it in action
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+          >
+            A glimpse{' '}
+            <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              inside Vyora
+            </span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-gray-400 text-lg max-w-xl mx-auto"
+          >
+            Real screens from the app. Beautiful, fast, and built to keep you coming back.
+          </motion.p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {appScreens.map((s, i) => (
+            <button
+              key={s.key}
+              onClick={() => setActive(i)}
+              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+                i === active
+                  ? 'text-white border-violet-500/40'
+                  : 'text-gray-400 border-white/[0.07] hover:text-white hover:border-white/15'
+              }`}
+              style={i === active
+                ? { background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(168,85,247,0.2))', boxShadow: '0 6px 20px rgba(124,58,237,0.25)' }
+                : { background: 'rgba(255,255,255,0.03)' }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Browser-frame mockup */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative rounded-2xl border border-white/10 overflow-hidden"
+          style={{ background: 'rgba(13,13,35,0.9)', boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)' }}
+        >
+          {/* Glow behind */}
+          <div className="absolute -inset-10 rounded-3xl opacity-30 pointer-events-none -z-10"
+            style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.5), transparent 60%)', filter: 'blur(40px)' }} />
+
+          {/* Top bar */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.07]" style={{ background: 'rgba(6,6,18,0.8)' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-400/80" />
+              <span className="w-3 h-3 rounded-full bg-amber-400/80" />
+              <span className="w-3 h-3 rounded-full bg-green-400/80" />
+            </div>
+            <div className="flex-1 flex justify-center">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs text-gray-400 border border-white/[0.06] max-w-xs w-full justify-center"
+                style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                {screen.path}
+              </div>
+            </div>
+            <div className="w-12" />
+          </div>
+
+          {/* Screenshot */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={screen.key}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <AppScreenshot src={screen.src} alt={`Vyora ${screen.label} screen`} />
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Caption */}
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={screen.key}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-center text-gray-400 mt-6 max-w-2xl mx-auto"
+          >
+            {screen.desc}
+          </motion.p>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
 /* ── Main Component ───────────────────────────────────────── */
 const Landing = () => {
   const [showTerms, setShowTerms] = React.useState(false);
@@ -1271,6 +1407,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* ── See It In Action ── */}
+      <SeeItInAction />
 
       {/* ── FAQ Section ── */}
       <section id="faq" className="relative z-10 py-32 border-t border-white/[0.05]">
