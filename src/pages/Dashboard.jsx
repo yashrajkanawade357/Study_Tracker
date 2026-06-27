@@ -312,9 +312,11 @@ const Dashboard = () => {
     setNoteInput('');
   };
 
-  // Progress targets for each stat card
-  const weekTarget = 20; // 20h/week goal
-  const monthTarget = 80; // 80h/month goal
+  // Progress targets come from the sum of every subject's weekly goal
+  // (monthly ≈ 4 weeks). Falls back to 20h/week if no goals are set yet.
+  const weeklyGoalTotal = subjects.reduce((sum, s) => sum + (Number(s.weeklyGoal) || 0), 0);
+  const weekTarget = weeklyGoalTotal > 0 ? weeklyGoalTotal : 20;
+  const monthTarget = weekTarget * 4;
 
   const statCards = [
     {
