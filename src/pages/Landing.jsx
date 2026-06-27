@@ -1040,53 +1040,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── Author Section ── */}
-      <section id="about" className="relative z-10 py-32 border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative rounded-3xl p-10 md:p-16 border border-white/[0.06] overflow-hidden flex flex-col md:flex-row items-center gap-12"
-            style={{ background: 'rgba(10,10,28,0.8)', backdropFilter: 'blur(30px)' }}
-          >
-            {/* Background glow */}
-            <div className="absolute top-0 right-0 w-96 h-96 opacity-10 pointer-events-none"
-              style={{ background: 'radial-gradient(circle, #7c3aed, transparent)', filter: 'blur(60px)' }} />
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
-
-            <div className="w-44 h-44 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-violet-500/30 flex-shrink-0 shadow-2xl relative"
-              style={{ boxShadow: '0 0 60px rgba(124,58,237,0.4)' }}>
-              <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
-            </div>
-
-            <div className="flex-1 relative z-10 text-center md:text-left">
-              <span className="inline-block text-xs font-bold text-violet-400 uppercase tracking-widest mb-3 px-3 py-1 rounded-full border border-violet-500/20"
-                style={{ background: 'rgba(124,58,237,0.1)' }}>
-                Meet the Creator
-              </span>
-              <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">Yashraj Kanawade</h2>
-              <p className="text-violet-400 font-medium mb-6">Founder &amp; Creator of Vyora</p>
-              <p className="text-gray-400 text-lg leading-relaxed max-w-2xl mb-8">
-                "I believe technology should feel empowering, not overwhelming. Vyora was built to help students transform ambitious goals into daily habits — wrapped in an interface you'll love opening every morning."
-              </p>
-              <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                <a href="https://www.linkedin.com/in/yashraj-kanawade-289039223/" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white border border-white/10 hover:border-violet-500/40 transition-all duration-200"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  LinkedIn ↗
-                </a>
-                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-violet-400 border border-violet-500/20 hover:border-violet-500/50 transition-all duration-200"
-                  style={{ background: 'rgba(124,58,237,0.08)' }}>
-                  Email Me →
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* ── FAQ Section ── */}
       <section id="faq" className="relative z-10 py-32 border-t border-white/[0.05]">
         <div className="max-w-4xl mx-auto px-6">
@@ -1266,6 +1219,53 @@ const Landing = () => {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Author Section ── */}
+      <section id="about" className="relative z-10 py-32 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl p-10 md:p-16 border border-white/[0.06] overflow-hidden flex flex-col md:flex-row items-center gap-12"
+            style={{ background: 'rgba(10,10,28,0.8)', backdropFilter: 'blur(30px)' }}
+          >
+            {/* Background glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 opacity-10 pointer-events-none"
+              style={{ background: 'radial-gradient(circle, #7c3aed, transparent)', filter: 'blur(60px)' }} />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+
+            <div className="w-44 h-44 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-violet-500/30 flex-shrink-0 shadow-2xl relative"
+              style={{ boxShadow: '0 0 60px rgba(124,58,237,0.4)' }}>
+              <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
+            </div>
+
+            <div className="flex-1 relative z-10 text-center md:text-left">
+              <span className="inline-block text-xs font-bold text-violet-400 uppercase tracking-widest mb-3 px-3 py-1 rounded-full border border-violet-500/20"
+                style={{ background: 'rgba(124,58,237,0.1)' }}>
+                Meet the Creator
+              </span>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">Yashraj Kanawade</h2>
+              <p className="text-violet-400 font-medium mb-6">Founder &amp; Creator of Vyora</p>
+              <p className="text-gray-400 text-lg leading-relaxed max-w-2xl mb-8">
+                "I believe technology should feel empowering, not overwhelming. Vyora was built to help students transform ambitious goals into daily habits — wrapped in an interface you'll love opening every morning."
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                <a href="https://www.linkedin.com/in/yashraj-kanawade-289039223/" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white border border-white/10 hover:border-violet-500/40 transition-all duration-200"
+                  style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  LinkedIn ↗
+                </a>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-violet-400 border border-violet-500/20 hover:border-violet-500/50 transition-all duration-200"
+                  style={{ background: 'rgba(124,58,237,0.08)' }}>
+                  Email Me →
+                </a>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
