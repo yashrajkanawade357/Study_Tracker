@@ -6,6 +6,8 @@ import { useTasks } from '../context/TaskContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
 import StudyPlanPreview from '../components/StudyPlanPreview';
+import ExamReadiness from '../components/ExamReadiness';
+import WeeklyCheckin from '../components/WeeklyCheckin';
 import { callAI, buildStudyContext, getAvailableProvider } from '../utils/claude';
 import { generateStudyPlan } from '../utils/studyPlan';
 import { PaperAirplaneIcon, SparklesIcon, ExclamationCircleIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
@@ -275,6 +277,10 @@ Please analyze this and provide suggestions in the JSON format specified.`;
           </GlassCard>
         </div>
       </div>
+
+      {/* Exam Readiness + Weekly Check-in */}
+      <ExamReadiness />
+      <WeeklyCheckin />
 
       {/* Chat Section */}
       <GlassCard className="p-6">

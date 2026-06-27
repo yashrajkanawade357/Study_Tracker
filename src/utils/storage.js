@@ -36,6 +36,7 @@ export const STORAGE_KEYS = {
   USERS: 'users',
   CALENDAR_EVENTS: 'calendarEvents',
   TASKS: 'tasks',
+  WEEKLY_CHECKINS: 'weeklyCheckins',
 };
 
 export const DEFAULT_SUBJECTS = [
