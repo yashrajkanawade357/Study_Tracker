@@ -8,7 +8,7 @@ import {
   ChartBarIcon, ClockIcon, TrophyIcon, BookOpenIcon, CheckCircleIcon,
   CalendarDaysIcon, SparklesIcon, MicrophoneIcon, BellIcon, Cog6ToothIcon,
   KeyIcon, ClipboardDocumentCheckIcon, ArrowsRightLeftIcon, RocketLaunchIcon,
-  PencilSquareIcon, FlagIcon,
+  PencilSquareIcon, FlagIcon, AcademicCapIcon, ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 
 /* ── Data ───────────────────────────────────────────────── */
@@ -25,7 +25,9 @@ const trackerFeatures = [
   { icon: FlagIcon, title: 'Goals & Subjects', desc: 'Set a weekly hour goal per subject in Settings. Vyora tracks how close you are and flags what’s falling behind.' },
   { icon: ChartBarIcon, title: 'Analytics', desc: 'Study-hour trends, a 365-day heatmap, subject breakdowns, and a sleep tracker — see exactly where your time goes.' },
   { icon: TrophyIcon, title: 'Achievements', desc: 'Earn XP, level up, build streaks and unlock 18 badges (Early Bird, Night Owl, Marathoner…). Download a master certificate.' },
-  { icon: SparklesIcon, title: 'AI Coach', desc: 'Tap “Analyze My Study Data” for personalised advice, or “Build My Study Plan” to auto-generate a week of study blocks and tasks into your calendar.' },
+  { icon: SparklesIcon, title: 'AI Coach', desc: 'Tap “Analyze My Study Data” for personalised advice, or “Build My Study Plan” to auto-generate a week of study blocks and tasks straight into your calendar.' },
+  { icon: AcademicCapIcon, title: 'Exam Readiness', desc: 'For every upcoming exam, see a readiness % from your logged hours, recent pace and days left — then tap “Prep plan” to schedule focused revision automatically.' },
+  { icon: ArrowTrendingUpIcon, title: 'Weekly Check-in', desc: 'Snapshot your week (hours, sessions, streak, sleep) and watch your progress vs last week — with an optional AI reflection to keep you motivated.' },
   { icon: BookOpenIcon, title: 'Timetable Analyzer', desc: 'Paste or upload your timetable. See projected vs actual hours, then let AI suggest a balanced, optimised schedule.' },
 ];
 
