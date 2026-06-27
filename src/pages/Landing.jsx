@@ -1287,58 +1287,87 @@ const Landing = () => {
       </section>
 
       {/* ── Blog Teaser ── */}
-      <section className="relative z-10 py-24 border-t border-white/[0.05]">
-        <div className="max-w-5xl mx-auto px-6">
+      <section className="relative z-10 py-28 border-t border-white/[0.05]">
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <motion.span
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-violet-500/20"
+              style={{ background: 'rgba(124,58,237,0.1)' }}
+            >
+              <SparklesIcon className="w-4 h-4" /> From the Blog
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+            >
+              The story behind{' '}
+              <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Vyora
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="text-gray-400 text-lg max-w-xl mx-auto"
+            >
+              Why we're building it, the problems it kills, and where it's headed next.
+            </motion.p>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative rounded-3xl border border-white/[0.07] overflow-hidden grid grid-cols-1 md:grid-cols-2"
+            className="relative rounded-3xl border border-white/[0.07] overflow-hidden grid grid-cols-1 lg:grid-cols-5"
             style={{ background: 'rgba(10,10,28,0.7)', backdropFilter: 'blur(30px)' }}
           >
             {/* Background glow */}
-            <div className="absolute -top-20 -left-20 w-72 h-72 opacity-15 pointer-events-none"
-              style={{ background: 'radial-gradient(circle, #7c3aed, transparent)', filter: 'blur(70px)' }} />
+            <div className="absolute -top-24 -left-24 w-96 h-96 opacity-20 pointer-events-none"
+              style={{ background: 'radial-gradient(circle, #7c3aed, transparent)', filter: 'blur(80px)' }} />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
 
-            {/* Left: article preview */}
-            <div className="relative z-10 p-8 md:p-12 flex flex-col">
-              <span className="inline-flex items-center gap-2 text-xs font-bold text-violet-400 uppercase tracking-widest mb-5 px-3 py-1 rounded-full border border-violet-500/20 w-max"
-                style={{ background: 'rgba(124,58,237,0.1)' }}>
-                <SparklesIcon className="w-3.5 h-3.5" /> From the Blog
+            {/* Left: featured article — spans 3/5 */}
+            <div className="relative z-10 p-9 md:p-14 flex flex-col lg:col-span-3">
+              <span className="inline-flex items-center gap-2 text-[11px] font-bold text-violet-300 uppercase tracking-widest mb-6 px-3 py-1 rounded-full border border-violet-500/25 w-max"
+                style={{ background: 'rgba(124,58,237,0.12)' }}>
+                ★ Featured Article
               </span>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-tight">
+              <h3 className="text-4xl md:text-5xl font-display font-bold text-white mb-5 leading-[1.1]">
                 Built for Busy Minds
-              </h2>
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-violet-500/40 flex-shrink-0">
+              </h3>
+              <div className="flex items-center gap-3 mb-7">
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-violet-500/40 flex-shrink-0">
                   <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs text-gray-500">Yashraj Kanawade · 8 min read</p>
+                <p className="text-sm text-gray-400">Yashraj Kanawade <span className="text-gray-600">·</span> 8 min read</p>
               </div>
-              <p className="text-gray-400 leading-relaxed mb-8">
-                Students drown in syllabi; professionals drown in inboxes. The pain is the same — hours lost to scattered tasks, untracked effort, and constant context-switching. Here's the problem we're solving, and the roadmap that takes Vyora from study tracker to your complete focus companion.
+              <p className="text-gray-300 text-lg leading-relaxed mb-5">
+                Students drown in syllabi; professionals drown in inboxes. The pain is the same — hours lost to scattered tasks, untracked effort, and constant context-switching.
+              </p>
+              <p className="text-gray-400 leading-relaxed mb-10">
+                Here's the problem we set out to solve, and the roadmap that takes Vyora from a simple study tracker to your complete focus-and-productivity companion — for students and professionals alike.
               </p>
               <button
                 onClick={() => setShowBlog(true)}
-                className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 w-max"
+                className="mt-auto inline-flex items-center gap-2 text-base font-bold text-white px-7 py-3.5 rounded-xl transition-all duration-200 hover:scale-105 w-max"
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 8px 24px rgba(124,58,237,0.4)' }}
               >
-                Read the full story <ArrowRightIcon className="w-4 h-4" />
+                Read the full story <ArrowRightIcon className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Right: coming soon pills */}
-            <div className="relative z-10 p-8 md:p-12 border-t md:border-t-0 md:border-l border-white/[0.06] flex flex-col justify-center"
+            {/* Right: roadmap — spans 2/5 */}
+            <div className="relative z-10 p-9 md:p-14 border-t lg:border-t-0 lg:border-l border-white/[0.06] flex flex-col lg:col-span-2"
               style={{ background: 'rgba(255,255,255,0.015)' }}>
-              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-5">On the Roadmap</p>
-              <div className="flex flex-col gap-3">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">On the Roadmap</p>
+              <div className="flex flex-col gap-3 flex-1 justify-between">
                 {[
-                  { icon: '📅', label: 'Smart Calendar' },
-                  { icon: '🎙️', label: 'Voice Assistant' },
-                  { icon: '✅', label: 'Task Manager' },
-                  { icon: '⏰', label: 'Smart Reminders' },
-                  { icon: '📧', label: 'Gmail Summariser' },
+                  { icon: '📅', label: 'Smart Calendar', desc: 'Plan study blocks, meetings & deadlines in one view.' },
+                  { icon: '🎙️', label: 'Voice Assistant', desc: 'Log sessions and tasks hands-free, just by talking.' },
+                  { icon: '✅', label: 'Task Manager', desc: 'Every to-do in one place, synced to your analytics.' },
+                  { icon: '⏰', label: 'Smart Reminders', desc: 'Nudges that fire at the right moment, every time.' },
+                  { icon: '📧', label: 'Gmail Summariser', desc: 'Turn a chaotic inbox into a 30-second briefing.' },
                 ].map((f, i) => (
                   <motion.div
                     key={f.label}
@@ -1346,15 +1375,18 @@ const Landing = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 + i * 0.08 }}
-                    className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-white/[0.07]"
+                    className="flex items-start gap-3 px-4 py-3.5 rounded-xl border border-white/[0.07] hover:border-violet-500/25 transition-colors"
                     style={{ background: 'rgba(255,255,255,0.03)' }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">{f.icon}</span>
-                      <span className="text-sm font-medium text-gray-200">{f.label}</span>
+                    <span className="text-xl leading-none mt-0.5">{f.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-semibold text-gray-100">{f.label}</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-violet-300 px-2 py-0.5 rounded-full border border-violet-500/25 flex-shrink-0"
+                          style={{ background: 'rgba(124,58,237,0.12)' }}>Soon</span>
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{f.desc}</p>
                     </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-violet-300 px-2 py-0.5 rounded-full border border-violet-500/25"
-                      style={{ background: 'rgba(124,58,237,0.12)' }}>Soon</span>
                   </motion.div>
                 ))}
               </div>
