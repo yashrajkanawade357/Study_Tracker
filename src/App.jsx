@@ -16,6 +16,7 @@ import Landing from './pages/Landing';
 import UserManual from './pages/UserManual';
 import Calendar from './pages/Calendar';
 import Tasks from './pages/Tasks';
+import Summariser from './pages/Summariser';
 import Onboarding from './components/Onboarding';
 
 // Reset scroll to the top whenever the route changes, so a new page never
@@ -79,6 +80,7 @@ const AppRoutes = () => {
       <Route path="/manual" element={<ProtectedRoute requireManual={false}><UserManual /></ProtectedRoute>} />
       <Route path="/calendar" element={<ProtectedRoute requireManual={false}><Calendar /></ProtectedRoute>} />
       <Route path="/tasks" element={<ProtectedRoute requireManual={false}><Tasks /></ProtectedRoute>} />
+      <Route path="/summariser" element={<ProtectedRoute requireManual={false}><Summariser /></ProtectedRoute>} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

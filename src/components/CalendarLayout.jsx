@@ -3,11 +3,12 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import AppSwitcher from './AppSwitcher';
 import VoiceAssistant from './VoiceAssistant';
-import { ArrowRightOnRectangleIcon, CalendarDaysIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon, CalendarDaysIcon, CheckCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const CAL_NAV = [
   { to: '/calendar', label: 'Calendar', icon: CalendarDaysIcon },
   { to: '/tasks', label: 'Tasks', icon: CheckCircleIcon },
+  { to: '/summariser', label: 'Summariser', icon: DocumentTextIcon },
 ];
 
 export const EVENT_CATEGORIES = [
