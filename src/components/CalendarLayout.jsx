@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import AppSwitcher from './AppSwitcher';
+import VoiceAssistant from './VoiceAssistant';
 import { ArrowRightOnRectangleIcon, CalendarDaysIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const CAL_NAV = [
@@ -105,6 +106,9 @@ const CalendarLayout = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* AI voice assistant — available across the Smart Calendar app */}
+      <VoiceAssistant />
     </div>
   );
 };
