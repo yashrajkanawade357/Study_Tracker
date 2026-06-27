@@ -13,7 +13,9 @@ create table if not exists public.profiles (
   avatar text default '🎓',
   bio text default '',
   linkedin text default '',
-  instagram text default ''
+  instagram text default '',
+  has_seen_manual boolean default false,
+  has_completed_setup boolean default false
 );
 
 -- Enable RLS (Row Level Security)
@@ -116,8 +118,8 @@ create policy "Users can manage their own achievements" on public.achievements
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, name, xp, level, streak, last_log_date, avatar)
-  values (new.id, new.email, split_part(new.email, '@', 1), 0, 1, 0, null, 'uD83CuDF93')
+  insert into public.profiles (id, email, name, xp, level, streak, last_log_date, avatar, has_seen_manual, has_completed_setup)
+  values (new.id, new.email, split_part(new.email, '@', 1), 0, 1, 0, null, '🎓', false, false)
   on conflict (id) do nothing;
   return new;
 end;

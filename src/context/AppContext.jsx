@@ -102,8 +102,8 @@ export const AppProvider = ({ children }) => {
                   bio: profile.bio || '',
                   linkedin: profile.linkedin || '',
                   instagram: profile.instagram || '',
-                  hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
-                  hasCompletedSetup: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup,
+                  hasSeenManual: profile.has_seen_manual ?? (storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false),
+                  hasCompletedSetup: profile.has_completed_setup ?? (storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup ?? false),
                 };
                 storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
                 setUserProfile(profileData);
@@ -208,7 +208,9 @@ export const AppProvider = ({ children }) => {
               avatar: updated.avatar || '🎓',
               bio: updated.bio || '',
               linkedin: updated.linkedin || '',
-              instagram: updated.instagram || ''
+              instagram: updated.instagram || '',
+              has_seen_manual: updated.hasSeenManual ?? false,
+              has_completed_setup: updated.hasCompletedSetup ?? false
             });
             
           if (error) {
@@ -477,11 +479,15 @@ export const AppProvider = ({ children }) => {
         bio: '',
         linkedin: '',
         instagram: '',
+        has_seen_manual: false,
+        has_completed_setup: false,
       };
-      
+
+      // Upsert (not insert): a DB trigger may have already created this
+      // row on auth signup, so insert would collide. Upsert sets our values.
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert([profile]);
+        .upsert(profile);
       if (profileError) throw profileError;
 
       const profileData = {
@@ -583,8 +589,8 @@ export const AppProvider = ({ children }) => {
         bio: profile?.bio || '',
         linkedin: profile?.linkedin || '',
         instagram: profile?.instagram || '',
-        hasSeenManual: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false,
-        hasCompletedSetup: storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup,
+        hasSeenManual: profile?.has_seen_manual ?? (storage.get(STORAGE_KEYS.USER_PROFILE)?.hasSeenManual || false),
+        hasCompletedSetup: profile?.has_completed_setup ?? (storage.get(STORAGE_KEYS.USER_PROFILE)?.hasCompletedSetup ?? false),
       };
 
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
