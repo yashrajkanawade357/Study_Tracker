@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   MicrophoneIcon, XMarkIcon, PaperAirplaneIcon, SpeakerWaveIcon, SpeakerXMarkIcon,
-  SparklesIcon, CalendarDaysIcon, CheckCircleIcon, CheckIcon,
+  SparklesIcon, CheckIcon,
 } from '@heroicons/react/24/outline';
 import { useApp } from '../context/AppContext';
 import { useCalendar } from '../context/CalendarContext';
@@ -14,12 +14,10 @@ import { categoryColor } from './CalendarLayout';
 
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 const PRIORITY_COLOR = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+const YES_RE = /\b(yes|yeah|yep|yup|confirm|sure|ok|okay|add it|do it|go ahead|correct|please do|sounds good)\b/i;
+const NO_RE = /\b(no|nope|nah|cancel|don'?t|do not|stop|never\s?mind|forget it)\b/i;
 
-const QUICK = [
-  "What's on today?",
-  "What's due this week?",
-  "Suggest what to focus on",
-];
+const QUICK = ["What's on today?", "What's due this week?", "Suggest what to focus on"];
 
 const VoiceAssistant = () => {
   const { studyLogs, subjects, sleepLogs, exams, addToast } = useApp();
@@ -31,100 +29,69 @@ const VoiceAssistant = () => {
   const [interim, setInterim] = useState('');
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: "Hi! I'm your Vyora assistant. Try “Add task finish chapter 5 by Friday” or “What should I focus on?”" },
+    { role: 'assistant', text: "Hi! I'm your Vyora assistant. Tap the mic and say something like “Add task finish chapter 5 by Friday”, or “What should I focus on?”" },
   ]);
-  const [pending, setPending] = useState(null); // { kind:'event'|'task', data, reply }
+  const [pending, setPending] = useState(null);
   const [loading, setLoading] = useState(false);
   const [speak, setSpeak] = useState(true);
 
-  const recRef = useRef(null);
-  const scrollRef = useRef(null);
   const hasKey = !!getAvailableProvider();
 
+  // Refs so async callbacks (speech end, recognition result) always see latest state/handlers.
+  const recRef = useRef(null);
+  const scrollRef = useRef(null);
+  const listeningRef = useRef(false);
+  const voiceModeRef = useRef(false);   // true while in hands-free voice loop
+  const openRef = useRef(open);
+  const pendingRef = useRef(pending);
+  const speakRef = useRef(speak);
+  const submitRef = useRef(null);
+  const startListenRef = useRef(null);
+
+  useEffect(() => { pendingRef.current = pending; }, [pending]);
+  useEffect(() => { speakRef.current = speak; }, [speak]);
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, pending, loading]);
 
-  const sayOut = useCallback((text) => {
-    if (!speak || !text || typeof window === 'undefined' || !window.speechSynthesis) return;
+  // Stop everything when the panel closes.
+  useEffect(() => {
+    openRef.current = open;
+    if (!open) stopAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  function stopAll() {
+    voiceModeRef.current = false;
+    try { recRef.current?.stop(); } catch (_) { /* ignore */ }
+    listeningRef.current = false;
+    setListening(false);
+    try { window.speechSynthesis?.cancel(); } catch (_) { /* ignore */ }
+  }
+
+  // Speak a reply; when it finishes, optionally reopen the mic for hands-free flow.
+  function sayOut(text, thenListen) {
+    const clean = (text || '').replace(/[*_#•`]/g, '');
+    const relisten = () => {
+      if (thenListen && voiceModeRef.current && openRef.current) startListenRef.current?.();
+    };
+    if (!speakRef.current || !clean || typeof window === 'undefined' || !window.speechSynthesis) {
+      if (thenListen && voiceModeRef.current) setTimeout(relisten, 350);
+      return;
+    }
     try {
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text.replace(/[*_#•]/g, ''));
-      u.rate = 1.04; u.pitch = 1;
+      const u = new SpeechSynthesisUtterance(clean);
+      u.rate = 1.05;
+      u.onend = relisten;
+      u.onerror = relisten;
       window.speechSynthesis.speak(u);
-    } catch (_) { /* ignore */ }
-  }, [speak]);
+    } catch (_) { setTimeout(relisten, 350); }
+  }
 
-  const submit = useCallback(async (text) => {
-    const q = (text ?? '').trim();
-    if (!q || loading) return;
-    setInput('');
-    setInterim('');
-    setMessages((m) => [...m, { role: 'user', text: q }]);
-    setPending(null);
-    setLoading(true);
-    try {
-      const ctx = buildAssistantContext({ events, tasks, studyLogs, subjects, sleepLogs, exams });
-      const res = await runAssistant(q, ctx);
-      const reply = res.reply || 'Done.';
-      setMessages((m) => [...m, { role: 'assistant', text: reply }]);
-      sayOut(reply);
-      if (res.intent === 'create_event' && res.event?.title) {
-        setPending({ kind: 'event', data: res.event });
-      } else if (res.intent === 'create_task' && res.task?.title) {
-        setPending({ kind: 'task', data: res.task });
-      }
-    } catch (err) {
-      const msg = /api key/i.test(err.message) ? err.message : "Sorry, I couldn't process that. Try rephrasing.";
-      setMessages((m) => [...m, { role: 'assistant', text: msg }]);
-    } finally {
-      setLoading(false);
-    }
-  }, [events, tasks, studyLogs, subjects, sleepLogs, exams, loading, sayOut]);
-
-  const confirmPending = async () => {
-    if (!pending) return;
-    if (pending.kind === 'event') {
-      const e = pending.data;
-      await addEvent({
-        title: e.title,
-        date: e.date,
-        allDay: !!e.allDay,
-        startTime: e.allDay ? '' : (e.startTime || ''),
-        endTime: e.allDay ? '' : (e.endTime || ''),
-        category: e.category || 'general',
-        color: categoryColor(e.category || 'general'),
-        notes: '',
-        reminderEmail: false,
-        reminderAt: null,
-      });
-      addToast(`📅 Event added: ${e.title}`, 'success');
-    } else {
-      const t = pending.data;
-      await addTask({
-        title: t.title,
-        notes: '',
-        priority: t.priority || 'medium',
-        category: t.category || 'general',
-        dueDate: t.dueDate || '',
-        dueTime: t.dueTime || '',
-        reminderEmail: false,
-        reminderAt: null,
-      });
-      addToast(`✅ Task added: ${t.title}`, 'success');
-    }
-    setMessages((m) => [...m, { role: 'assistant', text: 'Added it. ✅' }]);
-    setPending(null);
-  };
-
-  const cancelPending = () => {
-    setPending(null);
-    setMessages((m) => [...m, { role: 'assistant', text: 'No problem — cancelled.' }]);
-  };
-
-  const toggleListen = () => {
-    if (!SR) return;
-    if (listening) { recRef.current?.stop(); return; }
+  function startListening() {
+    if (!SR || listeningRef.current) return;
+    try { window.speechSynthesis?.cancel(); } catch (_) { /* ignore */ }
     const rec = new SR();
     rec.lang = 'en-US';
     rec.interimResults = true;
@@ -136,14 +103,106 @@ const VoiceAssistant = () => {
         if (ev.results[i].isFinal) final += tr; else inter += tr;
       }
       setInterim(inter);
-      if (final) { setInterim(''); submit(final); }
+      if (final && final.trim().length > 1) {
+        setInterim('');
+        voiceModeRef.current = true;
+        submitRef.current?.(final, true);
+      }
     };
-    rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
+    rec.onend = () => { listeningRef.current = false; setListening(false); };
+    rec.onerror = () => { listeningRef.current = false; setListening(false); };
     recRef.current = rec;
+    listeningRef.current = true;
     setListening(true);
-    rec.start();
+    try { rec.start(); } catch (_) { listeningRef.current = false; setListening(false); }
+  }
+  startListenRef.current = startListening;
+
+  function stopListening() {
+    voiceModeRef.current = false;
+    try { recRef.current?.stop(); } catch (_) { /* ignore */ }
+    listeningRef.current = false;
+    setListening(false);
+  }
+
+  const toggleListen = () => {
+    if (listeningRef.current) stopListening();
+    else { voiceModeRef.current = true; startListening(); }
   };
+
+  async function doConfirm() {
+    const p = pendingRef.current;
+    if (!p) return;
+    if (p.kind === 'event') {
+      const e = p.data;
+      await addEvent({
+        title: e.title, date: e.date, allDay: !!e.allDay,
+        startTime: e.allDay ? '' : (e.startTime || ''), endTime: e.allDay ? '' : (e.endTime || ''),
+        category: e.category || 'general', color: categoryColor(e.category || 'general'),
+        notes: '', reminderEmail: false, reminderAt: null,
+      });
+      addToast(`📅 Event added: ${e.title}`, 'success');
+    } else {
+      const t = p.data;
+      await addTask({
+        title: t.title, notes: '', priority: t.priority || 'medium', category: t.category || 'general',
+        dueDate: t.dueDate || '', dueTime: t.dueTime || '', reminderEmail: false, reminderAt: null,
+      });
+      addToast(`✅ Task added: ${t.title}`, 'success');
+    }
+    setPending(null);
+    setMessages((m) => [...m, { role: 'assistant', text: 'Added it. ✅' }]);
+    sayOut('Added it.', true);
+  }
+
+  function doCancel() {
+    setPending(null);
+    setMessages((m) => [...m, { role: 'assistant', text: 'No problem — cancelled.' }]);
+    sayOut('Okay, cancelled.', true);
+  }
+
+  async function submit(text, viaVoice = false) {
+    const q = (text ?? '').trim();
+    if (!q || loading) return;
+    if (!viaVoice) voiceModeRef.current = false;  // typing exits the hands-free loop
+    setInput('');
+    setInterim('');
+
+    // If awaiting a confirmation, interpret yes / no by voice or text.
+    if (pendingRef.current) {
+      if (YES_RE.test(q) && !NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); doConfirm(); return; }
+      if (NO_RE.test(q)) { setMessages((m) => [...m, { role: 'user', text: q }]); doCancel(); return; }
+      // otherwise fall through and treat as a brand-new command
+    }
+
+    setMessages((m) => [...m, { role: 'user', text: q }]);
+    setPending(null);
+    setLoading(true);
+    try {
+      const ctx = buildAssistantContext({ events, tasks, studyLogs, subjects, sleepLogs, exams });
+      const res = await runAssistant(q, ctx);
+      const reply = res.reply || 'Done.';
+      const loop = voiceModeRef.current;
+      setMessages((m) => [...m, { role: 'assistant', text: reply }]);
+
+      if (res.intent === 'create_event' && res.event?.title) {
+        setPending({ kind: 'event', data: res.event });
+        sayOut(loop ? `${reply} Say yes to add it, or no to cancel.` : reply, loop);
+      } else if (res.intent === 'create_task' && res.task?.title) {
+        setPending({ kind: 'task', data: res.task });
+        sayOut(loop ? `${reply} Say yes to add it, or no to cancel.` : reply, loop);
+      } else {
+        sayOut(reply, loop);
+      }
+    } catch (err) {
+      const msg = /api key/i.test(err.message) ? err.message : "Sorry, I couldn't process that. Try rephrasing.";
+      setMessages((m) => [...m, { role: 'assistant', text: msg }]);
+      sayOut(msg, voiceModeRef.current);
+    } finally {
+      setLoading(false);
+    }
+  }
+  submitRef.current = submit;
 
   return (
     <>
@@ -181,9 +240,9 @@ const VoiceAssistant = () => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-display font-bold text-white leading-tight">Vyora Assistant</p>
-                <p className="text-[11px] text-gray-500">{listening ? 'Listening…' : loading ? 'Thinking…' : 'Voice + AI'}</p>
+                <p className="text-[11px] text-gray-500">{listening ? '🔴 Listening…' : loading ? 'Thinking…' : 'Voice + AI'}</p>
               </div>
-              <button onClick={() => setSpeak((s) => !s)} title={speak ? 'Mute replies' : 'Unmute replies'}
+              <button onClick={() => { setSpeak((s) => !s); try { window.speechSynthesis?.cancel(); } catch (_) {} }} title={speak ? 'Mute replies' : 'Unmute replies'}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-navy-700 transition-colors">
                 {speak ? <SpeakerWaveIcon className="w-5 h-5" /> : <SpeakerXMarkIcon className="w-5 h-5" />}
               </button>
@@ -211,7 +270,7 @@ const VoiceAssistant = () => {
                 {pending && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     className="rounded-2xl border border-cyan-500/30 p-3.5" style={{ background: 'rgba(6,182,212,0.08)' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-2">Confirm {pending.kind}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-2">Confirm {pending.kind} {voiceModeRef.current ? '· say “yes” or “no”' : ''}</p>
                     {pending.kind === 'event' ? (
                       <div className="flex items-start gap-2.5">
                         <span className="w-1 h-10 rounded-full flex-shrink-0" style={{ background: categoryColor(pending.data.category) }} />
@@ -230,10 +289,10 @@ const VoiceAssistant = () => {
                       </div>
                     )}
                     <div className="flex gap-2 mt-3">
-                      <button onClick={confirmPending} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #06b6d4, #7c3aed)' }}>
+                      <button onClick={doConfirm} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #06b6d4, #7c3aed)' }}>
                         <CheckIcon className="w-4 h-4" /> Confirm
                       </button>
-                      <button onClick={cancelPending} className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-300 bg-navy-700 hover:bg-navy-600 transition-colors">Cancel</button>
+                      <button onClick={doCancel} className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-300 bg-navy-700 hover:bg-navy-600 transition-colors">Cancel</button>
                     </div>
                   </motion.div>
                 )}
@@ -266,11 +325,11 @@ const VoiceAssistant = () => {
             <div className="p-3 border-t border-navy-600 flex items-center gap-2">
               {SR && (
                 <button onClick={toggleListen}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? 'text-white' : 'text-gray-300 bg-navy-700 hover:bg-navy-600'}`}
+                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? 'text-white' : 'text-gray-300 bg-navy-700 hover:bg-navy-600'}`}
                   style={listening ? { background: 'linear-gradient(135deg, #ef4444, #ec4899)' } : {}}
                   title={listening ? 'Stop' : 'Speak'}>
                   <MicrophoneIcon className="w-5 h-5" />
-                  {listening && <motion.span className="absolute w-10 h-10 rounded-xl border-2 border-red-400" animate={{ scale: [1, 1.4], opacity: [0.7, 0] }} transition={{ duration: 1.2, repeat: Infinity }} />}
+                  {listening && <motion.span className="absolute inset-0 rounded-xl border-2 border-red-400 pointer-events-none" animate={{ scale: [1, 1.4], opacity: [0.7, 0] }} transition={{ duration: 1.2, repeat: Infinity }} />}
                 </button>
               )}
               <input
