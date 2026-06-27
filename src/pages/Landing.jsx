@@ -912,64 +912,54 @@ const HowItWorks = () => {
                  )}
 
                  {activeStep === 5 && (
-                   <div className="relative flex items-center justify-center">
-                     {/* Orbiting particles */}
-                     {[0, 1, 2, 3, 4, 5].map(i => (
+                   <div className="relative w-full h-full flex flex-col items-center justify-center gap-5">
+                     {/* Orbits + badge */}
+                     <div className="relative flex items-center justify-center" style={{ width: 176, height: 176 }}>
+                       {/* Orbiting rings (centered on the badge) */}
+                       {[0, 1, 2, 3, 4, 5].map(i => {
+                         const size = 76 + i * 20;
+                         const color = ['#ec4899', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4'][i];
+                         return (
+                           <motion.div
+                             key={i}
+                             animate={{ rotate: 360 }}
+                             transition={{ duration: 6 + i * 2, repeat: Infinity, ease: 'linear' }}
+                             className="absolute rounded-full"
+                             style={{ width: size, height: size, top: '50%', left: '50%', marginLeft: -size / 2, marginTop: -size / 2 }}
+                           >
+                             <span className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full block"
+                               style={{ width: 4 + i, height: 4 + i, background: color, boxShadow: `0 0 10px ${color}60` }} />
+                           </motion.div>
+                         );
+                       })}
+                       {/* Central badge */}
                        <motion.div
-                         key={i}
-                         animate={{ rotate: 360 }}
-                         transition={{ duration: 6 + i * 2, repeat: Infinity, ease: 'linear' }}
-                         className="absolute"
-                         style={{ width: 120 + i * 20, height: 120 + i * 20 }}
+                         initial={{ scale: 0, rotate: -180 }}
+                         animate={{ scale: 1, rotate: 0 }}
+                         transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.2 }}
+                         className="relative z-10"
                        >
                          <motion.div
-                           className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
-                           style={{
-                             width: 4 + i,
-                             height: 4 + i,
-                             background: ['#ec4899', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4'][i],
-                             boxShadow: `0 0 10px ${['#ec4899', '#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4'][i]}60`,
-                           }}
-                         />
+                           animate={{ boxShadow: ['0 0 30px rgba(236,72,153,0.3)', '0 0 60px rgba(236,72,153,0.5)', '0 0 30px rgba(236,72,153,0.3)'] }}
+                           transition={{ duration: 2, repeat: Infinity }}
+                           className="w-24 h-24 rounded-3xl flex items-center justify-center"
+                           style={{ background: 'linear-gradient(135deg, #ec4899, #f43f5e)' }}
+                         >
+                           <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                             <motion.path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.5 }} />
+                             <motion.polyline points="22 4 12 14.01 9 11.01" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1.5 }} />
+                           </svg>
+                         </motion.div>
                        </motion.div>
-                     ))}
-                     {/* Central badge */}
+                     </div>
+                     {/* Success text — clearly below, no overlap */}
                      <motion.div
-                       initial={{ scale: 0, rotate: -180 }}
-                       animate={{ scale: 1, rotate: 0 }}
-                       transition={{ type: 'spring', stiffness: 150, damping: 12, delay: 0.2 }}
-                       className="relative z-10"
+                       initial={{ opacity: 0, y: 8 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       transition={{ delay: 1.8 }}
+                       className="text-sm font-bold text-pink-400 whitespace-nowrap"
                      >
-                       <motion.div
-                         animate={{ boxShadow: ['0 0 30px rgba(236,72,153,0.3)', '0 0 60px rgba(236,72,153,0.5)', '0 0 30px rgba(236,72,153,0.3)'] }}
-                         transition={{ duration: 2, repeat: Infinity }}
-                         className="w-28 h-28 rounded-3xl flex items-center justify-center"
-                         style={{ background: 'linear-gradient(135deg, #ec4899, #f43f5e)' }}
-                       >
-                         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                           <motion.path
-                             d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                             initial={{ pathLength: 0 }}
-                             animate={{ pathLength: 1 }}
-                             transition={{ duration: 1.5, delay: 0.5 }}
-                           />
-                           <motion.polyline
-                             points="22 4 12 14.01 9 11.01"
-                             initial={{ pathLength: 0 }}
-                             animate={{ pathLength: 1 }}
-                             transition={{ duration: 0.8, delay: 1.5 }}
-                           />
-                         </svg>
-                       </motion.div>
-                       {/* Success text */}
-                       <motion.div
-                         initial={{ opacity: 0, y: 10 }}
-                         animate={{ opacity: 1, y: 0 }}
-                         transition={{ delay: 2 }}
-                         className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold text-pink-400"
-                       >
-                         Goals Achieved ✨
-                       </motion.div>
+                       Goals Achieved ✨
                      </motion.div>
                    </div>
                  )}
