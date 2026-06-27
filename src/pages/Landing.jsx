@@ -513,49 +513,96 @@ const HowItWorks = () => {
                    </div>
                  )}
 
-                 {activeStep === 2 && (
-                   <div className="w-full h-full p-5 relative z-10">
-                     {/* Week header */}
-                     <div className="grid grid-cols-7 gap-1.5 mb-2">
-                       {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-                         <div key={i} className="text-center text-[9px] font-bold text-gray-500 uppercase tracking-wider">{d}</div>
+                 {activeStep === 2 && (() => {
+                   const subjectMeta = {
+                     math:    { label: 'Math',    color: '#3b82f6' },
+                     physics: { label: 'Physics', color: '#8b5cf6' },
+                     chem:    { label: 'Chem',    color: '#06b6d4' },
+                     break:   { label: 'Break',   color: '#10b981' },
+                   };
+                   // top/height are % within the day lane (0 = morning, 100 = evening)
+                   const week = [
+                     { day: 'Mon', blocks: [{ s: 'math', top: 4, h: 26 }, { s: 'break', top: 34, h: 9 }, { s: 'physics', top: 47, h: 30 }] },
+                     { day: 'Tue', blocks: [{ s: 'chem', top: 10, h: 24 }, { s: 'math', top: 52, h: 32 }] },
+                     { day: 'Wed', blocks: [{ s: 'physics', top: 4, h: 22 }, { s: 'break', top: 30, h: 9 }, { s: 'math', top: 43, h: 24 }], today: true },
+                     { day: 'Thu', blocks: [{ s: 'math', top: 8, h: 28 }, { s: 'physics', top: 58, h: 26 }] },
+                     { day: 'Fri', blocks: [{ s: 'chem', top: 6, h: 22 }, { s: 'break', top: 32, h: 9 }, { s: 'physics', top: 45, h: 34 }] },
+                   ];
+                   return (
+                   <div className="w-full h-full px-4 py-4 relative z-10 flex flex-col">
+                     {/* Header */}
+                     <div className="flex items-center justify-between mb-2.5 px-0.5">
+                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">This Week's Plan</span>
+                       <span className="flex items-center gap-1 text-[8px] font-semibold text-blue-400">
+                         <CalendarDaysIcon className="w-3 h-3" /> 5 days
+                       </span>
+                     </div>
+
+                     {/* Timetable body: time axis + day lanes */}
+                     <div className="flex-1 flex gap-1.5 min-h-0">
+                       {/* Time axis */}
+                       <div className="relative w-5 shrink-0">
+                         {['9a', '12p', '3p', '6p'].map((t, i) => (
+                           <span key={t} className="absolute right-0 text-[6px] text-gray-600 font-medium -translate-y-1/2"
+                             style={{ top: `${8 + i * 28}%` }}>{t}</span>
+                         ))}
+                       </div>
+
+                       {/* Day lanes */}
+                       <div className="flex-1 grid grid-cols-5 gap-1.5">
+                         {week.map((col, ci) => (
+                           <div key={col.day} className="flex flex-col items-center gap-1.5 min-h-0">
+                             <span className={`text-[8px] font-bold uppercase tracking-wide ${col.today ? 'text-blue-400' : 'text-gray-500'}`}>
+                               {col.day}
+                             </span>
+                             {/* Lane */}
+                             <div className="relative w-full flex-1 rounded-lg overflow-hidden"
+                               style={{
+                                 background: col.today ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.025)',
+                                 border: `1px solid ${col.today ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.05)'}`,
+                               }}>
+                               {col.blocks.map((b, bi) => {
+                                 const m = subjectMeta[b.s];
+                                 return (
+                                   <motion.div
+                                     key={bi}
+                                     initial={{ opacity: 0, scaleY: 0 }}
+                                     animate={{ opacity: 1, scaleY: 1 }}
+                                     transition={{ duration: 0.5, delay: 0.15 + ci * 0.08 + bi * 0.06, ease: [0.23, 1, 0.32, 1] }}
+                                     className="absolute left-0.5 right-0.5 rounded-md flex items-center justify-center origin-top overflow-hidden"
+                                     style={{
+                                       top: `${b.top}%`,
+                                       height: `${b.h}%`,
+                                       background: `linear-gradient(135deg, ${m.color}3a, ${m.color}22)`,
+                                       border: `1px solid ${m.color}66`,
+                                       boxShadow: `inset 0 1px 0 ${m.color}33`,
+                                     }}
+                                   >
+                                     <span className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: m.color }} />
+                                     <span className="text-[6px] font-bold leading-none truncate px-0.5" style={{ color: m.color }}>
+                                       {m.label}
+                                     </span>
+                                   </motion.div>
+                                 );
+                               })}
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+
+                     {/* Legend */}
+                     <div className="flex items-center justify-center gap-3 mt-2.5 pt-2 border-t border-white/[0.05]">
+                       {['math', 'physics', 'chem', 'break'].map(k => (
+                         <div key={k} className="flex items-center gap-1">
+                           <div className="w-2 h-2 rounded-[3px]" style={{ background: subjectMeta[k].color }} />
+                           <span className="text-[8px] text-gray-500 font-medium">{subjectMeta[k].label}</span>
+                         </div>
                        ))}
                      </div>
-                     {/* Time blocks grid */}
-                     <div className="grid grid-cols-7 gap-1.5 flex-1">
-                       {Array.from({ length: 28 }).map((_, i) => {
-                         const isStudy = [0, 2, 3, 7, 9, 14, 15, 16, 21, 22, 24, 27].includes(i);
-                         const isBreak = [5, 12, 19, 26].includes(i);
-                         const color = isStudy ? '#3b82f6' : isBreak ? '#10b981' : null;
-                         return (
-                           <motion.div
-                             key={i}
-                             initial={{ opacity: 0, scale: 0.3 }}
-                             animate={{ opacity: 1, scale: 1 }}
-                             transition={{ duration: 0.4, delay: i * 0.03, ease: 'backOut' }}
-                             className="aspect-square rounded-lg"
-                             style={{
-                               background: color ? `${color}30` : 'rgba(255,255,255,0.03)',
-                               border: `1px solid ${color ? `${color}50` : 'rgba(255,255,255,0.06)'}`,
-                               boxShadow: color ? `0 0 12px ${color}20` : 'none',
-                             }}
-                           />
-                         );
-                       })}
-                     </div>
-                     {/* Legend */}
-                     <div className="flex items-center gap-4 mt-3 justify-center">
-                       <div className="flex items-center gap-1.5">
-                         <div className="w-2.5 h-2.5 rounded-sm" style={{ background: '#3b82f680' }} />
-                         <span className="text-[9px] text-gray-500">Study</span>
-                       </div>
-                       <div className="flex items-center gap-1.5">
-                         <div className="w-2.5 h-2.5 rounded-sm" style={{ background: '#10b98180' }} />
-                         <span className="text-[9px] text-gray-500">Break</span>
-                       </div>
-                     </div>
                    </div>
-                 )}
+                   );
+                 })()}
 
                  {activeStep === 3 && (
                    <div className="relative flex items-center justify-center">
