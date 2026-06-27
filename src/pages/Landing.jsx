@@ -306,6 +306,100 @@ const privacyContent = (
   </>
 );
 
+const blogContent = (
+  <>
+    {/* Byline */}
+    <div className="flex items-center gap-3 pb-6 border-b border-white/10">
+      <div className="w-11 h-11 rounded-full overflow-hidden border border-violet-500/40 flex-shrink-0">
+        <img src="/author.jpg" alt="Yashraj Kanawade" className="w-full h-full object-cover" />
+      </div>
+      <div>
+        <p className="text-white font-semibold text-sm leading-tight">Yashraj Kanawade</p>
+        <p className="text-gray-500 text-xs">Founder of Vyora · 8 min read</p>
+      </div>
+    </div>
+
+    {/* Lead */}
+    <p className="text-lg md:text-xl text-gray-200 leading-relaxed font-medium">
+      We all start each day with the same 24 hours — yet for students drowning in syllabi and professionals buried in inboxes, those hours rarely go where we intend. Vyora exists to fix that gap between intention and action. Here is the problem we set out to solve, and exactly how we are solving it.
+    </p>
+
+    {/* The student struggle */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">The Student Struggle</h3>
+    <p>
+      Ask any student where their time went last week and you will usually get a shrug. Notes live in five different apps, study hours are never logged, and the real subjects that need attention stay invisible until the night before an exam. The result is a familiar cycle: anxiety, last-minute cramming, burnout, and the quiet guilt of knowing you could have done better with a little structure.
+    </p>
+    <p>The pain points we kept hearing again and again:</p>
+    <ul className="list-disc pl-6 space-y-2 marker:text-violet-400">
+      <li><span className="text-white font-medium">No single source of truth.</span> Goals, schedules, and progress are scattered across notebooks, sticky notes, and half-abandoned apps.</li>
+      <li><span className="text-white font-medium">Untracked effort.</span> Without honest tracking, it is impossible to know whether you studied 2 hours or 6 — or which subject is silently falling behind.</li>
+      <li><span className="text-white font-medium">No motivation loop.</span> Studying alone is a grind. There is nothing celebrating the streaks, the small wins, or the momentum you are building.</li>
+      <li><span className="text-white font-medium">Reactive, not proactive.</span> Exams arrive as surprises instead of milestones you have been steadily preparing for.</li>
+    </ul>
+
+    {/* The professional dilemma */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">The Professional's Dilemma</h3>
+    <p>
+      Corporate life is the same problem wearing a suit. The student's syllabus becomes a project backlog; the looming exam becomes a deadline. Working professionals lose entire days to back-to-back meetings, a flood of emails, and constant context-switching — ending the day exhausted, yet unsure what actually moved forward.
+    </p>
+    <ul className="list-disc pl-6 space-y-2 marker:text-cyan-400">
+      <li><span className="text-white font-medium">Inbox overload.</span> Critical decisions are buried inside dozens of long email threads nobody has time to read in full.</li>
+      <li><span className="text-white font-medium">Fragmented tasks.</span> To-dos live in chat messages, mental notes, and three different tools — so things slip.</li>
+      <li><span className="text-white font-medium">No protected focus time.</span> Deep work gets crowded out by reminders that never fire and a calendar nobody planned intentionally.</li>
+      <li><span className="text-white font-medium">Context-switching tax.</span> Every jump between apps and tabs quietly drains the energy that real work depends on.</li>
+    </ul>
+
+    {/* How Vyora solves it */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">How Vyora Solves It</h3>
+    <p>
+      Vyora started as a study tracker, but the philosophy is universal: <span className="text-white font-medium">make your effort visible, make your plan effortless, and make progress feel rewarding.</span> Today, Vyora already gives you a focused home base:
+    </p>
+    <ul className="list-disc pl-6 space-y-2 marker:text-violet-400">
+      <li><span className="text-white font-medium">Goal &amp; habit tracking</span> that turns ambitious targets into daily, achievable actions.</li>
+      <li><span className="text-white font-medium">A built-in Pomodoro timer</span> that protects your focus and logs your hours automatically.</li>
+      <li><span className="text-white font-medium">Deep analytics</span> showing exactly where your time goes, subject by subject.</li>
+      <li><span className="text-white font-medium">An AI Study Coach</span> that reads your patterns and tells you what to focus on next.</li>
+      <li><span className="text-white font-medium">Streaks &amp; achievements</span> that make consistency genuinely satisfying.</li>
+    </ul>
+
+    {/* What's coming next */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">What's Coming Next</h3>
+    <p>
+      This is where it gets exciting. We are expanding Vyora from a study tracker into a complete focus-and-productivity companion — for students <span className="italic">and</span> professionals. Here is what we are building next, and the exact problem each one kills:
+    </p>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
+      {[
+        { icon: '📅', title: 'Smart Calendar', tag: 'Coming soon', desc: 'Plan study blocks, meetings, and deadlines in one visual week. Vyora suggests the optimal slots so you stop guessing and start scheduling intentionally.' },
+        { icon: '🎙️', title: 'Voice Assistant', tag: 'Coming soon', desc: 'Log a session, add a task, or check your schedule hands-free. Just speak — no typing, no friction, perfect for when you are mid-flow.' },
+        { icon: '✅', title: 'Task Manager', tag: 'Coming soon', desc: 'One place for every to-do, broken down by subject or project, with priorities and progress that sync straight into your analytics.' },
+        { icon: '⏰', title: 'Smart Reminders', tag: 'Coming soon', desc: 'Reminders that actually fire at the right moment — nudging you toward your goals, breaks, and deadlines before they become emergencies.' },
+        { icon: '📧', title: 'Gmail Summariser', tag: 'Coming soon', desc: 'Turn a chaotic inbox into a 30-second briefing. AI reads your emails and hands you the decisions and action items that matter.' },
+      ].map(f => (
+        <div key={f.title} className="rounded-2xl p-5 border border-white/[0.08]"
+          style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-2xl">{f.icon}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-300 px-2 py-1 rounded-full border border-violet-500/25"
+              style={{ background: 'rgba(124,58,237,0.12)' }}>{f.tag}</span>
+          </div>
+          <h4 className="text-white font-semibold text-base mb-1.5">{f.title}</h4>
+          <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    {/* Closing */}
+    <h3 className="text-white font-display font-bold text-2xl pt-2">The Bigger Picture</h3>
+    <p>
+      Whether you are revising for finals or shipping a product, the underlying need is identical: <span className="text-white font-medium">spend your hours on what matters, and feel good about the progress you make.</span> A calendar plans your time, a voice assistant removes friction, a task manager keeps you honest, reminders keep you on track, and an inbox summariser hands back the hours email steals.
+    </p>
+    <p>
+      That is the Vyora we are building — one focused, beautiful place that works for the student and the professional alike. We are just getting started, and we would love for you to grow with us.
+    </p>
+  </>
+);
+
 /* ── How It Works Section ─────────────────────────────────── */
 const howItWorksSteps = [
   { id: 'problem', short: 'THE PROBLEM', title: 'Scattered study habits', desc: 'Notes are everywhere, hours are untracked, and exams are looming. You need a system.' },
@@ -857,6 +951,7 @@ const HowItWorks = () => {
 const Landing = () => {
   const [showTerms, setShowTerms] = React.useState(false);
   const [showPrivacy, setShowPrivacy] = React.useState(false);
+  const [showBlog, setShowBlog] = React.useState(false);
 
   return (
     <div className="min-h-screen text-white font-body relative overflow-x-hidden"
@@ -895,11 +990,12 @@ const Landing = () => {
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            {['Features', 'About', 'FAQ', 'Terms', 'Privacy', 'Contact'].map(item => (
-              <a key={item} href={item === 'Terms' || item === 'Privacy' ? '#' : `#${item.toLowerCase()}`}
+            {['Features', 'About', 'FAQ', 'Blog', 'Terms', 'Privacy', 'Contact'].map(item => (
+              <a key={item} href={item === 'Terms' || item === 'Privacy' || item === 'Blog' ? '#' : `#${item.toLowerCase()}`}
                 onClick={(e) => {
                   if (item === 'Terms') { e.preventDefault(); setShowTerms(true); }
                   if (item === 'Privacy') { e.preventDefault(); setShowPrivacy(true); }
+                  if (item === 'Blog') { e.preventDefault(); setShowBlog(true); }
                 }}
                 className="hover:text-white transition-colors duration-200 relative group">
                 {item}
@@ -1284,6 +1380,7 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <button onClick={() => setShowBlog(true)} className="hover:text-white transition-colors">Blog</button>
             <button onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy</button>
             <button onClick={() => setShowTerms(true)} className="hover:text-white transition-colors">Terms</button>
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yashrajkanawade895@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a>
@@ -1294,6 +1391,7 @@ const Landing = () => {
       {/* Modals */}
       <LegalModal isOpen={showTerms} onClose={() => setShowTerms(false)} title="Terms of Service" content={termsContent} />
       <LegalModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} title="Privacy Policy" content={privacyContent} />
+      <LegalModal isOpen={showBlog} onClose={() => setShowBlog(false)} title="Built for Busy Minds" content={blogContent} />
     </div>
   );
 };
