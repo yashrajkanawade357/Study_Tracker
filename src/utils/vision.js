@@ -4,6 +4,7 @@
 
 import { storage } from './storage';
 import { getAvailableProvider } from './claude';
+import { AI_PROXY_URL } from './aiProxy';
 
 const PROMPT = `You are reading a school/college/study timetable from an image.
 Extract every scheduled class or study session you can see.
@@ -35,7 +36,7 @@ function extractJson(text) {
 
 async function visionOpenAI(dataUrl) {
   const apiKey = storage.get('openaiApiKey');
-  const res = await fetch('/api/openai', {
+  const res = await fetch(AI_PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

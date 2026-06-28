@@ -1,5 +1,6 @@
 // Smart AI Router - tries OpenAI first, then Anthropic
 import { storage } from './storage';
+import { AI_PROXY_URL } from './aiProxy';
 
 export const getAvailableProvider = () => {
   if (storage.get('openaiApiKey')) return 'openai';
@@ -56,8 +57,8 @@ export const callOpenAI = async (messages, systemPrompt = '') => {
     ...messages,
   ];
 
-  // Use serverless proxy to bypass CORS
-  const response = await fetch('/api/openai', {
+  // Use serverless proxy to bypass CORS (Vercel /api/openai or Supabase Edge Function)
+  const response = await fetch(AI_PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
