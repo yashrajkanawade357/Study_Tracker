@@ -40,7 +40,7 @@ const Auth = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, register, checkEmailExists, addToast, loginWithGithub, sendMagicLink } = useApp();
+  const { login, register, checkEmailExists, addToast, loginWithGithub, sendMagicLink, sendPasswordReset, updatePassword, isPasswordRecovery } = useApp();
   const navigate = useNavigate();
   const postAuthTarget = searchParams.get('app') === 'calendar' ? '/calendar' : '/dashboard';
 
@@ -124,6 +124,38 @@ const Auth = () => {
       setError('Demo login failed. Please try again in a moment.');
       setLoading(false);
     }
+  };
+
+  // Send a password-reset email (forgot-password flow).
+  const handleForgot = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email) { setError('Please enter your email to reset your password.'); return; }
+    if (!isValidEmail(email)) { setError('Please enter a valid email address.'); return; }
+    setLoading(true);
+    try {
+      await sendPasswordReset(email.trim());
+      addToast(`📧 Password reset link sent to ${email}. Check your inbox.`, 'success', 9000);
+      setMode('login');
+    } catch (err) {
+      setError(err.message || 'Could not send reset link. Please try again.');
+    } finally { setLoading(false); }
+  };
+
+  // Set a new password after arriving from the reset email link.
+  const handleSetNewPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    setLoading(true);
+    try {
+      await updatePassword(password);
+      addToast('✅ Password updated! Please sign in with your new password.', 'success', 8000);
+      setPassword('');
+      setMode('login');
+    } catch (err) {
+      setError(err.message || 'Could not update password. The link may have expired — request a new one.');
+    } finally { setLoading(false); }
   };
 
   const switchMode = (m) => { setMode(m); setError(''); };
@@ -224,17 +256,18 @@ const Auth = () => {
 
           {/* Header */}
           <AnimatePresence mode="wait">
-            <motion.div key={mode + '-header'} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mb-8">
+            <motion.div key={(isPasswordRecovery ? 'recovery' : mode) + '-header'} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mb-8">
               <h2 className="text-3xl font-display font-bold text-white mb-1">
-                {mode === 'login' ? 'Welcome back' : 'Create account'}
+                {isPasswordRecovery ? 'Set a new password' : mode === 'forgot' ? 'Reset password' : mode === 'login' ? 'Welcome back' : 'Create account'}
               </h2>
               <p className="text-gray-500 text-sm">
-                {mode === 'login' ? 'Sign in to continue your journey' : 'Start your study journey with Vyora'}
+                {isPasswordRecovery ? 'Choose a new password for your account.' : mode === 'forgot' ? 'Enter your email and we’ll send a reset link.' : mode === 'login' ? 'Sign in to continue your journey' : 'Start your study journey with Vyora'}
               </p>
             </motion.div>
           </AnimatePresence>
 
           {/* Explore demo — frictionless entry for hackathon judges */}
+          {!isPasswordRecovery && mode !== 'forgot' && (
           <button
             onClick={handleDemoLogin}
             disabled={loading}
@@ -244,9 +277,10 @@ const Auth = () => {
           >
             🚀 Explore the demo &nbsp;<span className="text-amber-200/80 font-normal">— no signup needed</span>
           </button>
+          )}
 
           {/* Social Buttons — only when Supabase auth is configured */}
-          {isSupabaseConfigured() && (
+          {isSupabaseConfigured() && !isPasswordRecovery && mode !== 'forgot' && (
             <>
               <div className="flex flex-col gap-3 mb-6">
                 <button
@@ -294,7 +328,7 @@ const Auth = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: mode === 'login' ? 15 : -15 }}
               transition={{ duration: 0.2 }}
-              onSubmit={mode === 'login' ? handleLogin : handleSignup}
+              onSubmit={isPasswordRecovery ? handleSetNewPassword : mode === 'forgot' ? handleForgot : mode === 'login' ? handleLogin : handleSignup}
               className="flex flex-col gap-4"
             >
               {mode === 'signup' && (
@@ -307,6 +341,7 @@ const Auth = () => {
                 </div>
               )}
 
+              {!isPasswordRecovery && (
               <div>
                 <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-widest">Email Address</label>
                 <div className="relative">
@@ -314,11 +349,13 @@ const Auth = () => {
                   <input type="email" className="input-field pl-11" placeholder="you@school.edu" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
                 </div>
               </div>
+              )}
 
+              {(isPasswordRecovery || mode !== 'forgot') && (
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Password</label>
-                  {mode === 'login' && <button type="button" onClick={() => addToast('🚧 Password reset coming soon!', 'info')} className="text-xs text-purple-400 hover:text-purple-300 transition-colors">Forgot?</button>}
+                  <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{isPasswordRecovery ? 'New Password' : 'Password'}</label>
+                  {mode === 'login' && !isPasswordRecovery && <button type="button" onClick={() => switchMode('forgot')} className="text-xs text-purple-400 hover:text-purple-300 transition-colors">Forgot?</button>}
                 </div>
                 <div className="relative">
                   <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -335,6 +372,7 @@ const Auth = () => {
                   </button>
                 </div>
               </div>
+              )}
 
               {error && (
                 <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
@@ -347,11 +385,13 @@ const Auth = () => {
                 className="btn-primary mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed text-base rounded-xl">
                 {loading ? (
                   <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
-                ) : mode === 'login' ? 'Sign in →' : 'Create Account →'}
+                ) : isPasswordRecovery ? 'Update password →' : mode === 'forgot' ? 'Send reset link →' : mode === 'login' ? 'Sign in →' : 'Create Account →'}
               </button>
 
               <p className="text-center text-sm text-gray-500 mt-1">
-                {mode === 'login' ? (
+                {isPasswordRecovery ? null : mode === 'forgot' ? (
+                  <>Remembered it?{' '}<button type="button" onClick={() => switchMode('login')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Back to sign in</button></>
+                ) : mode === 'login' ? (
                   <>Don't have an account?{' '}<button type="button" onClick={() => switchMode('signup')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Sign up free</button></>
                 ) : (
                   <>Already have an account?{' '}<button type="button" onClick={() => switchMode('login')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Sign in</button></>

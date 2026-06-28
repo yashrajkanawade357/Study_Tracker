@@ -67,7 +67,7 @@ const ProtectedRoute = ({ children, requireManual = true }) => {
 };
 
 const AppRoutes = () => {
-  const { isAuthenticated, authInitialized } = useApp();
+  const { isAuthenticated, authInitialized, isPasswordRecovery } = useApp();
 
   if (!authInitialized) {
     return (
@@ -82,7 +82,7 @@ const AppRoutes = () => {
       <Routes>
         <Route
           path="/auth"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Auth />}
+          element={isAuthenticated && !isPasswordRecovery ? <Navigate to="/dashboard" replace /> : <Auth />}
         />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

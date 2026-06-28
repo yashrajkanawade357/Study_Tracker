@@ -23,6 +23,10 @@ export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  // True while the user is in the password-recovery flow (clicked a reset email
+  // link). Gates the /auth route so we can show the "set new password" form
+  // instead of bouncing the recovery session straight to the dashboard.
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   const loadUserDataFromSupabase = useCallback(async (userId) => {
     try {
@@ -121,6 +125,13 @@ export const AppProvider = ({ children }) => {
 
       // 2. Listen to auth state changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        // Reset-password email link: keep the user on /auth to set a new password
+        // rather than loading the dashboard with the temporary recovery session.
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+          setIsAuthenticated(true);
+          return;
+        }
         if (session?.user) {
           setIsAuthenticated(true);
           loadUserDataFromSupabase(session.user.id);
@@ -683,6 +694,31 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  // Send a password-reset email. Supabase mails a recovery link that returns
+  // the user to /auth, where onAuthStateChange fires PASSWORD_RECOVERY.
+  const sendPasswordReset = useCallback(async (email) => {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Password reset requires Supabase to be configured.');
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin + '/auth',
+    });
+    if (error) throw error;
+  }, []);
+
+  // Set the new password during recovery, then sign out so the user logs in
+  // fresh with their new credentials (avoids a half-loaded recovery session).
+  const updatePassword = useCallback(async (newPassword) => {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Password update requires Supabase to be configured.');
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    setIsPasswordRecovery(false);
+    await supabase.auth.signOut();
+    setIsAuthenticated(false);
+  }, []);
+
   const logout = useCallback(async () => {
     if (isSupabaseConfigured()) {
       await supabase.auth.signOut();
@@ -770,11 +806,12 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
-    toasts, isAuthenticated, authInitialized, isAdmin, currentStreak, currentXp,
+    toasts, isAuthenticated, authInitialized, isAdmin, isPasswordRecovery, currentStreak, currentXp,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,
     login, logout, register, checkEmailExists, loginWithGithub, sendMagicLink,
+    sendPasswordReset, updatePassword,
     exportData, clearAllData,
     addToast, removeToast,
     reload: loadAll,
