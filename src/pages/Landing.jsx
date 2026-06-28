@@ -1908,19 +1908,19 @@ const Landing = () => {
       </section>
 
       {/* ── Feedback Section ── */}
-      <section id="feedback" className="relative z-10 py-28 border-t border-white/[0.05] scroll-mt-24">
+      <section id="feedback" className="relative z-10 py-16 border-t border-white/[0.05] scroll-mt-24">
         <div className="max-w-2xl mx-auto px-6">
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-violet-500/20"
+              className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-widest mb-3 px-4 py-1.5 rounded-full border border-violet-500/20"
               style={{ background: 'rgba(124,58,237,0.1)' }}
             >
               We're listening
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+              className="text-3xl md:text-4xl font-display font-bold text-white mb-2"
             >
               Share your{' '}
               <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -1929,7 +1929,7 @@ const Landing = () => {
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-gray-400 text-lg"
+              className="text-gray-400"
             >
               Found a bug, have an idea, or just want to say hi? We read every message.
             </motion.p>
@@ -1940,7 +1940,7 @@ const Landing = () => {
             className="relative rounded-3xl p-px overflow-hidden"
             style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(255,255,255,0.04))' }}
           >
-            <div className="relative rounded-3xl p-8 md:p-10" style={{ background: 'rgba(10,10,28,0.92)', backdropFilter: 'blur(20px)' }}>
+            <div className="relative rounded-3xl p-6 md:p-7" style={{ background: 'rgba(10,10,28,0.92)', backdropFilter: 'blur(20px)' }}>
               {fbStatus === 'done' ? (
                 <div className="text-center py-8">
                   <div className="text-5xl mb-4">🎉</div>
