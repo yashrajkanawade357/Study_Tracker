@@ -17,6 +17,57 @@ import {
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`;
 const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// ── Fake data for the non-operational PREVIEW (judges / regular users) ──
+// Nothing here touches the database; actions are disabled in preview mode.
+const FAKE_ADMIN_DATA = {
+  totals: { users: 248, studyHours: 5124.5, sessions: 1843, events: 612, tasks: 934, sleepLogs: 408 },
+  users: [
+    { id: 'f1', email: 'aarav.sharma@email.com',   name: 'Aarav Sharma',   xp: 4820, level: 49, streak: 64, isAdmin: false, createdAt: '2026-02-11', lastSignInAt: '2026-06-28T07:40:00', hours: 312.5, sessions: 142 },
+    { id: 'f2', email: 'priya.nair@email.com',      name: 'Priya Nair',     xp: 3990, level: 40, streak: 41, isAdmin: false, createdAt: '2026-03-02', lastSignInAt: '2026-06-28T06:10:00', hours: 268.0, sessions: 119 },
+    { id: 'f3', email: 'rohan.mehta@email.com',     name: 'Rohan Mehta',    xp: 3650, level: 37, streak: 28, isAdmin: false, createdAt: '2026-01-19', lastSignInAt: '2026-06-27T21:30:00', hours: 244.5, sessions: 108 },
+    { id: 'f4', email: 'ananya.iyer@email.com',     name: 'Ananya Iyer',    xp: 3120, level: 32, streak: 19, isAdmin: false, createdAt: '2026-04-08', lastSignInAt: '2026-06-28T05:05:00', hours: 201.0, sessions: 95  },
+    { id: 'f5', email: 'kabir.singh@email.com',     name: 'Kabir Singh',    xp: 2780, level: 28, streak: 12, isAdmin: false, createdAt: '2026-05-21', lastSignInAt: '2026-06-26T18:45:00', hours: 178.5, sessions: 81  },
+    { id: 'f6', email: 'diya.patel@email.com',      name: 'Diya Patel',     xp: 2210, level: 23, streak: 7,  isAdmin: false, createdAt: '2026-05-30', lastSignInAt: '2026-06-28T08:02:00', hours: 142.0, sessions: 66  },
+    { id: 'f7', email: 'vivaan.rao@email.com',      name: 'Vivaan Rao',     xp: 1540, level: 16, streak: 3,  isAdmin: false, createdAt: '2026-06-12', lastSignInAt: '2026-06-25T11:20:00', hours: 96.5,  sessions: 44  },
+    { id: 'f8', email: 'demo@vyora.app',            name: 'Demo Student',   xp: 1850, level: 19, streak: 32, isAdmin: false, createdAt: '2026-06-28', lastSignInAt: '2026-06-28T09:00:00', hours: 188.0, sessions: 78  },
+  ],
+  growth: {
+    signups: [
+      { date: '2026-06-17', signups: 6 }, { date: '2026-06-18', signups: 9 },
+      { date: '2026-06-19', signups: 5 }, { date: '2026-06-20', signups: 12 },
+      { date: '2026-06-21', signups: 8 }, { date: '2026-06-22', signups: 14 },
+      { date: '2026-06-23', signups: 11 }, { date: '2026-06-24', signups: 16 },
+      { date: '2026-06-25', signups: 13 }, { date: '2026-06-26', signups: 19 },
+      { date: '2026-06-27', signups: 15 }, { date: '2026-06-28', signups: 22 },
+    ],
+    hours: [
+      { date: '2026-06-17', hours: 142 }, { date: '2026-06-18', hours: 168 },
+      { date: '2026-06-19', hours: 121 }, { date: '2026-06-20', hours: 205 },
+      { date: '2026-06-21', hours: 187 }, { date: '2026-06-22', hours: 224 },
+      { date: '2026-06-23', hours: 196 }, { date: '2026-06-24', hours: 241 },
+      { date: '2026-06-25', hours: 213 }, { date: '2026-06-26', hours: 268 },
+      { date: '2026-06-27', hours: 232 }, { date: '2026-06-28', hours: 154 },
+    ],
+  },
+  recent: {
+    signups: [
+      { name: 'Ishaan Gupta',  email: 'ishaan.g@email.com',  createdAt: '2026-06-28T08:50:00' },
+      { name: 'Sara Khan',     email: 'sara.khan@email.com', createdAt: '2026-06-28T08:12:00' },
+      { name: 'Demo Student',  email: 'demo@vyora.app',      createdAt: '2026-06-28T07:30:00' },
+      { name: 'Aditya Verma',  email: 'aditya.v@email.com',  createdAt: '2026-06-27T22:05:00' },
+      { name: 'Meera Joshi',   email: 'meera.j@email.com',   createdAt: '2026-06-27T19:40:00' },
+    ],
+    logs: [
+      { name: 'Aarav Sharma', subject: 'Mathematics',      hours: 2.5, when: '2026-06-28T08:40:00' },
+      { name: 'Priya Nair',   subject: 'Physics',          hours: 1.5, when: '2026-06-28T08:05:00' },
+      { name: 'Diya Patel',   subject: 'Computer Science', hours: 3.0, when: '2026-06-28T07:20:00' },
+      { name: 'Rohan Mehta',  subject: 'Chemistry',        hours: 2.0, when: '2026-06-27T23:10:00' },
+      { name: 'Ananya Iyer',  subject: 'English',          hours: 1.0, when: '2026-06-27T21:35:00' },
+      { name: 'Kabir Singh',  subject: 'Mathematics',      hours: 2.5, when: '2026-06-27T20:00:00' },
+    ],
+  },
+};
+
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 const fmtAgo = (d) => {
@@ -56,10 +107,10 @@ const ChartTooltip = ({ active, payload, label }) => {
   );
 };
 
-const Admin = () => {
+const Admin = ({ preview = false }) => {
   const { userProfile, addToast } = useApp();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(preview ? FAKE_ADMIN_DATA : null);
+  const [loading, setLoading] = useState(!preview);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [busyId, setBusyId] = useState(null);
@@ -95,7 +146,7 @@ const Admin = () => {
     }
   }, [callFn]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (!preview) load(); }, [load, preview]);
 
   const filteredUsers = useMemo(() => {
     if (!data?.users) return [];
@@ -109,6 +160,7 @@ const Admin = () => {
   }, [data, search]);
 
   const toggleAdmin = async (u) => {
+    if (preview) { addToast('🔒 Actions are disabled in preview mode.', 'info'); return; }
     setBusyId(u.id);
     try {
       await callFn({ action: 'set_admin', userId: u.id, value: !u.isAdmin });
@@ -125,6 +177,7 @@ const Admin = () => {
   };
 
   const deleteUser = async (u) => {
+    if (preview) { addToast('🔒 Actions are disabled in preview mode.', 'info'); setConfirmDelete(null); return; }
     setBusyId(u.id);
     try {
       await callFn({ action: 'delete_user', userId: u.id });
@@ -150,22 +203,31 @@ const Admin = () => {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold font-display text-white flex items-center gap-2">
+            <h1 className="text-2xl font-bold font-display text-white flex items-center gap-2 flex-wrap">
               <ShieldCheckIcon className="w-7 h-7 text-purple-400" />
               Admin Portal
+              {preview && (
+                <span className="text-[11px] uppercase tracking-wide bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">
+                  Preview · sample data
+                </span>
+              )}
             </h1>
             <p className="text-sm text-gray-400 mt-1">
-              Platform overview & user management · signed in as {userProfile?.email}
+              {preview
+                ? 'A read-only look at the admin dashboard. Data is illustrative; actions are disabled.'
+                : <>Platform overview & user management · signed in as {userProfile?.email}</>}
             </p>
           </div>
-          <button
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-600 text-sm text-gray-200 transition-all disabled:opacity-50"
-          >
-            <ArrowPathIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+          {!preview && (
+            <button
+              onClick={load}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-600 text-sm text-gray-200 transition-all disabled:opacity-50"
+            >
+              <ArrowPathIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          )}
         </div>
 
         {error && (

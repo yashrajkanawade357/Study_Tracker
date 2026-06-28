@@ -6,7 +6,7 @@ import AppSwitcher from './AppSwitcher';
 import {
   HomeIcon, ChartBarIcon, SparklesIcon, CalendarDaysIcon,
   TrophyIcon, ClockIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon, BookOpenIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon, LockClosedIcon
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -69,15 +69,16 @@ const Sidebar = () => {
             <span>{label}</span>
           </NavLink>
         ))}
-        {isAdmin && (
-          <NavLink
-            to="/admin"
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-          >
-            <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
-            <span>Admin</span>
-          </NavLink>
-        )}
+        {/* Admin tab is visible to everyone so they know it exists; non-admins
+            hit a password gate that opens a non-operational preview. */}
+        <NavLink
+          to="/admin"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
+          <span>Admin</span>
+          {!isAdmin && <LockClosedIcon className="w-3.5 h-3.5 ml-auto text-gray-500 flex-shrink-0" />}
+        </NavLink>
       </nav>
 
       {/* User Profile */}
