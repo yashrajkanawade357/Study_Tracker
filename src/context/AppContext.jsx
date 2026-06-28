@@ -22,6 +22,7 @@ export const AppProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const loadUserDataFromSupabase = useCallback(async (userId) => {
     try {
@@ -108,6 +109,7 @@ export const AppProvider = ({ children }) => {
                 };
                 storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
                 setUserProfile(profileData);
+                setIsAdmin(!!profile.is_admin);
               }
             });
           });
@@ -124,6 +126,7 @@ export const AppProvider = ({ children }) => {
           loadUserDataFromSupabase(session.user.id);
         } else {
           setIsAuthenticated(false);
+          setIsAdmin(false);
           loadAll();
         }
       });
@@ -512,10 +515,11 @@ export const AppProvider = ({ children }) => {
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
       setUserProfile(profileData);
       setIsAuthenticated(true);
+      setIsAdmin(false);
     } else {
       const users = storage.get(STORAGE_KEYS.USERS, []);
       const normalizedEmail = email.toLowerCase();
-      
+
       if (users.some(u => u.email.toLowerCase() === normalizedEmail)) {
         throw new Error('Email is already registered');
       }
@@ -599,6 +603,7 @@ export const AppProvider = ({ children }) => {
       storage.set(STORAGE_KEYS.USER_PROFILE, profileData);
       setUserProfile(profileData);
       setIsAuthenticated(true);
+      setIsAdmin(!!profile?.is_admin);
       await loadUserDataFromSupabase(user.id);
       
       // Recalculate streak now that logs are loaded
@@ -700,6 +705,7 @@ export const AppProvider = ({ children }) => {
 
     initializeStorage();
     setIsAuthenticated(false);
+    setIsAdmin(false);
   }, []);
 
   const exportData = useCallback(() => {
@@ -764,7 +770,7 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
-    toasts, isAuthenticated, authInitialized, currentStreak, currentXp,
+    toasts, isAuthenticated, authInitialized, isAdmin, currentStreak, currentXp,
     addStudyLog, addSleepLog, addExam, removeExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,

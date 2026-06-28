@@ -17,6 +17,7 @@ import UserManual from './pages/UserManual';
 import Calendar from './pages/Calendar';
 import Tasks from './pages/Tasks';
 import Summariser from './pages/Summariser';
+import Admin from './pages/Admin';
 import Onboarding from './components/Onboarding';
 
 // Reset scroll to the top whenever the route changes, so a new page never
@@ -53,6 +54,25 @@ const ProtectedRoute = ({ children, requireManual = true }) => {
   return children;
 };
 
+// Admin-only gate. Waits for auth to resolve, then requires both a
+// signed-in session and the isAdmin flag (loaded from profiles.is_admin).
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, authInitialized, isAdmin } = useApp();
+
+  if (!authInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy-950">
+        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
+
+  return children;
+};
+
 const AppRoutes = () => {
   const { isAuthenticated, authInitialized } = useApp();
 
@@ -81,6 +101,7 @@ const AppRoutes = () => {
       <Route path="/calendar" element={<ProtectedRoute requireManual={false}><Calendar /></ProtectedRoute>} />
       <Route path="/tasks" element={<ProtectedRoute requireManual={false}><Tasks /></ProtectedRoute>} />
       <Route path="/summariser" element={<ProtectedRoute requireManual={false}><Summariser /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
