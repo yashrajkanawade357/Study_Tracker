@@ -8,6 +8,12 @@ import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon, UserIcon, PhoneIco
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 
+// Public demo account for hackathon judges. The password is intentionally
+// in the client — it's a sandboxed, NON-admin account meant to be shared.
+// >>> This must match the password you set in Supabase for demo@vyora.app <<<
+const DEMO_EMAIL = 'demo@vyora.app';
+const DEMO_PASSWORD = 'VyoraDemo2026!';
+
 // ── Left pane data ────────────────────────────────────────────────
 const stats = [
   { value: '500K+', label: 'Study Hours' },
@@ -105,6 +111,19 @@ const Auth = () => {
       navigate(postAuthTarget);
     } catch (err) { setError(err.message || 'Login failed'); }
     finally { setLoading(false); }
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await login(DEMO_EMAIL, DEMO_PASSWORD);
+      addToast('🚀 Exploring the Vyora demo account!', 'success');
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Demo login failed. Please try again in a moment.');
+      setLoading(false);
+    }
   };
 
   const switchMode = (m) => { setMode(m); setError(''); };
@@ -214,6 +233,17 @@ const Auth = () => {
               </p>
             </motion.div>
           </AnimatePresence>
+
+          {/* Explore demo — frictionless entry for hackathon judges */}
+          <button
+            onClick={handleDemoLogin}
+            disabled={loading}
+            type="button"
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 mb-6 rounded-xl text-sm font-semibold text-amber-100 transition-all duration-200 hover:scale-[1.02] disabled:opacity-60"
+            style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.9), rgba(217,119,6,0.9))', boxShadow: '0 8px 24px rgba(245,158,11,0.25)' }}
+          >
+            🚀 Explore the demo &nbsp;<span className="text-amber-200/80 font-normal">— no signup needed</span>
+          </button>
 
           {/* Social Buttons — only when Supabase auth is configured */}
           {isSupabaseConfigured() && (
