@@ -12,6 +12,7 @@ import {
   UsersIcon, ClockIcon, BookOpenIcon, CalendarDaysIcon,
   CheckCircleIcon, MoonIcon, MagnifyingGlassIcon, TrashIcon,
   ShieldCheckIcon, ArrowPathIcon, ExclamationTriangleIcon,
+  ChatBubbleLeftRightIcon, StarIcon,
 } from '@heroicons/react/24/outline';
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`;
@@ -20,7 +21,7 @@ const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // ── Fake data for the non-operational PREVIEW (judges / regular users) ──
 // Nothing here touches the database; actions are disabled in preview mode.
 const FAKE_ADMIN_DATA = {
-  totals: { users: 248, studyHours: 5124.5, sessions: 1843, events: 612, tasks: 934, sleepLogs: 408 },
+  totals: { users: 248, studyHours: 5124.5, sessions: 1843, events: 612, tasks: 934, sleepLogs: 408, feedback: 37 },
   users: [
     { id: 'f1', email: 'aarav.sharma@email.com',   name: 'Aarav Sharma',   xp: 4820, level: 49, streak: 64, isAdmin: false, createdAt: '2026-02-11', lastSignInAt: '2026-06-28T07:40:00', hours: 312.5, sessions: 142 },
     { id: 'f2', email: 'priya.nair@email.com',      name: 'Priya Nair',     xp: 3990, level: 40, streak: 41, isAdmin: false, createdAt: '2026-03-02', lastSignInAt: '2026-06-28T06:10:00', hours: 268.0, sessions: 119 },
@@ -66,6 +67,13 @@ const FAKE_ADMIN_DATA = {
       { name: 'Kabir Singh',  subject: 'Mathematics',      hours: 2.5, when: '2026-06-27T20:00:00' },
     ],
   },
+  feedback: [
+    { id: 'fb1', name: 'Priya Nair',  email: 'priya.nair@email.com', rating: 5, message: 'The streaks keep me coming back every day. Best study app I\'ve used!', created_at: '2026-06-28T08:30:00' },
+    { id: 'fb2', name: 'Rohan Mehta', email: 'rohan.mehta@email.com', rating: 4, message: 'Love the analytics heatmap. Would be great to export my data as CSV.', created_at: '2026-06-27T19:15:00' },
+    { id: 'fb3', name: '',            email: '',                      rating: 5, message: 'The AI study coach actually helped me plan for finals. Thank you!', created_at: '2026-06-27T12:40:00' },
+    { id: 'fb4', name: 'Kabir Singh', email: 'kabir.singh@email.com', rating: 3, message: 'Voice assistant is cool but sometimes mishears subject names.', created_at: '2026-06-26T21:05:00' },
+    { id: 'fb5', name: 'Ananya Iyer', email: 'ananya.iyer@email.com', rating: 5, message: 'Clean UI, fast, and motivating. Please add a light theme!', created_at: '2026-06-26T09:20:00' },
+  ],
 };
 
 const fmtDate = (d) =>
@@ -423,6 +431,50 @@ const Admin = ({ preview = false }) => {
                 </div>
               </GlassCard>
             </div>
+
+            {/* Recent feedback */}
+            <GlassCard className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-400" />
+                <p className="text-sm font-semibold text-gray-200">
+                  Recent feedback
+                  {data.totals?.feedback != null && (
+                    <span className="text-gray-500 font-normal"> · {data.totals.feedback} total</span>
+                  )}
+                </p>
+              </div>
+              {data.feedback?.length ? (
+                <div className="space-y-3">
+                  {data.feedback.map((f, i) => (
+                    <div key={f.id || i} className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div className="flex items-start justify-between gap-3 mb-1.5">
+                        <div className="min-w-0">
+                          <p className="text-sm text-white font-medium truncate">
+                            {f.name?.trim() || 'Anonymous'}
+                          </p>
+                          {f.email && <p className="text-xs text-gray-500 truncate">{f.email}</p>}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {f.rating ? (
+                            <span className="flex items-center gap-0.5">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <StarIcon key={n} className="w-3.5 h-3.5"
+                                  style={{ color: n <= f.rating ? '#fbbf24' : 'rgba(255,255,255,0.18)', fill: n <= f.rating ? '#fbbf24' : 'transparent' }} />
+                              ))}
+                            </span>
+                          ) : null}
+                          <span className="text-xs text-gray-400 whitespace-nowrap">{fmtAgo(f.created_at)}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-300 leading-relaxed">{f.message}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">No feedback submitted yet.</p>
+              )}
+            </GlassCard>
           </>
         ) : null}
       </div>

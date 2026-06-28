@@ -113,12 +113,16 @@ Deno.serve(async (req) => {
       { count: eventsCount },
       { count: tasksCount },
       { count: sleepCount },
+      { data: feedback, count: feedbackCount },
     ] = await Promise.all([
       admin.from("profiles").select("id, email, name, xp, level, streak, is_admin"),
       admin.from("study_logs").select("user_id, hours, subject, date, timestamp"),
       admin.from("calendar_events").select("id", { count: "exact", head: true }),
       admin.from("tasks").select("id", { count: "exact", head: true }),
       admin.from("sleep_logs").select("id", { count: "exact", head: true }),
+      admin.from("feedback")
+        .select("id, name, email, rating, message, created_at", { count: "exact" })
+        .order("created_at", { ascending: false }).limit(12),
     ]);
 
     const profileById = new Map(
@@ -204,6 +208,7 @@ Deno.serve(async (req) => {
         events: eventsCount ?? 0,
         tasks: tasksCount ?? 0,
         sleepLogs: sleepCount ?? 0,
+        feedback: feedbackCount ?? 0,
       },
       users,
       growth: {
@@ -211,6 +216,7 @@ Deno.serve(async (req) => {
         hours: toSeries(hoursByDay, "hours"),
       },
       recent: { signups: recentSignups, logs: recentLogs },
+      feedback: feedback ?? [],
     });
   } catch (err) {
     console.error("admin-stats error:", err);
