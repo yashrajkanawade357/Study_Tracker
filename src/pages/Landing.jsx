@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { supabase, isSupabaseConfigured } from '../utils/supabaseClient';
 import { 
   SparklesIcon, 
   ClockIcon, 
@@ -1120,6 +1121,34 @@ const Landing = () => {
   const [showBlog, setShowBlog] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  // Feedback form
+  const [fb, setFb] = React.useState({ name: '', email: '', rating: 0, message: '' });
+  const [fbStatus, setFbStatus] = React.useState('idle'); // idle | sending | done | error
+  const [fbError, setFbError] = React.useState('');
+
+  const submitFeedback = async (e) => {
+    e.preventDefault();
+    if (!fb.message.trim()) { setFbError('Please write a quick message first.'); return; }
+    setFbStatus('sending');
+    setFbError('');
+    try {
+      if (isSupabaseConfigured()) {
+        const { error } = await supabase.from('feedback').insert({
+          name: fb.name.trim() || null,
+          email: fb.email.trim() || null,
+          rating: fb.rating || null,
+          message: fb.message.trim(),
+        });
+        if (error) throw error;
+      }
+      setFbStatus('done');
+      setFb({ name: '', email: '', rating: 0, message: '' });
+    } catch (err) {
+      setFbStatus('error');
+      setFbError('Could not send right now. Please try again in a moment.');
+    }
+  };
+
   const navItems = ['Features', 'About', 'FAQ', 'Blog', 'Terms', 'Privacy', 'Contact'];
   const isModalItem = (item) => item === 'Terms' || item === 'Privacy' || item === 'Blog';
   const navHref = (item) => (isModalItem(item) ? '#' : `#${item.toLowerCase()}`);
@@ -1878,6 +1907,116 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── Feedback Section ── */}
+      <section id="feedback" className="relative z-10 py-28 border-t border-white/[0.05] scroll-mt-24">
+        <div className="max-w-2xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <motion.span
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="inline-block text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4 px-4 py-1.5 rounded-full border border-violet-500/20"
+              style={{ background: 'rgba(124,58,237,0.1)' }}
+            >
+              We're listening
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+            >
+              Share your{' '}
+              <span style={{ background: 'linear-gradient(135deg, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                feedback
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="text-gray-400 text-lg"
+            >
+              Found a bug, have an idea, or just want to say hi? We read every message.
+            </motion.p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="relative rounded-3xl p-px overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(255,255,255,0.04))' }}
+          >
+            <div className="relative rounded-3xl p-8 md:p-10" style={{ background: 'rgba(10,10,28,0.92)', backdropFilter: 'blur(20px)' }}>
+              {fbStatus === 'done' ? (
+                <div className="text-center py-8">
+                  <div className="text-5xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-display font-bold text-white mb-2">Thank you!</h3>
+                  <p className="text-gray-400">Your feedback means a lot — we've received it.</p>
+                  <button
+                    onClick={() => setFbStatus('idle')}
+                    className="mt-6 text-sm font-semibold text-violet-400 hover:text-violet-300 transition-colors"
+                  >
+                    Send another →
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={submitFeedback} className="flex flex-col gap-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <input
+                      type="text" placeholder="Your name (optional)"
+                      value={fb.name} onChange={(e) => setFb({ ...fb, name: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500 outline-none focus:border-violet-500/50 transition-colors"
+                    />
+                    <input
+                      type="email" placeholder="Email (optional)"
+                      value={fb.email} onChange={(e) => setFb({ ...fb, email: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500 outline-none focus:border-violet-500/50 transition-colors"
+                    />
+                  </div>
+
+                  {/* Rating */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-400">How's your experience?</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n} type="button"
+                          onClick={() => setFb({ ...fb, rating: n })}
+                          className="transition-transform hover:scale-110"
+                          aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                        >
+                          <StarIcon
+                            className="w-6 h-6"
+                            style={{
+                              color: n <= fb.rating ? '#fbbf24' : 'rgba(255,255,255,0.2)',
+                              fill: n <= fb.rating ? '#fbbf24' : 'transparent',
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <textarea
+                    rows={4} placeholder="Tell us what's on your mind…"
+                    value={fb.message} onChange={(e) => setFb({ ...fb, message: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500 outline-none focus:border-violet-500/50 transition-colors resize-none"
+                  />
+
+                  {fbError && <p className="text-red-400 text-sm">{fbError}</p>}
+
+                  <button
+                    type="submit" disabled={fbStatus === 'sending'}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-base font-bold text-white transition-all duration-200 hover:scale-[1.02] disabled:opacity-60"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 8px 24px rgba(124,58,237,0.4)' }}
+                  >
+                    {fbStatus === 'sending' ? (
+                      <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Sending…</>
+                    ) : (
+                      <>Send feedback <ArrowRightIcon className="w-5 h-5" /></>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ── Footer ── */}
       <footer id="contact" className="relative z-10 border-t border-white/[0.05] py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -1893,6 +2032,7 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <a href="#feedback" className="hover:text-white transition-colors">Feedback</a>
             <button onClick={() => setShowBlog(true)} className="hover:text-white transition-colors">Blog</button>
             <button onClick={() => setShowPrivacy(true)} className="hover:text-white transition-colors">Privacy</button>
             <button onClick={() => setShowTerms(true)} className="hover:text-white transition-colors">Terms</button>
