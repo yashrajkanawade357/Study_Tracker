@@ -18,7 +18,11 @@ import {
   BellIcon,
   AcademicCapIcon,
   ClipboardDocumentCheckIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ShieldCheckIcon,
+  LockClosedIcon,
+  ServerStackIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 
 /* ── Animated particle canvas ─────────────────────────────── */
@@ -1393,6 +1397,69 @@ const Landing = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── For Judges: Admin Portal ── */}
+      <section className="relative z-10 py-20 border-t border-white/[0.05]">
+        <div className="max-w-5xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="relative rounded-3xl p-px overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.4), rgba(255,255,255,0.04))' }}
+          >
+            <div className="relative rounded-3xl p-8 md:p-10"
+              style={{ background: 'rgba(10,10,28,0.92)', backdropFilter: 'blur(20px)' }}>
+              <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-20 pointer-events-none"
+                style={{ background: 'radial-gradient(circle, #f59e0b, transparent 70%)', filter: 'blur(50px)' }} />
+
+              <div className="flex flex-col md:flex-row md:items-start gap-6">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #f59e0baa)', boxShadow: '0 8px 24px rgba(245,158,11,0.35)' }}>
+                  <ShieldCheckIcon className="w-7 h-7 text-white" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 rounded-full"
+                    style={{ background: 'rgba(245,158,11,0.12)', color: '#fbbf24' }}>
+                    ★ For hackathon judges
+                  </span>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-3 leading-tight">
+                    Admin &amp; Analytics Portal
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed mb-6 max-w-2xl">
+                    Beyond the user-facing apps, Vyora ships a role-gated admin dashboard for
+                    platform oversight — live KPIs (users, study hours, sessions, events, tasks),
+                    signup &amp; activity charts, and a searchable user table with management actions.
+                    It&apos;s built secure by design, not just functional.
+                  </p>
+
+                  {/* Capability + architecture grid */}
+                  <div className="grid sm:grid-cols-2 gap-3 mb-6">
+                    {[
+                      { icon: ChartBarIcon, t: 'Platform analytics', d: 'Totals, signup growth & per-day study hours.' },
+                      { icon: UsersIcon, t: 'User management', d: 'Search users, grant/revoke admin, delete accounts.' },
+                      { icon: ServerStackIcon, t: 'Service-role Edge Function', d: 'Secrets stay server-side — never in the browser.' },
+                      { icon: LockClosedIcon, t: 'Escalation-proof', d: 'A DB trigger blocks users from self-granting admin.' },
+                    ].map((f) => (
+                      <div key={f.t} className="flex items-start gap-3 rounded-2xl p-4"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <f.icon className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold text-white">{f.t}</p>
+                          <p className="text-xs text-gray-400 leading-relaxed">{f.d}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-gray-500">
+                    Access is restricted to admin accounts — visible from the sidebar after signing in as an admin.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
