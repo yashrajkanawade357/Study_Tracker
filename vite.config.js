@@ -66,6 +66,13 @@ export default defineConfig({
           { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
           { src: '/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        // Long-press the installed app icon → these quick actions.
+        shortcuts: [
+          { name: 'Log a study session', short_name: 'Log session', description: 'Jump to your dashboard to log study time', url: '/dashboard', icons: [{ src: '/sc-log.png', sizes: '96x96', type: 'image/png' }] },
+          { name: 'Start Pomodoro', short_name: 'Pomodoro', description: 'Start a focus timer', url: '/pomodoro', icons: [{ src: '/sc-pomodoro.png', sizes: '96x96', type: 'image/png' }] },
+          { name: 'Smart Calendar', short_name: 'Calendar', description: 'Open your calendar', url: '/calendar', icons: [{ src: '/sc-calendar.png', sizes: '96x96', type: 'image/png' }] },
+          { name: 'AI Coach', short_name: 'AI Coach', description: 'Get an AI study plan', url: '/ai', icons: [{ src: '/sc-ai.png', sizes: '96x96', type: 'image/png' }] },
+        ],
       },
       workbox: {
         // Cache the built app shell so it loads offline; SPA fallback to index.html.
