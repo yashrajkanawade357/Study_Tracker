@@ -1382,9 +1382,9 @@ const Landing = () => {
           style={{ background: 'rgba(6,6,18,0.8)', backdropFilter: 'blur(24px)', boxShadow: '0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: 'radial-gradient(circle at 30% 25%, #211c4d, #0b0a1f)', border: '1px solid rgba(124,58,237,0.45)', boxShadow: '0 4px 18px rgba(124,58,237,0.45)' }}>
-                <img src="/favicon.svg" alt="Vyora" className="w-7 h-7" />
+              <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center"
+                style={{ boxShadow: '0 4px 18px rgba(124,58,237,0.45)' }}>
+                <img src="/logo.png" alt="Vyora" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-display font-bold tracking-tight">Vyora</span>
             </div>
