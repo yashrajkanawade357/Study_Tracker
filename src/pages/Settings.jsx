@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
@@ -100,6 +100,37 @@ const Settings = () => {
     addToast(`✅ Exam "${newExam.name}" added`, 'success');
   };
 
+  const avatarInputRef = useRef(null);
+
+  // Read an uploaded image, center-crop + resize it to a small square, and
+  // store it as a compact data URL in the avatar field (kept tiny so it fits
+  // the profile text column / localStorage).
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { addToast('Please choose an image file', 'warning'); return; }
+    if (file.size > 8 * 1024 * 1024) { addToast('Image too large — please pick one under 8MB', 'warning'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size / img.width, size / img.height);
+        const w = img.width * scale, h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        setProfileForm(f => ({ ...f, avatar: canvas.toDataURL('image/jpeg', 0.85) }));
+        addToast('📸 Photo added — click "Save Profile" to keep it', 'info');
+      };
+      img.onerror = () => addToast("Couldn't read that image — try another", 'error');
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const toggleExamSubject = (name) => setNewExam(v => ({
     ...v,
     subjects: v.subjects.includes(name) ? v.subjects.filter(n => n !== name) : [...v.subjects, name],
@@ -196,21 +227,42 @@ const Settings = () => {
                     </div>
                     
                     <div>
-                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Profile Photo (Emoji or Image URL)</label>
-                      <div className="flex gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-lg flex-shrink-0 overflow-hidden">
-                          {(profileForm.avatar.startsWith('http') || profileForm.avatar.startsWith('data:')) ? 
-                            <img src={profileForm.avatar} alt="Avatar" className="w-full h-full object-cover" /> : 
+                      <label className="text-xs font-semibold text-gray-400 mb-1.5 block uppercase tracking-wide">Profile Photo</label>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-cyan-600 flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
+                          {(profileForm.avatar.startsWith('http') || profileForm.avatar.startsWith('data:')) ?
+                            <img src={profileForm.avatar} alt="Avatar" className="w-full h-full object-cover" /> :
                             profileForm.avatar || '🎓'}
                         </div>
-                        <input
-                          type="text"
-                          className="input-field flex-1"
-                          value={profileForm.avatar}
-                          onChange={e => setProfileForm(f => ({ ...f, avatar: e.target.value }))}
-                          placeholder="Paste an image URL or type an emoji"
-                        />
+                        <div className="flex flex-col gap-2">
+                          <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleAvatarUpload}
+                          />
+                          <div className="flex gap-2">
+                            <button type="button" onClick={() => avatarInputRef.current?.click()} className="btn-secondary text-sm py-2 px-4 flex items-center gap-2">
+                              <ArrowDownTrayIcon className="w-4 h-4 rotate-180" />
+                              Upload photo
+                            </button>
+                            {(profileForm.avatar.startsWith('http') || profileForm.avatar.startsWith('data:')) && (
+                              <button type="button" onClick={() => setProfileForm(f => ({ ...f, avatar: '🎓' }))} className="text-sm py-2 px-3 text-gray-400 hover:text-red-400 transition-colors">
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-gray-500">JPG/PNG from your device — or use an emoji/URL below.</p>
+                        </div>
                       </div>
+                      <input
+                        type="text"
+                        className="input-field w-full mt-3"
+                        value={profileForm.avatar}
+                        onChange={e => setProfileForm(f => ({ ...f, avatar: e.target.value }))}
+                        placeholder="…or paste an image URL or type an emoji 🎓"
+                      />
                     </div>
 
                     <div>
