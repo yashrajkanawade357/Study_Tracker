@@ -481,8 +481,12 @@ export const AppProvider = ({ children }) => {
     setPomodoroSessions(updated);
     storage.set(STORAGE_KEYS.POMODORO_SESSIONS, updated);
     
-    // Auto-log study hours
-    addStudyLog({ subject: session.subject, hours: 0.42, note: 'Pomodoro session', timestamp: new Date().toISOString() });
+    // Auto-log the ACTUAL focused time (in hours), not a fixed amount — so
+    // custom-length and partial sessions are recorded accurately.
+    const hours = Math.round(((session.duration || 0) / 3600) * 100) / 100;
+    if (hours > 0) {
+      addStudyLog({ subject: session.subject, hours, note: 'Pomodoro session', timestamp: new Date().toISOString() });
+    }
   }, [pomodoroSessions, addStudyLog]);
 
   const checkEmailExists = useCallback(async (email) => {

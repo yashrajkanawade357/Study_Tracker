@@ -342,6 +342,9 @@ const Pomodoro = () => {
     return () => clearInterval(intervalRef.current);
   }, [isRunning, mode, selectedSubject, focusMins, sessionCount]);
 
+  // Holds a pending stop action when there's un-logged focus time to confirm.
+  const [confirmLog, setConfirmLog] = useState(null); // { sec, after }
+
   const handleStart = () => {
     if (mode === 'focus' && !selectedSubject) {
       addToast('Please select a subject first', 'warning');
@@ -350,11 +353,24 @@ const Pomodoro = () => {
     setIsRunning(true);
   };
   const handlePause = () => setIsRunning(false);
-  const handleReset = () => {
+
+  // If the user stops a focus session early (≥1 min in, with a subject), ask
+  // whether to log the partial time before resetting/skipping.
+  const stopWithLogPrompt = (after) => {
+    const elapsed = totalDuration - timeLeft;
+    if (mode === 'focus' && selectedSubject && elapsed >= 60 && timeLeft < totalDuration) {
+      setIsRunning(false);
+      setConfirmLog({ sec: elapsed, after });
+    } else {
+      after();
+    }
+  };
+
+  const doReset = () => {
     setIsRunning(false);
     setTimeLeft(DURATIONS[mode]);
   };
-  const handleSkip = () => {
+  const doSkip = () => {
     setIsRunning(false);
     if (mode === 'focus') {
       setMode('shortBreak');
@@ -363,6 +379,22 @@ const Pomodoro = () => {
       setMode('focus');
       setTimeLeft(DURATIONS.focus);
     }
+  };
+  const handleReset = () => stopWithLogPrompt(doReset);
+  const handleSkip = () => stopWithLogPrompt(doSkip);
+
+  const confirmLogYes = () => {
+    if (!confirmLog) return;
+    addPomodoroSession({ subject: selectedSubject, duration: confirmLog.sec });
+    addToast(`✅ Logged ${Math.round(confirmLog.sec / 60)} min to ${selectedSubject}`, 'success');
+    const after = confirmLog.after;
+    setConfirmLog(null);
+    after?.();
+  };
+  const confirmLogNo = () => {
+    const after = confirmLog?.after;
+    setConfirmLog(null);
+    after?.();
   };
 
   const handleAddTask = () => {
@@ -831,6 +863,34 @@ const Pomodoro = () => {
           </>
         )}
       </div>
+
+      {/* Log-partial-time confirmation */}
+      <AnimatePresence>
+        {confirmLog && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="rounded-3xl p-6 max-w-sm w-full text-center"
+              style={{ background: '#150f2e', border: '1px solid #6d28d955', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}
+            >
+              <div className="text-4xl mb-3">⏱️</div>
+              <h3 className="text-lg font-bold text-white mb-1">Log this focus time?</h3>
+              <p className="text-sm text-gray-400 mb-5">
+                You focused for <span className="text-violet-300 font-bold">{Math.floor(confirmLog.sec / 60)}m {confirmLog.sec % 60}s</span> on {selectedSubject}. Want to log it before stopping?
+              </p>
+              <div className="flex gap-3">
+                <button onClick={confirmLogNo} className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-sm hover:bg-white/10 transition-colors">
+                  Discard
+                </button>
+                <button onClick={confirmLogYes} className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition-transform hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>
+                  Log {Math.round(confirmLog.sec / 60)} min
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 };
