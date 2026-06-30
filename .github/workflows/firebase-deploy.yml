@@ -1,0 +1,40 @@
+name: deploy-firebase
+
+# Auto-deploys the app to Firebase Hosting (vyora-3d282.web.app) on every
+# push to main — so the primary site stays in sync like the Vercel mirror.
+#
+# Setup (one time): add a repo secret named FIREBASE_SERVICE_ACCOUNT
+#   Firebase Console → Project settings (gear) → Service accounts →
+#     "Generate new private key" → download the JSON.
+#   GitHub repo → Settings → Secrets and variables → Actions → New secret
+#     Name:  FIREBASE_SERVICE_ACCOUNT
+#     Value: paste the ENTIRE contents of that JSON file.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Builds into dist/ using the committed .env + .env.firebase
+      # (Supabase URL + publishable key + AI proxy URL).
+      - run: npm run build:firebase
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: vyora-3d282
+          channelId: live
