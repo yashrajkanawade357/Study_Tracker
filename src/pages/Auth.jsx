@@ -14,13 +14,6 @@ const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim(
 const DEMO_EMAIL = 'demo@vyora.app';
 const DEMO_PASSWORD = 'VyoraDemo2026!';
 
-// ── Left pane data ────────────────────────────────────────────────
-const stats = [
-  { value: '500K+', label: 'Study Hours' },
-  { value: '95%',   label: 'Grade Boost' },
-  { value: '4.8★',  label: 'App Rating'  },
-];
-
 // ── GitHub SVG icon ───────────────────────────────────────────────
 const GithubIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -182,7 +175,7 @@ const Auth = () => {
         {/* Hero text */}
         <motion.div className="relative z-10" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
           <div className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/30 rounded-full px-4 py-1.5 text-xs text-purple-300 font-semibold mb-6 uppercase tracking-widest">
-            ✦ Trusted by 10,000+ Students
+            ✦ Your AI-powered study companion
           </div>
           <h1 className="text-4xl xl:text-5xl font-display font-bold text-white leading-tight mb-4">
             Study smarter,<br />
