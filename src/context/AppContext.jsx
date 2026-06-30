@@ -377,7 +377,13 @@ export const AppProvider = ({ children }) => {
   }, [sleepLogs]);
 
   const addExam = useCallback(async (exam) => {
-    const newExam = { id: Date.now().toString(), ...exam };
+    // Support one OR multiple subjects. We keep `subjects` (array) in app
+    // state and store a comma-joined `subject` string in the DB so no schema
+    // change is needed and old single-subject exams stay compatible.
+    const subjectsArr = (exam.subjects?.length ? exam.subjects : (exam.subject ? [exam.subject] : []))
+      .map(s => s.trim()).filter(Boolean);
+    const subjectStr = subjectsArr.join(', ');
+    const newExam = { id: Date.now().toString(), name: exam.name, date: exam.date, subject: subjectStr, subjects: subjectsArr };
     const updated = [...exams, newExam];
     setExams(updated);
     storage.set(STORAGE_KEYS.EXAMS, updated);
@@ -390,7 +396,7 @@ export const AppProvider = ({ children }) => {
           user_id: session.user.id,
           name: newExam.name,
           date: newExam.date,
-          subject: newExam.subject
+          subject: subjectStr
         }]);
       }
     }

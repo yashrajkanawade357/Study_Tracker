@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
 import { storage } from '../utils/storage';
+import { getExamSubjects } from '../utils/examReadiness';
 import {
   PlusIcon, TrashIcon, PencilIcon, Cog6ToothIcon,
   ArrowDownTrayIcon, ExclamationCircleIcon, CheckIcon
@@ -25,7 +26,7 @@ const Settings = () => {
 
   const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
   const [editingSubject, setEditingSubject] = useState(null);
-  const [newExam, setNewExam] = useState({ name: '', date: '', subject: '' });
+  const [newExam, setNewExam] = useState({ name: '', date: '', subjects: [] });
   const [apiKeys, setApiKeys] = useState({
     anthropic: storage.get('anthropicApiKey') || '',
     openai: storage.get('openaiApiKey') || '',
@@ -90,11 +91,18 @@ const Settings = () => {
   };
 
   const handleAddExam = () => {
-    if (!newExam.name || !newExam.date || !newExam.subject) { addToast('Fill in all exam fields', 'warning'); return; }
+    if (!newExam.name || !newExam.date || newExam.subjects.length === 0) {
+      addToast('Add a name, date, and at least one subject', 'warning'); return;
+    }
     addExam(newExam);
-    setNewExam({ name: '', date: '', subject: '' });
+    setNewExam({ name: '', date: '', subjects: [] });
     addToast(`✅ Exam "${newExam.name}" added`, 'success');
   };
+
+  const toggleExamSubject = (name) => setNewExam(v => ({
+    ...v,
+    subjects: v.subjects.includes(name) ? v.subjects.filter(n => n !== name) : [...v.subjects, name],
+  }));
 
   const handleSaveApiKey = (provider) => {
     const storageKeys = {
@@ -364,16 +372,28 @@ const Settings = () => {
                         onChange={e => setNewExam(v => ({ ...v, date: e.target.value }))}
                         min={new Date().toISOString().split('T')[0]}
                       />
-                      <select
-                        className="input-field col-span-2"
-                        value={newExam.subject}
-                        onChange={e => setNewExam(v => ({ ...v, subject: e.target.value }))}
-                      >
-                        <option value="">Select Subject...</option>
-                        {subjects.map(s => (
-                          <option key={s.id} value={s.name}>{s.name}</option>
-                        ))}
-                      </select>
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-400 mb-2">Subjects covered — pick one or more</p>
+                        <div className="flex flex-wrap gap-2">
+                          {subjects.map(s => {
+                            const sel = newExam.subjects.includes(s.name);
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => toggleExamSubject(s.name)}
+                                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${sel ? 'text-white border-transparent' : 'text-gray-300 border-white/10 hover:border-white/30'}`}
+                                style={sel ? { background: s.color } : {}}
+                              >
+                                {sel ? '✓ ' : ''}{s.name}
+                              </button>
+                            );
+                          })}
+                          {subjects.length === 0 && (
+                            <p className="text-gray-500 text-xs">Add subjects first in the Subjects tab.</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <button onClick={handleAddExam} className="btn-primary flex items-center gap-2">
                       <PlusIcon className="w-4 h-4" />
@@ -389,6 +409,18 @@ const Settings = () => {
                           <div>
                             <p className="text-sm font-semibold text-white">{exam.name}</p>
                             <p className="text-xs text-gray-500">{new Date(exam.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {getExamSubjects(exam).map(name => {
+                                const subj = subjects.find(s => s.name === name);
+                                const c = subj?.color || '#7c3aed';
+                                return (
+                                  <span key={name} className="text-[11px] px-2 py-0.5 rounded-full"
+                                    style={{ background: `${c}26`, color: c }}>
+                                    {name}
+                                  </span>
+                                );
+                              })}
+                            </div>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className={`text-sm font-bold px-3 py-1 rounded-full ${days < 0 ? 'bg-gray-800 text-gray-500' : days <= 3 ? 'bg-red-900/40 text-red-400' : days <= 7 ? 'bg-amber-900/40 text-amber-400' : 'bg-emerald-900/40 text-emerald-400'}`}>

@@ -5,12 +5,23 @@ const HOUR_MS = 1000 * 60 * 60;
 
 const logDate = (l) => (l.date ? new Date(`${l.date}T00:00`) : (l.timestamp ? new Date(l.timestamp) : null));
 
+// An exam can cover one OR several subjects. Newer exams may carry a
+// `subjects` array; older ones store a single (or comma-joined) `subject`
+// string. This normalises both into an array of subject names.
+export const getExamSubjects = (exam) =>
+  (Array.isArray(exam?.subjects) && exam.subjects.length
+    ? exam.subjects
+    : (exam?.subject ? String(exam.subject).split(',') : []))
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 export function computeExamReadiness(exam, studyLogs = [], subjects = []) {
   const now = new Date();
   const examDate = new Date(`${exam.date}T00:00`);
   const daysLeft = Math.ceil((examDate - now) / (HOUR_MS * 24));
 
-  const subjLogs = studyLogs.filter((l) => l.subject === exam.subject);
+  const examSubs = getExamSubjects(exam);
+  const subjLogs = studyLogs.filter((l) => examSubs.includes(l.subject));
   const studiedHours = subjLogs.reduce((s, l) => s + (l.hours || 0), 0);
 
   const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
@@ -18,8 +29,11 @@ export function computeExamReadiness(exam, studyLogs = [], subjects = []) {
     .filter((l) => { const d = logDate(l); return d && d >= weekAgo; })
     .reduce((s, l) => s + (l.hours || 0), 0);
 
-  const subject = subjects.find((s) => s.name === exam.subject);
-  const weeklyGoal = subject?.weeklyGoal || 5;
+  // Combined weekly goal across every subject the exam covers (default 5h each).
+  const weeklyGoal = examSubs.reduce((sum, name) => {
+    const subj = subjects.find((s) => s.name === name);
+    return sum + (subj?.weeklyGoal || 5);
+  }, 0) || 5;
 
   // "well prepared" target ≈ a month of the subject's weekly effort (min 12h)
   const target = Math.max(12, weeklyGoal * 4);
@@ -39,7 +53,7 @@ export function computeExamReadiness(exam, studyLogs = [], subjects = []) {
     ? 'Exam day — good luck! 🍀'
     : remaining <= 0
       ? "You've hit your target — keep revising to stay sharp."
-      : `Study ~${perDay.toFixed(1)}h/day on ${exam.subject} to be ready.`;
+      : `Study ~${perDay.toFixed(1)}h/day on ${examSubs.join(', ') || exam.subject} to be ready.`;
 
   return {
     daysLeft,
