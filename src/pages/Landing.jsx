@@ -1382,12 +1382,9 @@ const Landing = () => {
           style={{ background: 'rgba(6,6,18,0.8)', backdropFilter: 'blur(24px)', boxShadow: '0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 4px 16px rgba(124,58,237,0.5)' }}>
-                <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-                  <path d="M6 16L20 6V26L6 16Z" fill="white"/>
-                  <circle cx="22" cy="16" r="6" stroke="white" strokeWidth="3"/>
-                </svg>
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center"
+                style={{ boxShadow: '0 4px 16px rgba(124,58,237,0.5)' }}>
+                <img src="/logo.png" alt="Vyora" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-display font-bold tracking-tight">Vyora</span>
             </div>
