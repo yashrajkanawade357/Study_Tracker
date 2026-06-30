@@ -412,6 +412,25 @@ export const AppProvider = ({ children }) => {
     }
   }, [exams]);
 
+  const updateExam = useCallback(async (id, updates) => {
+    const subjectsArr = (updates.subjects?.length ? updates.subjects : (updates.subject ? [updates.subject] : []))
+      .map(s => s.trim()).filter(Boolean);
+    const subjectStr = subjectsArr.join(', ');
+    const updated = exams.map(e => e.id === id
+      ? { ...e, name: updates.name, date: updates.date, subject: subjectStr, subjects: subjectsArr }
+      : e);
+    setExams(updated);
+    storage.set(STORAGE_KEYS.EXAMS, updated);
+
+    if (isSupabaseConfigured()) {
+      await supabase.from('exams').update({
+        name: updates.name,
+        date: updates.date,
+        subject: subjectStr
+      }).eq('id', id);
+    }
+  }, [exams]);
+
   const addSubject = useCallback(async (subject) => {
     const newSubject = { id: Date.now().toString(), ...subject };
     const updated = [...subjects, newSubject];
@@ -813,7 +832,7 @@ export const AppProvider = ({ children }) => {
   const value = {
     studyLogs, subjects, sleepLogs, exams, achievements, userProfile, pomodoroSessions,
     toasts, isAuthenticated, authInitialized, isAdmin, isPasswordRecovery, currentStreak, currentXp,
-    addStudyLog, addSleepLog, addExam, removeExam,
+    addStudyLog, addSleepLog, addExam, removeExam, updateExam,
     addSubject, updateSubject, removeSubject,
     addPomodoroSession, checkAchievements, updateProfile: updateUserProfileStateAndStorage,
     login, logout, register, checkEmailExists, loginWithGithub, sendMagicLink,

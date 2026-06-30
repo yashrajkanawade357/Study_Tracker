@@ -19,7 +19,7 @@ const PRESET_COLORS = [
 const Settings = () => {
   const {
     subjects, addSubject, updateSubject, removeSubject,
-    exams, addExam, removeExam,
+    exams, addExam, removeExam, updateExam,
     exportData, clearAllData, addToast, reload,
     userProfile, updateProfile
   } = useApp();
@@ -27,6 +27,7 @@ const Settings = () => {
   const [newSubject, setNewSubject] = useState({ name: '', color: '#7c3aed', weeklyGoal: 5 });
   const [editingSubject, setEditingSubject] = useState(null);
   const [newExam, setNewExam] = useState({ name: '', date: '', subjects: [] });
+  const [editingExam, setEditingExam] = useState(null);
   const [apiKeys, setApiKeys] = useState({
     anthropic: storage.get('anthropicApiKey') || '',
     openai: storage.get('openaiApiKey') || '',
@@ -405,31 +406,45 @@ const Settings = () => {
                     {exams.map(exam => {
                       const days = Math.ceil((new Date(exam.date) - new Date()) / (1000 * 60 * 60 * 24));
                       return (
-                        <div key={exam.id} className="flex items-center justify-between p-4 rounded-xl bg-navy-800/30">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{exam.name}</p>
-                            <p className="text-xs text-gray-500">{new Date(exam.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {getExamSubjects(exam).map(name => {
-                                const subj = subjects.find(s => s.name === name);
-                                const c = subj?.color || '#7c3aed';
-                                return (
-                                  <span key={name} className="text-[11px] px-2 py-0.5 rounded-full"
-                                    style={{ background: `${c}26`, color: c }}>
-                                    {name}
-                                  </span>
-                                );
-                              })}
+                        <div key={exam.id} className="p-4 rounded-xl bg-navy-800/30">
+                          {editingExam === exam.id ? (
+                            <EditExamRow
+                              exam={exam}
+                              subjects={subjects}
+                              onSave={(updates) => { updateExam(exam.id, updates); setEditingExam(null); addToast('✅ Exam updated', 'success'); }}
+                              onCancel={() => setEditingExam(null)}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-semibold text-white">{exam.name}</p>
+                                <p className="text-xs text-gray-500">{new Date(exam.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <div className="flex flex-wrap gap-1 mt-1.5">
+                                  {getExamSubjects(exam).map(name => {
+                                    const subj = subjects.find(s => s.name === name);
+                                    const c = subj?.color || '#7c3aed';
+                                    return (
+                                      <span key={name} className="text-[11px] px-2 py-0.5 rounded-full"
+                                        style={{ background: `${c}26`, color: c }}>
+                                        {name}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-sm font-bold px-3 py-1 rounded-full ${days < 0 ? 'bg-gray-800 text-gray-500' : days <= 3 ? 'bg-red-900/40 text-red-400' : days <= 7 ? 'bg-amber-900/40 text-amber-400' : 'bg-emerald-900/40 text-emerald-400'}`}>
+                                  {days < 0 ? 'Past' : `${days}d`}
+                                </span>
+                                <button onClick={() => setEditingExam(exam.id)} className="text-gray-400 hover:text-purple-400 transition-colors p-1" title="Edit exam">
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => removeExam(exam.id)} className="text-gray-400 hover:text-red-400 transition-colors p-1" title="Delete exam">
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className={`text-sm font-bold px-3 py-1 rounded-full ${days < 0 ? 'bg-gray-800 text-gray-500' : days <= 3 ? 'bg-red-900/40 text-red-400' : days <= 7 ? 'bg-amber-900/40 text-amber-400' : 'bg-emerald-900/40 text-emerald-400'}`}>
-                              {days < 0 ? 'Past' : `${days}d`}
-                            </span>
-                            <button onClick={() => removeExam(exam.id)} className="text-gray-400 hover:text-red-400 transition-colors p-1">
-                              <TrashIcon className="w-4 h-4" />
-                            </button>
-                          </div>
+                          )}
                         </div>
                       );
                     })}
@@ -634,6 +649,44 @@ const EditSubjectRow = ({ subject, onSave, onCancel }) => {
       </div>
       <div className="flex gap-2">
         <button onClick={() => onSave({ name, color, weeklyGoal: goal })} className="btn-primary flex-1 text-sm py-2">Save</button>
+        <button onClick={onCancel} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
+      </div>
+    </div>
+  );
+};
+
+const EditExamRow = ({ exam, subjects, onSave, onCancel }) => {
+  const [name, setName] = useState(exam.name);
+  const [date, setDate] = useState(exam.date);
+  const [picked, setPicked] = useState(getExamSubjects(exam));
+
+  const toggle = (n) => setPicked(p => p.includes(n) ? p.filter(x => x !== n) : [...p, n]);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        <input type="text" className="input-field text-sm" value={name} onChange={e => setName(e.target.value)} placeholder="Exam name" />
+        <input type="date" className="input-field text-sm" value={date} onChange={e => setDate(e.target.value)} />
+      </div>
+      <div>
+        <p className="text-xs text-gray-400 mb-2">Subjects covered — pick one or more</p>
+        <div className="flex flex-wrap gap-2">
+          {subjects.map(s => {
+            const sel = picked.includes(s.name);
+            return (
+              <button key={s.id} type="button" onClick={() => toggle(s.name)}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${sel ? 'text-white border-transparent' : 'text-gray-300 border-white/10 hover:border-white/30'}`}
+                style={sel ? { background: s.color } : {}}>
+                {sel ? '✓ ' : ''}{s.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => { if (name && date && picked.length) onSave({ name, date, subjects: picked }); }}
+          className="btn-primary flex-1 text-sm py-2">Save</button>
         <button onClick={onCancel} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
       </div>
     </div>
