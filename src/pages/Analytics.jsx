@@ -90,6 +90,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 const Analytics = () => {
   const { studyLogs, subjects, sleepLogs, addSleepLog, addToast } = useApp();
   const [view, setView] = useState('weekly');
+  const [sleepRange, setSleepRange] = useState('weekly');
   const [sleepDate, setSleepDate] = useState(formatDate(new Date()));
   const [sleepHrs, setSleepHrs] = useState('');
   const [breakHrs, setBreakHrs] = useState('');
@@ -104,20 +105,29 @@ const Analytics = () => {
     ...subjects.reduce((acc, s) => ({ ...acc, [s.name]: d[s.name] || 0 }), {}),
   }));
 
-  // Sleep vs Study
+  // Sleep vs Study — respects its own 7d / 30d / 1y range.
   const sleepStudyData = useMemo(() => {
-    return getLast7Days().map(day => {
+    const range = sleepRange === 'weekly' ? getLast7Days() : sleepRange === 'monthly' ? getLast30Days() : getLast365Days();
+    return range.map(day => {
       const ds = formatDate(day);
       const studyH = studyLogs.filter(l => l.date === ds).reduce((s, l) => s + l.hours, 0);
       const sleepLog = sleepLogs.find(l => l.date === ds);
       return {
         label: formatDisplay(day),
+        // null (not 0) on un-logged days so the line shows real patterns and
+        // bridges gaps instead of crashing to zero.
         study: parseFloat(studyH.toFixed(1)),
-        sleep: sleepLog?.sleepHours || 0,
-        socialMedia: sleepLog?.breakHours || 0,
+        sleep: sleepLog ? sleepLog.sleepHours : null,
+        socialMedia: sleepLog ? (sleepLog.breakHours || 0) : null,
       };
     });
-  }, [studyLogs, sleepLogs]);
+  }, [studyLogs, sleepLogs, sleepRange]);
+
+  const sleepAvg = useMemo(() => {
+    const logged = sleepStudyData.filter(d => d.sleep != null);
+    if (!logged.length) return 0;
+    return +(logged.reduce((s, d) => s + d.sleep, 0) / logged.length).toFixed(1);
+  }, [sleepStudyData]);
 
   // Goal progress
   const goalProgress = useMemo(() => {
@@ -249,7 +259,26 @@ const Analytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sleep Logger */}
         <GlassCard className="p-5">
-          <h3 className="font-display font-bold text-white mb-4">😴 Sleep & Social Media Tracker</h3>
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+            <h3 className="font-display font-bold text-white">😴 Sleep & Social Media Tracker</h3>
+            <div className="flex gap-1 bg-navy-800/60 rounded-lg p-0.5">
+              {[['weekly', '7d'], ['monthly', '30d'], ['yearly', '1y']].map(([val, lbl]) => (
+                <button
+                  key={val}
+                  onClick={() => setSleepRange(val)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${sleepRange === val ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                >
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {sleepRange !== 'weekly' && (
+            <p className="text-xs text-gray-400 mb-3">
+              Avg sleep over this period: <span className="font-bold text-cyan-400">{sleepAvg}h</span>
+            </p>
+          )}
 
           {/* Log Form */}
           <div className="grid grid-cols-3 gap-2 mb-4">
@@ -263,13 +292,13 @@ const Analytics = () => {
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={sleepStudyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(124,58,237,0.1)" />
-              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={24} />
               <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: '11px', color: '#9ca3af' }} />
-              <Line type="monotone" dataKey="study" stroke="#7c3aed" strokeWidth={2} dot={false} name="Study" />
-              <Line type="monotone" dataKey="sleep" stroke="#06b6d4" strokeWidth={2} dot={false} name="Sleep" />
-              <Line type="monotone" dataKey="socialMedia" stroke="#ef4444" strokeWidth={2} dot={false} name="Social Media" />
+              <Line type="monotone" dataKey="study" stroke="#7c3aed" strokeWidth={2} dot={false} name="Study" connectNulls />
+              <Line type="monotone" dataKey="sleep" stroke="#06b6d4" strokeWidth={2} dot={false} name="Sleep" connectNulls />
+              <Line type="monotone" dataKey="socialMedia" stroke="#ef4444" strokeWidth={2} dot={false} name="Social Media" connectNulls />
             </LineChart>
           </ResponsiveContainer>
         </GlassCard>
