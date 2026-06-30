@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview", "--", "--port", "4173"],
       "port": 4173
+    },
+    {
+      "name": "trivion",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "backend.app:app", "--app-dir", "C:/Users/siddh/Downloads/Trivion", "--port", "8000"],
+      "port": 8000
     }
   ]
 }

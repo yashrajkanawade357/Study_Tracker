@@ -12,18 +12,36 @@ import Onboarding from './components/Onboarding';
 import Auth from './pages/Auth';
 import Landing from './pages/Landing';
 
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Analytics = lazy(() => import('./pages/Analytics'));
-const AISuggestions = lazy(() => import('./pages/AISuggestions'));
-const TimetableAnalyzer = lazy(() => import('./pages/TimetableAnalyzer'));
-const Achievements = lazy(() => import('./pages/Achievements'));
-const Pomodoro = lazy(() => import('./pages/Pomodoro'));
-const Settings = lazy(() => import('./pages/Settings'));
-const UserManual = lazy(() => import('./pages/UserManual'));
-const Calendar = lazy(() => import('./pages/Calendar'));
-const Tasks = lazy(() => import('./pages/Tasks'));
-const Summariser = lazy(() => import('./pages/Summariser'));
-const AdminGate = lazy(() => import('./components/AdminGate'));
+// Wrap React.lazy so a failed chunk load auto-recovers. After a new
+// deploy the old hashed chunk filenames vanish; a still-open tab trying to
+// load one would otherwise show a broken page. We reload once (guarded by a
+// sessionStorage flag so it can never loop) to pull the fresh files.
+const lazyWithReload = (importer) =>
+  lazy(() =>
+    importer()
+      .then((m) => { sessionStorage.removeItem('vyora-chunk-reloaded'); return m; })
+      .catch((err) => {
+        if (!sessionStorage.getItem('vyora-chunk-reloaded')) {
+          sessionStorage.setItem('vyora-chunk-reloaded', '1');
+          window.location.reload();
+          return new Promise(() => {}); // halt rendering until the reload happens
+        }
+        throw err; // already retried once — surface the real error
+      })
+  );
+
+const Dashboard = lazyWithReload(() => import('./pages/Dashboard'));
+const Analytics = lazyWithReload(() => import('./pages/Analytics'));
+const AISuggestions = lazyWithReload(() => import('./pages/AISuggestions'));
+const TimetableAnalyzer = lazyWithReload(() => import('./pages/TimetableAnalyzer'));
+const Achievements = lazyWithReload(() => import('./pages/Achievements'));
+const Pomodoro = lazyWithReload(() => import('./pages/Pomodoro'));
+const Settings = lazyWithReload(() => import('./pages/Settings'));
+const UserManual = lazyWithReload(() => import('./pages/UserManual'));
+const Calendar = lazyWithReload(() => import('./pages/Calendar'));
+const Tasks = lazyWithReload(() => import('./pages/Tasks'));
+const Summariser = lazyWithReload(() => import('./pages/Summariser'));
+const AdminGate = lazyWithReload(() => import('./components/AdminGate'));
 
 // Shown briefly while a route's chunk loads.
 const PageLoader = () => (
