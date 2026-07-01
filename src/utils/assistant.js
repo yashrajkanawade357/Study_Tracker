@@ -15,10 +15,13 @@ export function buildAssistantContext({ events = [], tasks = [], studyLogs = [],
   const nowTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
 
+  // Look ~10 weeks ahead so date-specific questions ("what's on July 20?") work
+  // even when recurring timetable classes fill the calendar. Capped so the
+  // prompt stays reasonable; a busy week is ~20+ events, so 250 ≈ 10-12 weeks.
   const upcomingEvents = events
     .filter((e) => e.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date) || (a.startTime || '').localeCompare(b.startTime || ''))
-    .slice(0, 25)
+    .slice(0, 250)
     .map((e) => ({ title: e.title, date: e.date, time: e.allDay ? 'all day' : (e.startTime || ''), category: e.category }));
 
   const openTasks = tasks
