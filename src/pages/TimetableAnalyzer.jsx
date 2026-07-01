@@ -125,7 +125,7 @@ const ScheduleGrid = ({ entries }) => {
 
 const TimetableAnalyzer = () => {
   const { studyLogs, subjects, addToast } = useApp();
-  const { addEvent } = useCalendar();
+  const { events, addEvent } = useCalendar();
   const [dragOver, setDragOver] = useState(false);
   const [parsedEntries, setParsedEntries] = useState([]);
   const [fileName, setFileName] = useState('');
@@ -182,16 +182,23 @@ const TimetableAnalyzer = () => {
     try {
       const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
       const today = format(new Date(), 'yyyy-MM-dd');
-      let count = 0;
+      // Skip sessions that already exist (same day + subject + start time), so
+      // re-importing to extend the range doesn't duplicate weeks already added.
+      const existing = new Set(events.map((ev) => `${ev.date}|${ev.title}|${ev.startTime || ''}`));
+      let count = 0, skipped = 0;
       for (let w = 0; w < weeks; w++) {
         for (const e of parsedEntries) {
           const idx = DAY_IDX[(e.day || '').toLowerCase()];
           if (idx === undefined) continue;
           const date = format(addDays(monday, idx + w * 7), 'yyyy-MM-dd');
           if (date < today) continue; // skip days already past this week
+          const startTime = e.startTime || `${String(e.start).padStart(2, '0')}:00`;
+          const key = `${date}|${e.subject}|${startTime}`;
+          if (existing.has(key)) { skipped++; continue; }
+          existing.add(key);
           await addEvent({
             title: e.subject, date, allDay: false,
-            startTime: e.startTime || `${String(e.start).padStart(2, '0')}:00`,
+            startTime,
             endTime: e.endTime || `${String(e.end).padStart(2, '0')}:00`,
             category: 'study', color: categoryColor('study'),
             notes: 'From timetable', reminderEmail: false, reminderAt: null,
@@ -199,7 +206,8 @@ const TimetableAnalyzer = () => {
           count++;
         }
       }
-      addToast(`📅 Added ${count} sessions to Smart Calendar (${weeks} week${weeks > 1 ? 's' : ''})`, 'success', 5000);
+      const extra = skipped ? ` · ${skipped} already there, skipped` : '';
+      addToast(`📅 Added ${count} sessions to Smart Calendar (${weeks} week${weeks > 1 ? 's' : ''})${extra}`, 'success', 5000);
     } finally {
       setAddingToCal(false);
     }
@@ -352,7 +360,7 @@ Make the timetable cover Monday-Friday primarily, with optional Saturday session
             <div className="flex items-center gap-2">
               <select value={weeks} onChange={(e) => setWeeks(parseInt(e.target.value))}
                 className="bg-navy-800 border border-navy-600 rounded-lg text-sm text-white px-2 py-2 focus:outline-none">
-                {[1, 2, 4].map((w) => <option key={w} value={w}>{w} week{w > 1 ? 's' : ''}</option>)}
+                {[1, 2, 4, 8, 12, 16].map((w) => <option key={w} value={w}>{w} week{w > 1 ? 's' : ''}{w === 12 ? ' (~3 mo)' : ''}</option>)}
               </select>
               <button onClick={addToCalendar} disabled={addingToCal}
                 className="btn-primary text-sm flex items-center gap-1.5 disabled:opacity-60"
