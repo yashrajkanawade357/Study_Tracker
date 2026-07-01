@@ -3,7 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import {
-  SparklesIcon, TrophyIcon, Cog6ToothIcon, BookOpenIcon, ArrowRightOnRectangleIcon, XMarkIcon
+  SparklesIcon, TrophyIcon, Cog6ToothIcon, BookOpenIcon, ArrowRightOnRectangleIcon, XMarkIcon,
+  CalendarDaysIcon, ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 const MobileMenu = ({ isOpen, onClose }) => {
@@ -63,6 +64,23 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <p className="text-xs text-purple-400 font-semibold">Level {level} • {xp} XP</p>
               </div>
             </div>
+
+            {/* App switch — Smart Calendar (only entry point on mobile) */}
+            <NavLink
+              to="/calendar"
+              onClick={onClose}
+              className="flex items-center gap-3 p-4 mb-4 rounded-2xl border border-cyan-500/30 bg-cyan-600/10 hover:bg-cyan-600/20 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #06b6d4, #06b6d4aa)' }}>
+                <CalendarDaysIcon className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider leading-none mb-1">Switch app</p>
+                <p className="text-sm font-semibold text-white leading-none">Smart Calendar</p>
+              </div>
+              <ChevronRightIcon className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            </NavLink>
 
             {/* Menu Links */}
             <div className="flex flex-col gap-2 mb-6">
