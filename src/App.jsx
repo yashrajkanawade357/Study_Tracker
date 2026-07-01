@@ -121,10 +121,9 @@ const AppRoutes = () => {
   );
 };
 
-// ── Temporary private-preview gate ───────────────────────────────────────────
-// Locks the whole site behind an access key shared with judges. To DISABLE
-// later: set ACCESS_KEY = '' (gate turns off entirely) or remove <SiteGate>.
-const ACCESS_KEY = 'VyoraJudge2026';
+// ── Private-preview gate (DISABLED) ──────────────────────────────────────────
+// Empty ACCESS_KEY = gate off; the site is fully open. Set a value to re-enable.
+const ACCESS_KEY = '';
 
 const SiteGate = ({ children }) => {
   const [unlocked, setUnlocked] = React.useState(() => {
